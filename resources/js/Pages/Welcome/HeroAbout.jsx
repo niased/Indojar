@@ -1,134 +1,340 @@
 // resources/js/Pages/Welcome/HeroAbout.jsx
-import React, { useState, useEffect } from 'react';
-import { ArrowRight, Radio } from 'lucide-react';
+
+import React, { useEffect, useState } from 'react';
+import { ArrowRight } from 'lucide-react';
+
+import img1 from '@/../images/ptindojar.jpg';
+import img2 from '@/../images/ptindojar2.jpg';
+import img3 from '@/../images/ptindojar3.jpg';
+
+const heroImages = [img1, img2, img3];
 
 export default function HeroAbout({ t }) {
-    // 3 Foto Latar Belakang Menara & Konstruksi (Slideshow dengan kejernihan optimal)
-    const heroImages = [
-        'https://images.unsplash.com/photo-1544725176-7c40e5f71c2e?q=80&w=1920&auto=format&fit=crop', // Konstruksi Menara
-        'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=1920&auto=format&fit=crop', // Telekomunikasi
-        'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?q=80&w=1920&auto=format&fit=crop', // Engineering
-    ];
-
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [current, setCurrent] = useState(0);
+    const [loaded, setLoaded] = useState(false);
+    const [paused, setPaused] = useState(false);
 
     useEffect(() => {
+        setTimeout(() => setLoaded(true), 100);
+    }, []);
+
+    useEffect(() => {
+        if (paused) return;
+
         const timer = setInterval(() => {
-            setCurrentImageIndex((prevIndex) => (prevIndex + 1) % heroImages.length);
-        }, 6000);
+            setCurrent((prev) => (prev + 1) % heroImages.length);
+        }, 7000);
+
         return () => clearInterval(timer);
-    }, [heroImages.length]);
+    }, [paused]);
 
     return (
         <div>
-            {/* LAPISAN 2: HERO SECTION (FULL WIDTH & FOTO LATAR BELAKANG JELAS) */}
-            <section className="relative w-full pt-32 pb-28 px-6 sm:px-12 lg:px-20 overflow-hidden bg-slate-950">
-                {/* Background Slideshow Foto dengan Opasitas Optimal (0.45 agar foto menara terlihat jelas) */}
-                {heroImages.map((img, idx) => (
-                    <div
-                        key={idx}
-                        className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${
-                            idx === currentImageIndex ? 'opacity-45 scale-105' : 'opacity-0 scale-100'
-                        }`}
-                        style={{ backgroundImage: `url(${img})`, transition: 'opacity 1.2s ease-in-out, transform 7s ease-out' }}
-                    />
-                ))}
+            <section
+                id="home"
+                onMouseEnter={() => setPaused(true)}
+                onMouseLeave={() => setPaused(false)}
+                className="relative min-h-[92vh] overflow-hidden bg-[#031a14] lg:min-h-[calc(100vh-80px)]"
+            >
+                {/* Background */}
+                <div className="absolute inset-0">
+                    {heroImages.map((image, index) => (
+                        <img
+                            key={index}
+                            src={image}
+                            alt="Telecommunication tower PT Indojar Mulia Abadi"
+                            className={`
+                                absolute inset-0 h-full w-full object-cover
+                                transition-all duration-[2000ms]
+                                ${index === current
+                                    ? 'scale-100 opacity-100'
+                                    : 'scale-[1.03] opacity-0'}
+                            `}
+                        />
+                    ))}
 
-                {/* Gradient Overlay Bernuansa Hijau Tua Indojar & Emas */}
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/85 to-[#064e3b]/60 dark:from-[#031812] dark:via-[#031812]/90 dark:to-[#064e3b]/50 pointer-events-none" />
+                    <div className="absolute inset-0 bg-[#031a14]/20" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#02140f]/95 via-[#03271c]/60 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#031a14]/80 to-transparent" />
+                </div>
 
-                <div className="relative z-10 max-w-7xl mx-auto">
-                    <div className="max-w-3xl">
-                        {/* Tulisan Slogan Building Connections */}
-                        <div className="inline-flex items-center gap-2 text-xs font-mono font-bold tracking-widest uppercase text-amber-400 bg-emerald-950/90 border border-amber-500/40 px-4 py-2 rounded-lg mb-6 backdrop-blur-md shadow-sm">
-                            <Radio className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-                            <span>BUILDING CONNECTIONS FOR A STRONGER TOMORROW</span>
-                        </div>
+                {/* Subtle grid */}
+                <div
+                    className="pointer-events-none absolute inset-0 opacity-[0.012]"
+                    style={{
+                        backgroundImage: `
+                            linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px)
+                        `,
+                        backgroundSize: '80px 80px',
+                    }}
+                />
 
-                        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.08]">
-                            PT INDOJAR MULIA ABADI
-                        </h1>
-                        <p className="text-lg sm:text-xl font-bold text-amber-400 mt-3 tracking-wide">
-                            Your Trusted Partner in Telecommunication Infrastructure
-                        </p>
+                {/* Content */}
+                <div className="relative z-10 flex min-h-[92vh] items-center lg:min-h-[calc(100vh-80px)]">
+                    <div className="w-full px-6 sm:px-10 lg:pl-[7.5vw] lg:pr-24">
+                        <div className="max-w-[650px]">
 
-                        <p className="mt-6 text-sm sm:text-base text-slate-200 leading-relaxed max-w-2xl font-normal">
-                            {t.hero.subtitle}
-                        </p>
-
-                        <div className="mt-10 flex flex-wrap items-center gap-4">
-                            <a
-                                href="#tentang"
-                                className="px-7 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-lg shadow-emerald-900/50 border border-emerald-400/30 flex items-center gap-2 cursor-pointer"
+                            {/* Eyebrow */}
+                            <div
+                                className={`
+                                    mb-6 flex items-center gap-4
+                                    transition-all duration-700
+                                    ${loaded
+                                        ? 'translate-y-0 opacity-100'
+                                        : 'translate-y-4 opacity-0'}
+                                `}
                             >
-                                <span>Learn More</span>
-                                <ArrowRight className="w-4 h-4 text-amber-300" />
-                            </a>
-                            <a
-                                href="#layanan"
-                                className="px-7 py-3.5 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all backdrop-blur-md cursor-pointer"
+                                <span className="h-px w-10 bg-amber-400" />
+
+                                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-amber-300 sm:text-xs">
+                                    Telecommunication Infrastructure
+                                </span>
+                            </div>
+
+                            {/* Title */}
+                            <h1
+                                className={`
+                                    transition-all duration-1000
+                                    ${loaded
+                                        ? 'translate-y-0 opacity-100'
+                                        : 'translate-y-8 opacity-0'}
+                                `}
                             >
-                                Our Services
-                            </a>
-                        </div>
-                    </div>
+                                <span className="block text-[3rem] font-extrabold leading-[.9] tracking-[-.045em] text-white sm:text-[4.3rem] lg:text-[5rem]">
+                                    PT INDOJAR
+                                </span>
 
-                    {/* Baris Statistik Tanpa Kotak AI */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 mt-24 pt-10 border-t border-white/15">
-                        <div className="space-y-1">
-                            <div className="text-xs font-mono font-bold text-amber-400 tracking-wider">SINCE 2014</div>
-                            <div className="text-base font-bold text-white">Supporting Mining Industry</div>
-                            <div className="text-xs text-slate-300">Fondasi awal rekayasa teknik dan konstruksi.</div>
-                        </div>
+                                <span className="mt-2 block text-[3rem] font-extrabold leading-[.9] tracking-[-.05em] text-emerald-400 sm:text-[4.3rem] lg:text-[5rem]">
+                                    MULIA ABADI
+                                </span>
+                            </h1>
 
-                        <div className="space-y-1">
-                            <div className="text-xs font-mono font-bold text-emerald-400 tracking-wider">SINCE 2021</div>
-                            <div className="text-base font-bold text-white">Telecommunication Expansion</div>
-                            <div className="text-xs text-slate-300">Fokus penuh pembangunan & pemeliharaan menara.</div>
-                        </div>
+                            {/* Tagline */}
+                            <p
+                                className={`
+                                    mt-7 max-w-[590px]
+                                    text-lg font-semibold leading-relaxed text-white
+                                    transition-all duration-700 delay-150
+                                    sm:text-xl lg:text-[1.35rem]
+                                    ${loaded
+                                        ? 'translate-y-0 opacity-100'
+                                        : 'translate-y-5 opacity-0'}
+                                `}
+                            >
+                                Your Trusted Partner in{' '}
+                                <span className="text-amber-300">
+                                    Telecommunication Infrastructure.
+                                </span>
+                            </p>
 
-                        <div className="space-y-1">
-                            <div className="text-xs font-mono font-bold text-sky-400 tracking-wider">RELIABLE TEAM</div>
-                            <div className="text-base font-bold text-white">Experienced Professionals</div>
-                            <div className="text-xs text-slate-300">Didukung puluhan tenaga ahli bersertifikasi K3.</div>
+                            {/* Description */}
+                            <p
+                                className={`
+                                    mt-4 max-w-[570px]
+                                    text-[13px] leading-6 text-white/65
+                                    transition-all duration-700 delay-300
+                                    sm:text-sm sm:leading-7
+                                    ${loaded
+                                        ? 'translate-y-0 opacity-100'
+                                        : 'translate-y-5 opacity-0'}
+                                `}
+                            >
+                                Established in 2014, PT Indojar Mulia Abadi
+                                expanded its support to the telecommunication
+                                industry in 2021, delivering reliable tower
+                                construction, maintenance, strengthening,
+                                and related infrastructure services.
+                            </p>
+
+                            {/* CTA */}
+                            <div
+                                className={`
+                                    mt-8 flex flex-wrap gap-3
+                                    transition-all duration-700 delay-500
+                                    ${loaded
+                                        ? 'translate-y-0 opacity-100'
+                                        : 'translate-y-5 opacity-0'}
+                                `}
+                            >
+                                <a
+                                    href="#tentang"
+                                    className="group inline-flex items-center gap-4 rounded-full bg-emerald-500 px-6 py-3.5 text-xs font-bold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:bg-emerald-400 sm:px-7 sm:text-sm"
+                                >
+                                    {t.hero.ctaProjects || 'Eksplorasi Proyek'}
+
+                                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15 transition-transform group-hover:translate-x-1">
+                                        <ArrowRight className="h-4 w-4" />
+                                    </span>
+                                </a>
+
+                                <a
+                                    href="#layanan"
+                                    className="group inline-flex items-center gap-3 rounded-full border border-white/25 bg-white/[0.04] px-6 py-3.5 text-xs font-bold text-white transition-all duration-300 hover:-translate-y-1 hover:border-amber-300/50 hover:bg-white/[0.08] sm:px-7 sm:text-sm"
+                                >
+                                    Our Services
+
+                                    <ArrowRight className="h-4 w-4 text-amber-300 transition-transform group-hover:translate-x-1" />
+                                </a>
+                            </div>
+
+                            {/* Highlights */}
+                            <div
+                                className={`
+                                    mt-11 max-w-[720px]
+                                    border-y border-white/[0.13] py-4
+                                    transition-all duration-700 delay-700
+                                    ${loaded
+                                        ? 'translate-y-0 opacity-100'
+                                        : 'translate-y-5 opacity-0'}
+                                `}
+                            >
+                                <div className="grid grid-cols-1 sm:grid-cols-3">
+
+                                    <Highlight
+                                        label="Since 2014"
+                                        text="Established Company"
+                                        color="text-amber-300"
+                                    />
+
+                                    <Highlight
+                                        label="Since 2021"
+                                        text="Telecommunication"
+                                        color="text-emerald-300"
+                                        border
+                                    />
+
+                                    <Highlight
+                                        label="Experience"
+                                        text="Reliable & Experienced Team"
+                                        color="text-white/45"
+                                        last
+                                    />
+
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
+
+                {/* Slide navigation */}
+                <div className="absolute right-6 top-1/2 z-20 hidden -translate-y-1/2 flex-col gap-5 lg:flex">
+                    {heroImages.map((_, index) => (
+                        <button
+                            key={index}
+                            type="button"
+                            onClick={() => setCurrent(index)}
+                            aria-label={`Go to slide ${index + 1}`}
+                            className="group flex items-center gap-3"
+                        >
+                            <span
+                                className={`
+                                    text-[9px] font-semibold tracking-widest
+                                    transition-colors
+                                    ${index === current
+                                        ? 'text-white'
+                                        : 'text-white/30 group-hover:text-white/70'}
+                                `}
+                            >
+                                0{index + 1}
+                            </span>
+
+                            <span
+                                className={`
+                                    transition-all duration-500
+                                    ${index === current
+                                        ? 'h-9 w-[2px] bg-amber-400'
+                                        : 'h-4 w-px bg-white/20'}
+                                `}
+                            />
+                        </button>
+                    ))}
+                </div>
+
+                {/* Progress */}
+                <div className="absolute bottom-0 left-0 z-30 h-[2px] w-full bg-white/[0.08]">
+                    <div
+                        key={current}
+                        className="h-full bg-amber-400"
+                        style={{
+                            animation: 'heroProgress 7s linear forwards',
+                        }}
+                    />
+                </div>
+
+                <style>{`
+                    @keyframes heroProgress {
+                        from { width: 0%; }
+                        to { width: 100%; }
+                    }
+                `}</style>
             </section>
 
-            {/* LAPISAN 3: ABOUT US (Desain Profesional Hijau & Emas) */}
-            <section id="tentang" className="py-24 px-6 sm:px-10 max-w-7xl mx-auto border-b border-slate-200 dark:border-slate-800/80">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                    <div className="lg:col-span-7 space-y-5">
-                        <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest block">
+            {/* About */}
+            <section
+                id="tentang"
+                className="mx-auto max-w-7xl border-b border-slate-200 px-6 py-24 sm:px-10 dark:border-slate-800/80"
+            >
+                <div className="grid items-center gap-12 lg:grid-cols-12">
+
+                    <div className="space-y-5 lg:col-span-7">
+                        <span className="block text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
                             {t.about.tag}
                         </span>
-                        <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+
+                        <h2 className="text-2xl font-extrabold leading-tight tracking-tight text-slate-900 dark:text-white sm:text-4xl">
                             {t.about.title}
                         </h2>
-                        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+
+                        <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-300 sm:text-sm">
                             {t.about.p1}
                         </p>
-                        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+
+                        <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-300 sm:text-sm">
                             {t.about.p2}
                         </p>
                     </div>
 
-                    {/* Kotak Quote Hijau Tua dengan Aksen Emas */}
                     <div className="lg:col-span-5">
-                        <div className="p-8 rounded-3xl bg-gradient-to-br from-[#064e3b] to-[#042f24] text-white border border-amber-500/30 shadow-xl relative overflow-hidden">
-                            <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-amber-500/15 rounded-full blur-2xl pointer-events-none" />
-                            <p className="text-sm sm:text-base font-medium italic leading-relaxed text-emerald-100">
-                                &ldquo;Supported by a reliable and experienced team, we have assisted dozens of companies in the construction, maintenance, and reparation of telecommunication towers and other additional equipment.&rdquo;
+                        <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-[#064e3b] to-[#042f24] p-8 text-white shadow-xl">
+                            <p className="text-sm font-medium italic leading-relaxed text-emerald-100 sm:text-base">
+                                &ldquo;Supported by a reliable and experienced team,
+                                we have assisted dozens of companies in the construction,
+                                maintenance, and reparation of telecommunication towers
+                                and other additional equipment.&rdquo;
                             </p>
-                            <div className="mt-6 pt-4 border-t border-emerald-600/50 flex items-center justify-between text-xs font-semibold text-amber-300">
+
+                            <div className="mt-6 flex justify-between border-t border-emerald-600/50 pt-4 text-xs font-semibold text-amber-300">
                                 <span>PT Indojar Mulia Abadi</span>
-                                <span>Core Values</span>
+                                <span>Our Experience</span>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </section>
+        </div>
+    );
+}
+
+function Highlight({ label, text, color, border, last }) {
+    return (
+        <div
+            className={`
+                py-2
+                ${border ? 'border-b border-white/10 sm:border-b-0 sm:border-r sm:px-5' : ''}
+                ${last ? 'sm:pl-5' : ''}
+                ${!border && !last ? 'sm:border-r sm:pr-5' : ''}
+            `}
+        >
+            <span className={`block text-[9px] font-bold uppercase tracking-[0.24em] ${color}`}>
+                {label}
+            </span>
+
+            <span className="mt-1 block text-xs font-semibold text-white sm:text-sm">
+                {text}
+            </span>
         </div>
     );
 }
