@@ -1,102 +1,218 @@
 // resources/js/Pages/Welcome/AboutWelcome.jsx
 
 import React from 'react';
+import aboutBackground from '@/../images/tentang.png';
 
 export default function AboutWelcome({ t }) {
     return (
         <section
             id="tentang"
-            className="
-                mx-auto
-                max-w-7xl
-                border-b
-                border-slate-200
-                px-6
-                py-24
-                sm:px-10
-                dark:border-slate-800
-            "
+            className="relative w-full overflow-hidden bg-[#05652f]"
         >
-            <div className="grid items-center gap-12 lg:grid-cols-12">
+            <div className="relative aspect-[16/9] w-full">
 
-                {/* About Text */}
-                <div className="lg:col-span-7">
+                {/* Background */}
+                <img
+                    src={aboutBackground}
+                    alt="Tentang PT Indojar Mulia Abadi"
+                    className="absolute inset-0 h-full w-full object-cover"
+                />
 
-                    <span
-                        className="
-                            text-xs
-                            font-semibold
-                            uppercase
-                            tracking-widest
-                            text-emerald-600
-                            dark:text-emerald-400
-                        "
-                    >
+
+                {/* =====================================================
+                    COMPANY TITLE
+                ===================================================== */}
+                <div className="
+                    absolute
+                    left-[59.5%]
+                    top-[27.5%]
+                    w-[35%]
+                ">
+                    <span className="
+                        block
+                        text-[clamp(7px,0.58vw,11px)]
+                        font-semibold
+                        uppercase
+                        tracking-[0.12em]
+                        text-[#075d35]
+                    ">
                         {t.about.tag}
                     </span>
 
-                    <h2
-                        className="
-                            mt-4
-                            font-heading
-                            text-3xl
-                            font-bold
-                            tracking-tight
-                            text-slate-900
-                            dark:text-white
-                            sm:text-4xl
-                        "
-                    >
-                        {t.about.title}
+                    <div className="
+                        mt-2
+                        h-[2px]
+                        w-10
+                        bg-[#c79b3b]
+                    " />
+
+                    <h2 className="
+                        mt-4
+                        font-heading
+                        text-[clamp(18px,2.65vw,46px)]
+                        font-semibold
+                        leading-[0.98]
+                        tracking-[-0.035em]
+                        text-[#075d35]
+                    ">
+                        PT INDOJAR
+                        <br />
+                        MULIA ABADI
                     </h2>
 
-                    <p className="mt-6 text-sm leading-7 text-slate-600 dark:text-slate-300">
-                        {t.about.p1}
+                    <p className="
+                        mt-4
+                        max-w-[520px]
+                        text-[clamp(8px,0.72vw,13px)]
+                        leading-[1.5]
+                        text-slate-600
+                    ">
+                        {t.about.title}
                     </p>
-
-                    <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
-                        {t.about.p2}
-                    </p>
-
                 </div>
 
-                {/* Company Statement */}
-                <div className="lg:col-span-5">
 
-                    <div className="
-                        rounded-3xl
-                        border
-                        border-emerald-900/20
-                        bg-[#064e3b]
-                        p-8
-                        text-white
-                        shadow-lg
+                {/* =====================================================
+                    HISTORY
+                ===================================================== */}
+                <div className="
+                    absolute
+                    left-[5.4%]
+                    top-[71%]
+                    w-[41.5%]
+                    max-w-[700px]
+                ">
+                    <span className="
+                        block
+                        text-[clamp(7px,0.58vw,11px)]
+                        font-bold
+                        uppercase
+                        tracking-[0.1em]
+                        text-amber-300
                     ">
-                        <p className="
-                            text-sm
-                            italic
-                            leading-7
-                            text-emerald-100
-                        ">
-                            &ldquo;Supported by a reliable and experienced team,
-                            we have assisted dozens of companies in the construction,
-                            maintenance, and reparation of telecommunication towers
-                            and other additional equipment.&rdquo;
-                        </p>
+                        Sejarah Perusahaan
+                    </span>
 
-                        <div className="
-                            mt-6
-                            border-t
-                            border-white/15
-                            pt-4
-                            text-xs
-                            font-semibold
-                            text-amber-300
-                        ">
-                            PT Indojar Mulia Abadi
-                        </div>
+                    <p className="
+                        mt-3
+                        text-[clamp(10px,1.05vw,18px)]
+                        font-normal
+                        leading-[1.6]
+                        tracking-[-0.005em]
+                        text-white
+                    ">
+                        PT. Indojar Mulia Abadi didirikan pada tahun
+                        2014 dan menjalankan kegiatan usaha yang
+                        mendukung industri pertambangan. Pada tahun
+                        2021, perusahaan mulai mendukung industri
+                        telekomunikasi.
+                    </p>
+                </div>
+
+
+                {/* =====================================================
+                    EXPERIENCE
+                ===================================================== */}
+                <div className="
+                    absolute
+                    left-[54.5%]
+                    top-[71%]
+                    w-[40.5%]
+                    max-w-[700px]
+                ">
+                    <span className="
+                        block
+                        text-[clamp(7px,0.58vw,11px)]
+                        font-bold
+                        uppercase
+                        tracking-[0.1em]
+                        text-amber-300
+                    ">
+                        Pengalaman
+                    </span>
+
+                    <p className="
+                        mt-3
+                        text-[clamp(10px,1.05vw,18px)]
+                        font-normal
+                        leading-[1.6]
+                        tracking-[-0.005em]
+                        text-white
+                    ">
+                        Didukung oleh tim yang andal dan berpengalaman,
+                        PT Indojar Mulia Abadi telah membantu berbagai
+                        perusahaan dalam pembangunan, pemeliharaan,
+                        dan perbaikan menara telekomunikasi serta
+                        peralatan pendukung lainnya.
+                    </p>
+                </div>
+
+
+                {/* =====================================================
+                    CENTER DIVIDER
+                ===================================================== */}
+                <div className="
+                    pointer-events-none
+                    absolute
+                    left-1/2
+                    top-[67%]
+                    bottom-[7%]
+                    -translate-x-1/2
+                ">
+                    <div className="
+                        relative
+                        h-full
+                        w-px
+                        bg-gradient-to-b
+                        from-transparent
+                        via-[#d5ad59]
+                        to-transparent
+                    ">
+
+                        {/* Top accent */}
+                        <span className="
+                            absolute
+                            left-1/2
+                            top-0
+                            h-2
+                            w-2
+                            -translate-x-1/2
+                            -translate-y-1/2
+                            rounded-full
+                            border
+                            border-[#d5ad59]
+                            bg-[#05652f]
+                        " />
+
+                        {/* Center accent */}
+                        <span className="
+                            absolute
+                            left-1/2
+                            top-1/2
+                            h-1.5
+                            w-1.5
+                            -translate-x-1/2
+                            -translate-y-1/2
+                            rounded-full
+                            bg-[#d5ad59]
+                        " />
+
+                        {/* Bottom accent */}
+                        <span className="
+                            absolute
+                            bottom-0
+                            left-1/2
+                            h-2
+                            w-2
+                            -translate-x-1/2
+                            translate-y-1/2
+                            rounded-full
+                            border
+                            border-[#d5ad59]
+                            bg-[#05652f]
+                        " />
+
                     </div>
-
                 </div>
 
             </div>

@@ -20,8 +20,8 @@ export function AppLogo({
             {/* Logo */}
             <div className="
                 flex
-                h-10
-                w-10
+                h-9
+                w-12
                 shrink-0
                 items-center
                 justify-center
