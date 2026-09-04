@@ -5,26 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class StockLog extends Model
+class ProjectProgress extends Model
 {
     use HasFactory;
 
     protected $guarded = ['id'];
 
     protected $casts = [
-        'qty_perubahan' => 'integer',
-        'qty_akhir'     => 'integer',
+        'tanggal_pekerjaan' => 'date',
+        'bobot_persen'      => 'float',
     ];
 
-    public function barang(): BelongsTo
+    public function project(): BelongsTo
     {
-        return $this->belongsTo(Barang::class);
-    }
-
-    public function gudang(): BelongsTo
-    {
-        return $this->belongsTo(Gudang::class);
+        return $this->belongsTo(Project::class);
     }
 
     public function user(): BelongsTo
@@ -32,8 +28,8 @@ class StockLog extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function transaksi(): BelongsTo
+    public function photos(): HasMany
     {
-        return $this->belongsTo(Transaksi::class);
+        return $this->hasMany(ProjectPhoto::class, 'progress_id');
     }
 }

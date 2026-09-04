@@ -1,84 +1,51 @@
 <?php
 
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\BarangController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\HistoryMovingController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\TransaksiController;
-use App\Http\Controllers\TransaksiBarangKeluarController;
+use App\Http\Controllers\ProjectController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return redirect()->route('login');
-})->name('welcome');
+// Redirect root ke Login
+Route::get('/', fn() => redirect()->route('login'))->name('welcome');
 
 Route::middleware(['auth'])->group(function () {
-    // DASHBOARD & LOKASI GUDANG
+    // 1. DASHBOARD UTAMA PT INDOJAR MULIA ABADI
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/home', fn() => redirect()->route('dashboard'))->name('home');
-    Route::prefix('gudang')->name('gudang.')->group(function () {
-        Route::post('/', [DashboardController::class, 'storeGudang'])->name('store');
-        Route::put('/{id}', [DashboardController::class, 'updateGudang'])->name('update');
-        Route::delete('/{id}', [DashboardController::class, 'destroyGudang'])->name('destroy');
-    });
 
-    // MASTER BARANG
-    Route::prefix('barang')->name('barang.')->controller(BarangController::class)->group(function () {
+    // 2. MASTER PROYEK, TAHAPAN PROGRESS & FOTO BAPUK
+    Route::prefix('project')->name('project.')->controller(ProjectController::class)->group(function () {
         Route::get('/', 'index')->name('index');
-        Route::get('/export', 'export')->name('export');
-        Route::post('/reset', 'reset')->name('reset');
-        Route::post('/bulk-delete', 'bulkDelete')->name('bulk-delete');
         Route::post('/', 'store')->name('store');
+        Route::get('/{id}', 'show')->name('show');
         Route::put('/{id}', 'update')->name('update');
         Route::delete('/{id}', 'destroy')->name('destroy');
+        Route::post('/{id}/progress', 'storeProgress')->name('progress.store');
+        Route::post('/{id}/photo', 'storePhoto')->name('photo.store');
+        Route::delete('/photo/{photoId}', 'destroyPhoto')->name('photo.destroy');
     });
 
-    // TRANSAKSI BARANG MASUK & GLOBAL
-    Route::prefix('transaksi')->name('transaksi.')->controller(TransaksiController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/export', 'export')->name('export');
-        Route::post('/reset', 'reset')->name('reset');
-        Route::post('/bulk-delete', 'bulkDelete')->name('bulk-delete');
-        Route::post('/', 'store')->name('store');
-        Route::post('/transfer', 'storeTransfer')->name('transfer.store');
-        Route::put('/{id}', 'update')->name('update');
-        Route::delete('/{id}', 'destroy')->name('destroy');
-    });
-
-    // TRANSAKSI BARANG KELUAR (OUTBOUND)
-    Route::prefix('transaksi-keluar')->name('transaksi.keluar.')->controller(TransaksiBarangKeluarController::class)->group(function () {
-        Route::post('/', 'store')->name('store');
-        Route::put('/{id}', 'update')->name('update');
-    });
-
-    // HISTORY MOVING (PELACAKAN MUTASI & RIWAYAT PERJALANAN BARANG)
-    Route::prefix('history-moving')->name('history-moving.')->controller(HistoryMovingController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/export', 'export')->name('export');
-    });
-
-    // LAPORAN BULANAN (REKONSILIASI STOK & BUKU JURNAL MUTASI)
+    // 3. LAPORAN REKAPITULASI PROYEK & SITE
     Route::prefix('laporan')->name('laporan.')->controller(LaporanController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/export', 'export')->name('export');
     });
 
-    // PROFILE
+    // 4. PROFIL PENGGUNA & ADMIN USER MANAGEMENT
     Route::prefix('profile')->name('profile.')->controller(ProfileController::class)->group(function () {
         Route::get('/', 'edit')->name('edit');
         Route::patch('/', 'update')->name('update');
         Route::delete('/', 'destroy')->name('destroy');
     });
 
-    // ADMIN USER MANAGEMENT
     Route::prefix('admin/users')->name('admin.users.')->controller(UserController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/', 'store')->name('store');
-        Route::post('/bulk-delete', 'bulkDelete')->name('bulk-delete');
         Route::put('/{user}', 'update')->name('update');
         Route::delete('/{user}', 'destroy')->name('destroy');
+        Route::post('/bulk-delete', 'bulkDelete')->name('bulk-delete');
     });
 });
 

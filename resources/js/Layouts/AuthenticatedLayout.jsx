@@ -1,10 +1,7 @@
 import { Link, usePage, router } from '@inertiajs/react';
 import { useState, useEffect, createContext, useContext } from 'react';
 
-// --- IMPORT LOGO COMPONENT ---
 import ApplicationLogo from '@/components/ApplicationLogo';
-
-// --- IMPORT KOMPONEN NOTIFIKASI, CONFIRM MODAL & LOADING ---
 import { Toast, ConfirmModal } from '@/components/ui/Notifikasi';
 import Loading from '@/components/ui/Loading';
 
@@ -17,9 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import {
     LayoutDashboard,
-    Package,
-    ArrowLeftRight,
-    History,
+    Briefcase,
     FileSpreadsheet,
     User as UserIcon,
     LogOut,
@@ -38,9 +33,7 @@ export const useConfirm = () => useContext(ConfirmContext);
 const ROUTE_FALLBACKS = {
     'dashboard': '/dashboard',
     'home': '/dashboard',
-    'barang.index': '/barang',
-    'transaksi.index': '/transaksi',
-    'history-moving.index': '/history-moving',
+    'project.index': '/project',
     'laporan.index': '/laporan',
     'admin.users.index': '/admin/users',
     'profile.edit': '/profile',
@@ -65,7 +58,6 @@ export default function AuthenticatedLayout({ header, children }) {
     const [isNavOpen, setIsNavOpen] = useState(true);
     const [isPageLoading, setIsPageLoading] = useState(false);
 
-    // Inertia Loading Listener
     useEffect(() => {
         const removeStartEventListener = router.on('start', () => setIsPageLoading(true));
         const removeFinishEventListener = router.on('finish', () => setIsPageLoading(false));
@@ -75,7 +67,6 @@ export default function AuthenticatedLayout({ header, children }) {
         };
     }, []);
 
-    // Toast State
     const [toastState, setToastState] = useState({
         isOpen: false,
         type: 'success',
@@ -84,7 +75,6 @@ export default function AuthenticatedLayout({ header, children }) {
         key: Date.now()
     });
 
-    // Confirm Modal State
     const [confirmState, setConfirmState] = useState({
         isOpen: false,
         title: '',
@@ -117,20 +107,18 @@ export default function AuthenticatedLayout({ header, children }) {
         });
     };
 
-    // Flash Notification Watcher
     useEffect(() => {
         const hasErrors = errors && Object.keys(errors).length > 0;
         if (flash?.success) {
             setToastState({ isOpen: true, type: 'success', title: 'BERHASIL', message: flash.success, key: Date.now() });
         } else if (flash?.error || hasErrors) {
-            const errorMsg = flash?.error || Object.values(errors)[0] || "Terjadi kesalahan pada sistem atau inputan Anda.";
+            const errorMsg = flash?.error || Object.values(errors)[0] || 'Terjadi kendala teknis pada sistem.';
             setToastState({ isOpen: true, type: 'error', title: 'GAGAL', message: errorMsg, key: Date.now() });
         } else if (flash?.info) {
             setToastState({ isOpen: true, type: 'info', title: 'INFORMASI', message: flash.info, key: Date.now() });
         }
     }, [flash, errors]);
 
-    // Active Route Check
     const checkActive = (routeName) => {
         try {
             if (typeof route !== 'undefined' && typeof route === 'function') {
@@ -144,7 +132,6 @@ export default function AuthenticatedLayout({ header, children }) {
         return false;
     };
 
-    // Dark Mode Theme Handler
     const [isDark, setIsDark] = useState(() => {
         if (typeof window !== 'undefined') {
             const savedTheme = localStorage.getItem('theme');
@@ -180,68 +167,24 @@ export default function AuthenticatedLayout({ header, children }) {
         <ConfirmContext.Provider value={confirm}>
             <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50/40 to-amber-50/20 dark:from-[#080d24] dark:via-[#0c1538] dark:to-[#060a1c] text-slate-900 dark:text-slate-100 font-sans selection:bg-amber-500 selection:text-slate-950 transition-colors duration-300 relative overflow-x-hidden">
                 
-                {/* BACKGROUND ANIMASI LOGISTIK */}
+                {/* Visual Grid Backdrop */}
                 <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-20 dark:opacity-25 print:hidden">
                     <div className="absolute inset-0 bg-[linear-gradient(to_right,#3b82f615_1px,transparent_1px),linear-gradient(to_bottom,#3b82f615_1px,transparent_1px)] bg-[size:48px_48px]" />
-                    
-                    <div className="absolute inset-x-0 bottom-36 h-48 flex items-end">
-                        <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 1200 200">
-                            <defs>
-                                <linearGradient id="lineGradPPL" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" stopColor="#2563eb" stopOpacity="0.8" />
-                                    <stop offset="50%" stopColor="#f59e0b" stopOpacity="0.9" />
-                                    <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.8" />
-                                </linearGradient>
-                            </defs>
-                            <path 
-                                d="M 0,150 Q 150,50 300,120 T 600,80 T 900,40 T 1200,100" 
-                                fill="none" 
-                                stroke="url(#lineGradPPL)" 
-                                strokeWidth="3.5"
-                                className="animate-pulse"
-                            />
-                            <path 
-                                d="M 0,150 Q 150,50 300,120 T 600,80 T 900,40 T 1200,100 L 1200,200 L 0,200 Z" 
-                                fill="url(#lineGradPPL)" 
-                                fillOpacity="0.08" 
-                            />
-                        </svg>
-                    </div>
-
-                    <div className="absolute bottom-0 left-0 right-0 h-48 flex items-end justify-between px-6">
-                        {[40, 65, 30, 85, 50, 90, 60, 35, 80, 55, 25, 75, 45, 70, 55, 85, 40, 80, 30, 90, 50, 65, 35, 75].map((height, i) => (
-                            <div 
-                                key={i} 
-                                className="w-3.5 bg-gradient-to-t from-blue-600/20 via-blue-500/35 to-amber-500/40 rounded-t-sm"
-                                style={{
-                                    height: `${height}%`,
-                                    animation: `pulse ${2 + (i % 3)}s ease-in-out infinite alternate`,
-                                    animationDelay: `${i * 0.12}s`
-                                }}
-                            />
-                        ))}
-                    </div>
                 </div>
 
                 <div className="absolute top-10 left-1/4 w-[600px] h-[600px] bg-blue-600/10 dark:bg-blue-600/15 rounded-full blur-[180px] pointer-events-none animate-pulse duration-1000 print:hidden" />
                 <div className="absolute top-1/3 right-10 w-[550px] h-[550px] bg-amber-500/10 dark:bg-amber-500/15 rounded-full blur-[190px] pointer-events-none print:hidden" />
 
-                {isPageLoading && <Loading message="Memproses Data Gudang..." />}
+                {isPageLoading && <Loading message="Memproses ...." />}
 
-                {/* NAVBAR & HEADER */}
+                {/* HEADER & TOP BAR */}
                 <header className="sticky top-0 z-50 w-full flex flex-col shadow-lg transition-all duration-300 relative group print:hidden">
-                    
-                    {/* TIER 1: Top Header Bar */}
                     <div className="relative z-50 h-16 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-white/10 flex justify-center w-full">
                         <div className="w-full max-w-screen-2xl px-6 sm:px-12 flex items-center justify-between h-full">
                             
-                            {/* Logo PPL & Breadcrumb */}
+                            {/* Logo & Breadcrumb */}
                             <div className="flex items-center gap-4">
-                                <Link 
-                                    href={getRoute('dashboard')} 
-                                    className="focus:outline-none transition-transform active:scale-95"
-                                    title="Panca Pilar Laksana"
-                                >
+                                <Link href={getRoute('dashboard')} className="focus:outline-none transition-transform active:scale-95">
                                     <ApplicationLogo />
                                 </Link>
 
@@ -260,7 +203,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 )}
                             </div>
 
-                            {/* Tools, Theme, Role & Profil Dropdown */}
+                            {/* User Bar & Action Tools */}
                             <div className="flex items-center gap-2 sm:gap-3">
                                 <button
                                     type="button"
@@ -292,29 +235,29 @@ export default function AuthenticatedLayout({ header, children }) {
                                             className="inline-flex items-center gap-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200/80 dark:border-white/10 px-3.5 py-2 text-sm font-semibold text-slate-800 dark:text-slate-200 transition duration-200 shadow-sm outline-none focus:ring-2 focus:ring-amber-500/40 hover:bg-slate-200/60 dark:hover:bg-slate-700/80 active:scale-98 cursor-pointer"
                                         >
                                             <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-600 to-amber-500 text-white flex items-center justify-center font-extrabold text-xs shadow-sm">
-                                                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                                                {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
                                             </div>
-                                            <span className="hidden sm:inline font-medium">{user?.name}</span>
+                                            <span className="hidden sm:inline font-medium">{user?.name || 'Admin Utama'}</span>
                                             <ChevronDown className="w-4 h-4 text-slate-400" />
                                         </button>
                                     </DropdownMenuTrigger>
 
                                     <DropdownMenuContent align="end" className="w-60 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl p-1.5 z-[60]">
                                         <div className="px-3 py-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl mb-1">
-                                            <p className="font-bold text-slate-900 dark:text-white text-sm">{user?.name}</p>
+                                            <p className="font-bold text-slate-900 dark:text-white text-sm">{user?.name || 'Admin Utama'}</p>
                                             <div className="mt-1 mb-1">
                                                 <span className={`inline-flex items-center px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-md border ${getRoleBadgeStyle(user?.role)}`}>
-                                                    {user?.role || 'User'}
+                                                    {user?.role || 'admin'}
                                                 </span>
                                             </div>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.email}</p>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.email || 'admin@indojar.com'}</p>
                                         </div>
 
                                         <DropdownMenuSeparator className="bg-slate-200 dark:bg-white/10 my-1" />
                                         
                                         <DropdownMenuItem className="p-0 focus:bg-transparent">
                                             <Link href={getRoute('profile.edit')} className="flex items-center gap-2.5 w-full px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors">
-                                                <UserIcon className="w-4 h-4 text-slate-400" /> Edit Profile
+                                                <UserIcon className="w-4 h-4 text-slate-400" /> Profil Pengguna
                                             </Link>
                                         </DropdownMenuItem>
 
@@ -337,7 +280,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
                     </div>
 
-                    {/* TIER 2: Main Navigation Menu (Dashboard, Master Barang, Transaksi Stok, History Moving, Laporan Bulanan) */}
+                    {/* TIER 2: Main Navigation Menu Proyek (Hanya 3 Menu Utama) */}
                     <div 
                         className={`hidden md:flex justify-center w-full transition-all duration-300 ease-in-out z-40 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 dark:from-slate-900 dark:via-blue-950 dark:to-slate-900 border-b border-blue-800/80 dark:border-blue-900/60 shadow-md ${
                             isNavOpen ? 'max-h-14 opacity-100 overflow-visible' : 'max-h-0 opacity-0 overflow-hidden'
@@ -345,7 +288,7 @@ export default function AuthenticatedLayout({ header, children }) {
                     >
                         <nav className="w-full max-w-screen-2xl px-6 sm:px-12 flex h-14 items-center gap-6 sm:gap-8">
                             
-                            {/* 1. DASHBOARD */}
+                            {/* 1. Dashboard Proyek */}
                             <Link
                                 href={getRoute('dashboard')}
                                 className={`flex items-center gap-2 px-1 h-full font-medium text-sm transition-all duration-200 outline-none border-b-[3px] ${
@@ -355,49 +298,23 @@ export default function AuthenticatedLayout({ header, children }) {
                                 }`}
                             >
                                 <LayoutDashboard className="w-4 h-4" />
-                                <span>Dashboard</span>
+                                <span>Dashboard Proyek</span>
                             </Link>
 
-                            {/* 2. MASTER BARANG */}
+                            {/* 2. Master Proyek & Site */}
                             <Link
-                                href={getRoute('barang.index')}
+                                href={getRoute('project.index')}
                                 className={`flex items-center gap-2 px-1 h-full font-medium text-sm transition-all duration-200 outline-none border-b-[3px] ${
-                                    checkActive('barang.index')
+                                    checkActive('project.index')
                                         ? 'border-amber-400 text-amber-300 font-bold'
                                         : 'border-transparent text-white/80 hover:text-white hover:border-white/50'
                                 }`}
                             >
-                                <Package className="w-4 h-4" />
-                                <span>Master Barang</span>
+                                <Briefcase className="w-4 h-4" />
+                                <span>Master Proyek & Site</span>
                             </Link>
 
-                            {/* 3. TRANSAKSI STOK */}
-                            <Link
-                                href={getRoute('transaksi.index')}
-                                className={`flex items-center gap-2 px-1 h-full font-medium text-sm transition-all duration-200 outline-none border-b-[3px] ${
-                                    checkActive('transaksi.index')
-                                        ? 'border-amber-400 text-amber-300 font-bold'
-                                        : 'border-transparent text-white/80 hover:text-white hover:border-white/50'
-                                }`}
-                            >
-                                <ArrowLeftRight className="w-4 h-4" />
-                                <span>Transaksi Stok</span>
-                            </Link>
-
-                            {/* 4. HISTORY MOVING */}
-                            <Link
-                                href={getRoute('history-moving.index')}
-                                className={`flex items-center gap-2 px-1 h-full font-medium text-sm transition-all duration-200 outline-none border-b-[3px] ${
-                                    checkActive('history-moving.index')
-                                        ? 'border-amber-400 text-amber-300 font-bold'
-                                        : 'border-transparent text-white/80 hover:text-white hover:border-white/50'
-                                }`}
-                            >
-                                <History className="w-4 h-4" />
-                                <span>History Moving</span>
-                            </Link>
-
-                            {/* 5. LAPORAN BULANAN */}
+                            {/* 3. Laporan Rekapitulasi */}
                             <Link
                                 href={getRoute('laporan.index')}
                                 className={`flex items-center gap-2 px-1 h-full font-medium text-sm transition-all duration-200 outline-none border-b-[3px] ${
@@ -407,13 +324,13 @@ export default function AuthenticatedLayout({ header, children }) {
                                 }`}
                             >
                                 <FileSpreadsheet className="w-4 h-4" />
-                                <span>Laporan Bulanan</span>
+                                <span>Laporan Rekapitulasi</span>
                             </Link>
 
                         </nav>
                     </div>
 
-                    {/* Floating Toggle Nav Button */}
+                    {/* Toggle Button */}
                     <button
                         type="button"
                         onClick={() => setIsNavOpen(!isNavOpen)}
@@ -429,61 +346,33 @@ export default function AuthenticatedLayout({ header, children }) {
                             <Link 
                                 href={getRoute('dashboard')} 
                                 className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                                    checkActive('dashboard') 
-                                        ? 'bg-blue-600 text-white shadow-sm' 
-                                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                    checkActive('dashboard') ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                                 }`}
                             >
-                                <LayoutDashboard className="w-4 h-4" /> Dashboard
+                                <LayoutDashboard className="w-4 h-4" /> Dashboard Proyek
                             </Link>
                             <Link 
-                                href={getRoute('barang.index')} 
+                                href={getRoute('project.index')} 
                                 className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                                    checkActive('barang.index') 
-                                        ? 'bg-blue-600 text-white shadow-sm' 
-                                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                    checkActive('project.index') ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                                 }`}
                             >
-                                <Package className="w-4 h-4" /> Master Barang
-                            </Link>
-                            <Link 
-                                href={getRoute('transaksi.index')} 
-                                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                                    checkActive('transaksi.index') 
-                                        ? 'bg-blue-600 text-white shadow-sm' 
-                                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                                }`}
-                            >
-                                <ArrowLeftRight className="w-4 h-4" /> Transaksi Stok
-                            </Link>
-                            <Link 
-                                href={getRoute('history-moving.index')} 
-                                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                                    checkActive('history-moving.index') 
-                                        ? 'bg-blue-600 text-white shadow-sm' 
-                                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                                }`}
-                            >
-                                <History className="w-4 h-4" /> History Moving
+                                <Briefcase className="w-4 h-4" /> Master Proyek & Site
                             </Link>
                             <Link 
                                 href={getRoute('laporan.index')} 
                                 className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                                    checkActive('laporan.index') 
-                                        ? 'bg-blue-600 text-white shadow-sm' 
-                                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                    checkActive('laporan.index') ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                                 }`}
                             >
-                                <FileSpreadsheet className="w-4 h-4" /> Laporan Bulanan
+                                <FileSpreadsheet className="w-4 h-4" /> Laporan Rekapitulasi
                             </Link>
 
                             {user?.role === 'admin' && (
                                 <Link 
                                     href={getRoute('admin.users.index')} 
                                     className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all border border-amber-500/30 ${
-                                        checkActive('admin.users.index') 
-                                            ? 'bg-amber-500 text-white shadow-sm' 
-                                            : 'text-amber-600 dark:text-amber-400 bg-amber-500/10 hover:bg-amber-500/20'
+                                        checkActive('admin.users.index') ? 'bg-amber-500 text-white shadow-sm' : 'text-amber-600 dark:text-amber-400 bg-amber-500/10 hover:bg-amber-500/20'
                                     }`}
                                 >
                                     <Shield className="w-4 h-4" /> Kelola User (Admin)
@@ -493,12 +382,12 @@ export default function AuthenticatedLayout({ header, children }) {
                     )}
                 </header>
 
-                {/* KONTEN UTAMA */}
+                {/* Konten Utama */}
                 <main className="max-w-7xl mx-auto w-full p-4 sm:p-8 relative z-10 pt-6">
                     {children}
                 </main>
 
-                {/* CONTAINER NOTIFIKASI TOAST */}
+                {/* Container Toast & Confirm */}
                 <div className="relative z-[99999]">
                     <Toast 
                         key={toastState.key} 
@@ -509,10 +398,6 @@ export default function AuthenticatedLayout({ header, children }) {
                         duration={4000} 
                         onClose={() => setToastState(prev => ({ ...prev, isOpen: false }))} 
                     />
-                </div>
-                
-                {/* CONTAINER CONFIRM MODAL */}
-                <div className="relative z-[99999]">
                     <ConfirmModal 
                         isOpen={confirmState.isOpen} 
                         title={confirmState.title} 

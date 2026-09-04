@@ -33,13 +33,13 @@ class User extends Authenticatable
         ];
     }
 
-    public function transaksis(): HasMany
+    public function projects(): HasMany
     {
-        return $this->hasMany(Transaksi::class, 'pic_user_id');
+        return $this->hasMany(Project::class, 'pic_user_id');
     }
 
-    public function stockLogs(): HasMany
+    public function progresses(): HasMany
     {
-        return $this->hasMany(StockLog::class);
+        return $this->hasMany(ProjectProgress::class);
     }
 }

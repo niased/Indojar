@@ -30,10 +30,10 @@ export function AppLogo({
             {/* BRAND TEXT */}
             <div className={showTextOnMobile ? "flex flex-col" : "hidden sm:flex flex-col"}>
                 <span className={cn("font-black text-base tracking-wider block leading-none", textClassName)}>
-                    PANCA PILAR LAKSANA
+                    PT INDOJAR MULIA ABADI
                 </span>
                 <span className="text-[10px] text-amber-500 font-bold tracking-[0.2em] uppercase mt-1 block">
-                    Warehouse Management
+                    Project Management
                 </span>
             </div>
         </div>

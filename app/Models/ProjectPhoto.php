@@ -6,23 +6,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Stok extends Model
+class ProjectPhoto extends Model
 {
     use HasFactory;
 
     protected $guarded = ['id'];
 
     protected $casts = [
-        'jumlah' => 'integer',
+        'tanggal_foto' => 'date',
     ];
 
-    public function barang(): BelongsTo
+    public function project(): BelongsTo
     {
-        return $this->belongsTo(Barang::class);
+        return $this->belongsTo(Project::class);
     }
 
-    public function gudang(): BelongsTo
+    public function progress(): BelongsTo
     {
-        return $this->belongsTo(Gudang::class);
+        return $this->belongsTo(ProjectProgress::class, 'progress_id');
     }
 }
