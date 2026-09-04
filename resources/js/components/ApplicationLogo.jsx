@@ -1,39 +1,69 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Boxes } from 'lucide-react';
-
-// Import asset langsung dari resources/images
 import defaultLogo from '../../images/indojar.png';
 
-export function AppLogo({ 
-    className, 
-    imageSrc = defaultLogo, 
-    showTextOnMobile = true, 
-    textClassName = 'text-slate-900 dark:text-white',
-    ...props 
+export function AppLogo({
+    className,
+    imageSrc = defaultLogo,
+    showTextOnMobile = true,
+    textClassName = 'text-white',
+    ...props
 }) {
     return (
-        <div className={cn('flex items-center gap-3 select-none', className)} {...props}>
-            {/* LOGO IMAGE */}
-            {imageSrc ? (
-                <img 
-                    src={imageSrc} 
-                    alt="Logo Panca Pilar Laksana" 
-                    className="w-10 h-10 object-contain"
-                />
-            ) : (
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-amber-500 flex items-center justify-center text-white">
-                    <Boxes className="w-5 h-5 text-amber-200" />
-                </div>
+        <div
+            className={cn(
+                'flex items-center gap-3 select-none',
+                className
             )}
+            {...props}
+        >
+            {/* Logo */}
+            <div className="
+                flex
+                h-10
+                w-10
+                shrink-0
+                items-center
+                justify-center
+                rounded-full
+                bg-transparent
+                p-1.5
+                ring-1
+                ring-white/20
+            ">
+                <img
+                    src={imageSrc}
+                    alt="Logo PT Indojar Mulia Abadi"
+                    className="h-full w-full object-contain"
+                />
+            </div>
 
-            {/* BRAND TEXT */}
-            <div className={showTextOnMobile ? "flex flex-col" : "hidden sm:flex flex-col"}>
-                <span className={cn("font-black text-base tracking-wider block leading-none", textClassName)}>
+            {/* Brand */}
+            <div
+                className={
+                    showTextOnMobile
+                        ? 'flex flex-col'
+                        : 'hidden flex-col sm:flex'
+                }
+            >
+                <span
+                    className={cn(
+                        'font-sans text-[12px] font-bold leading-tight tracking-[0.03em]',
+                        textClassName
+                    )}
+                >
                     PT INDOJAR MULIA ABADI
                 </span>
-                <span className="text-[10px] text-green-500 font-bold tracking-[0.2em] uppercase mt-1 block">
-                    Project Management
+
+                <span className="
+                    mt-1
+                    text-[8px]
+                    font-semibold
+                    uppercase
+                    tracking-[0.16em]
+                    text-emerald-300
+                ">
+                    Manajemen Proyek
                 </span>
             </div>
         </div>
