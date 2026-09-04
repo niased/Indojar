@@ -112,7 +112,7 @@ export default function AuthenticatedLayout({ header, children }) {
         if (flash?.success) {
             setToastState({ isOpen: true, type: 'success', title: 'BERHASIL', message: flash.success, key: Date.now() });
         } else if (flash?.error || hasErrors) {
-            const errorMsg = flash?.error || Object.values(errors)[0] || 'Terjadi kendala teknis pada sistem.';
+            const errorMsg = flash?.error || Object.values(errors)[0] || 'Terjadi kendala pada sistem.';
             setToastState({ isOpen: true, type: 'error', title: 'GAGAL', message: errorMsg, key: Date.now() });
         } else if (flash?.info) {
             setToastState({ isOpen: true, type: 'info', title: 'INFORMASI', message: flash.info, key: Date.now() });
@@ -155,9 +155,9 @@ export default function AuthenticatedLayout({ header, children }) {
     const getRoleBadgeStyle = (role) => {
         switch (role) {
             case 'admin':
-                return 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30';
+                return 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30';
             case 'staff':
-                return 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30';
+                return 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30';
             default:
                 return 'bg-slate-500/15 text-slate-600 dark:text-slate-400 border-slate-500/30';
         }
@@ -165,20 +165,42 @@ export default function AuthenticatedLayout({ header, children }) {
 
     return (
         <ConfirmContext.Provider value={confirm}>
-            <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50/40 to-amber-50/20 dark:from-[#080d24] dark:via-[#0c1538] dark:to-[#060a1c] text-slate-900 dark:text-slate-100 font-sans selection:bg-amber-500 selection:text-slate-950 transition-colors duration-300 relative overflow-x-hidden">
+            {/* BACKGROUND BIRU ELEGAN ASLI */}
+            <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50/40 to-amber-50/20 dark:from-[#080d24] dark:via-[#0c1538] dark:to-[#060a1c] text-slate-900 dark:text-slate-100 font-sans selection:bg-emerald-500 selection:text-slate-950 transition-colors duration-300 relative overflow-x-hidden">
                 
-                {/* Visual Grid Backdrop */}
+                {/* Backdrop Animasi Garis & Grid Biru Asli */}
                 <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-20 dark:opacity-25 print:hidden">
                     <div className="absolute inset-0 bg-[linear-gradient(to_right,#3b82f615_1px,transparent_1px),linear-gradient(to_bottom,#3b82f615_1px,transparent_1px)] bg-[size:48px_48px]" />
+                    
+                    <div className="absolute inset-x-0 bottom-36 h-48 flex items-end">
+                        <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 1200 200">
+                            <defs>
+                                <linearGradient id="lineGradBlue" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stopColor="#059669" stopOpacity="0.8" />
+                                    <stop offset="50%" stopColor="#f59e0b" stopOpacity="0.9" />
+                                    <stop offset="100%" stopColor="#2563eb" stopOpacity="0.8" />
+                                </linearGradient>
+                            </defs>
+                            <path 
+                                d="M 0,150 Q 150,50 300,120 T 600,80 T 900,40 T 1200,100" 
+                                fill="none" 
+                                stroke="url(#lineGradBlue)" 
+                                strokeWidth="3.5"
+                                className="animate-pulse"
+                            />
+                        </svg>
+                    </div>
                 </div>
 
                 <div className="absolute top-10 left-1/4 w-[600px] h-[600px] bg-blue-600/10 dark:bg-blue-600/15 rounded-full blur-[180px] pointer-events-none animate-pulse duration-1000 print:hidden" />
                 <div className="absolute top-1/3 right-10 w-[550px] h-[550px] bg-amber-500/10 dark:bg-amber-500/15 rounded-full blur-[190px] pointer-events-none print:hidden" />
 
-                {isPageLoading && <Loading message="Memproses ...." />}
+                {isPageLoading && <Loading message="Memproses Sistem PT Indojar Mulia Abadi..." />}
 
-                {/* HEADER & TOP BAR */}
+                {/* NAVBAR & HEADER */}
                 <header className="sticky top-0 z-50 w-full flex flex-col shadow-lg transition-all duration-300 relative group print:hidden">
+                    
+                    {/* TIER 1: Bar Putih / Dark Glass */}
                     <div className="relative z-50 h-16 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-white/10 flex justify-center w-full">
                         <div className="w-full max-w-screen-2xl px-6 sm:px-12 flex items-center justify-between h-full">
                             
@@ -191,7 +213,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 {header && (
                                     <div className="hidden md:flex items-center gap-2 ml-4 pl-5 border-l border-slate-200 dark:border-white/10">
                                         <nav aria-label="Breadcrumb" className="flex items-center text-xs text-slate-500 dark:text-slate-400 font-medium gap-2">
-                                            <Link href={getRoute('dashboard')} className="hover:text-blue-600 dark:hover:text-amber-400 transition-colors">
+                                            <Link href={getRoute('dashboard')} className="hover:text-emerald-600 dark:hover:text-amber-400 transition-colors">
                                                 Dashboard
                                             </Link>
                                             <span className="text-slate-300 dark:text-slate-600">/</span>
@@ -203,7 +225,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 )}
                             </div>
 
-                            {/* User Bar & Action Tools */}
+                            {/* Action Tools & Profil */}
                             <div className="flex items-center gap-2 sm:gap-3">
                                 <button
                                     type="button"
@@ -220,7 +242,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                         className={`hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all border ${
                                             checkActive('admin.users.index')
                                                 ? 'text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/30 shadow-sm'
-                                                : 'text-slate-600 dark:text-slate-300 border-transparent hover:text-blue-600 dark:hover:text-amber-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/60'
+                                                : 'text-slate-600 dark:text-slate-300 border-transparent hover:text-emerald-600 dark:hover:text-amber-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/60'
                                         }`}
                                     >
                                         <Shield className="w-4 h-4 text-amber-500" />
@@ -232,9 +254,9 @@ export default function AuthenticatedLayout({ header, children }) {
                                     <DropdownMenuTrigger asChild>
                                         <button
                                             type="button"
-                                            className="inline-flex items-center gap-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200/80 dark:border-white/10 px-3.5 py-2 text-sm font-semibold text-slate-800 dark:text-slate-200 transition duration-200 shadow-sm outline-none focus:ring-2 focus:ring-amber-500/40 hover:bg-slate-200/60 dark:hover:bg-slate-700/80 active:scale-98 cursor-pointer"
+                                            className="inline-flex items-center gap-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200/80 dark:border-white/10 px-3.5 py-2 text-sm font-semibold text-slate-800 dark:text-slate-200 transition duration-200 shadow-sm outline-none focus:ring-2 focus:ring-emerald-500/40 hover:bg-slate-200/60 dark:hover:bg-slate-700/80 active:scale-98 cursor-pointer"
                                         >
-                                            <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-600 to-amber-500 text-white flex items-center justify-center font-extrabold text-xs shadow-sm">
+                                            <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#064e3b] via-[#047857] to-[#10b981] text-white flex items-center justify-center font-extrabold text-xs shadow-sm">
                                                 {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
                                             </div>
                                             <span className="hidden sm:inline font-medium">{user?.name || 'Admin Utama'}</span>
@@ -280,9 +302,9 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
                     </div>
 
-                    {/* TIER 2: Main Navigation Menu Proyek (Hanya 3 Menu Utama) */}
+                    {/* TIER 2: NAVBAR KHUSUS HIJAU INDOJAR + AKSEN EMAS */}
                     <div 
-                        className={`hidden md:flex justify-center w-full transition-all duration-300 ease-in-out z-40 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 dark:from-slate-900 dark:via-blue-950 dark:to-slate-900 border-b border-blue-800/80 dark:border-blue-900/60 shadow-md ${
+                        className={`hidden md:flex justify-center w-full transition-all duration-300 ease-in-out z-40 bg-gradient-to-r from-[#064e3b] via-[#047857] to-[#064e3b] dark:from-[#03231a] dark:via-[#064232] dark:to-[#03231a] border-b border-emerald-800/80 dark:border-emerald-900/60 shadow-md ${
                             isNavOpen ? 'max-h-14 opacity-100 overflow-visible' : 'max-h-0 opacity-0 overflow-hidden'
                         }`}
                     >
@@ -335,7 +357,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         type="button"
                         onClick={() => setIsNavOpen(!isNavOpen)}
                         className="hidden md:flex absolute -bottom-3.5 left-1/2 -translate-x-1/2 z-50 w-7 h-7 rounded-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 items-center justify-center shadow-md opacity-0 group-hover:opacity-100 hover:scale-110 hover:border-amber-500 dark:hover:border-amber-500 hover:text-amber-500 dark:hover:text-amber-400 transition-all duration-300 cursor-pointer pointer-events-none group-hover:pointer-events-auto"
-                        title={isNavOpen ? "Sembunyikan Navigasi" : "Tampilkan Navigasi"}
+                        title={isNavOpen ? 'Sembunyikan Navigasi' : 'Tampilkan Navigasi'}
                     >
                         {isNavOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </button>
@@ -346,7 +368,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             <Link 
                                 href={getRoute('dashboard')} 
                                 className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                                    checkActive('dashboard') ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                    checkActive('dashboard') ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                                 }`}
                             >
                                 <LayoutDashboard className="w-4 h-4" /> Dashboard Proyek
@@ -354,7 +376,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             <Link 
                                 href={getRoute('project.index')} 
                                 className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                                    checkActive('project.index') ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                    checkActive('project.index') ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                                 }`}
                             >
                                 <Briefcase className="w-4 h-4" /> Master Proyek & Site
@@ -362,7 +384,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             <Link 
                                 href={getRoute('laporan.index')} 
                                 className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                                    checkActive('laporan.index') ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                    checkActive('laporan.index') ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                                 }`}
                             >
                                 <FileSpreadsheet className="w-4 h-4" /> Laporan Rekapitulasi
@@ -387,7 +409,7 @@ export default function AuthenticatedLayout({ header, children }) {
                     {children}
                 </main>
 
-                {/* Container Toast & Confirm */}
+                {/* Notifikasi Toast & Confirm Modal */}
                 <div className="relative z-[99999]">
                     <Toast 
                         key={toastState.key} 

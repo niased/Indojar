@@ -11,9 +11,9 @@ export default function GrafikBatangLogistik({ data = [] }) {
     };
 
     const legends = [
-        { key: 'MASUK', label: 'Masuk', color: 'bg-emerald-500', fill: '#10b981' },
-        { key: 'KELUAR', label: 'Keluar', color: 'bg-rose-500', fill: '#f43f5e' },
-        { key: 'TRANSFER', label: 'Transfer', color: 'bg-sky-500', fill: '#0284c7' },
+        { key: 'MASUK', label: 'Pondasi', color: 'bg-emerald-500', fill: '#10b981' },
+        { key: 'TRANSFER', label: 'Erection', color: 'bg-sky-500', fill: '#0284c7' },
+        { key: 'KELUAR', label: 'RFI / ATP', color: 'bg-rose-500', fill: '#f43f5e' },
     ];
 
     return (
@@ -23,7 +23,7 @@ export default function GrafikBatangLogistik({ data = [] }) {
                     <div className="flex items-center gap-2">
                         <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                         <CardTitle className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                            Tren Aktivitas Logistik Bulanan
+                            Tren Aktivitas Proyek Konstruksi Bulanan
                         </CardTitle>
                     </div>
                     <div className="flex items-center gap-3">
@@ -58,8 +58,8 @@ export default function GrafikBatangLogistik({ data = [] }) {
                                     const item = data[payload.index] || data.find((d) => d.name === payload.value);
                                     const activeLines = [];
                                     if (activeStatus.MASUK) activeLines.push({ val: item?.MASUK ?? 0, color: '#10b981' });
-                                    if (activeStatus.KELUAR) activeLines.push({ val: item?.KELUAR ?? 0, color: '#f43f5e' });
                                     if (activeStatus.TRANSFER) activeLines.push({ val: item?.TRANSFER ?? 0, color: '#0284c7' });
+                                    if (activeStatus.KELUAR) activeLines.push({ val: item?.KELUAR ?? 0, color: '#f43f5e' });
 
                                     return (
                                         <g transform={`translate(${x},${y})`}>
@@ -83,17 +83,17 @@ export default function GrafikBatangLogistik({ data = [] }) {
                                     const d = payload[0].payload;
                                     return (
                                         <div className="bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-xs shadow-xl">
-                                            <div className="font-bold border-b border-slate-800 pb-1 mb-2">{d.fullName || d.name} (Total: {d.total} Unit)</div>
-                                            {activeStatus.MASUK && <div className="text-emerald-400">Masuk: {d.MASUK || 0}</div>}
-                                            {activeStatus.KELUAR && <div className="text-rose-400">Keluar: {d.KELUAR || 0}</div>}
-                                            {activeStatus.TRANSFER && <div className="text-sky-400">Transfer: {d.TRANSFER || 0}</div>}
+                                            <div className="font-bold border-b border-slate-800 pb-1 mb-2">{d.fullName || d.name} (Total: {d.total} Site)</div>
+                                            {activeStatus.MASUK && <div className="text-emerald-400">Pondasi: {d.MASUK || 0} Site</div>}
+                                            {activeStatus.TRANSFER && <div className="text-sky-400">Erection: {d.TRANSFER || 0} Site</div>}
+                                            {activeStatus.KELUAR && <div className="text-rose-400">RFI / ATP: {d.KELUAR || 0} Site</div>}
                                         </div>
                                     );
                                 }}
                             />
-                            {activeStatus.MASUK && <Bar dataKey="MASUK" name="Masuk" fill="#10b981" radius={[4, 4, 0, 0]} />}
-                            {activeStatus.KELUAR && <Bar dataKey="KELUAR" name="Keluar" fill="#f43f5e" radius={[4, 4, 0, 0]} />}
-                            {activeStatus.TRANSFER && <Bar dataKey="TRANSFER" name="Transfer" fill="#0284c7" radius={[4, 4, 0, 0]} />}
+                            {activeStatus.MASUK && <Bar dataKey="MASUK" name="Pondasi" fill="#10b981" radius={[4, 4, 0, 0]} />}
+                            {activeStatus.TRANSFER && <Bar dataKey="TRANSFER" name="Erection" fill="#0284c7" radius={[4, 4, 0, 0]} />}
+                            {activeStatus.KELUAR && <Bar dataKey="KELUAR" name="RFI / ATP" fill="#f43f5e" radius={[4, 4, 0, 0]} />}
                         </BarChart>
                     </ResponsiveContainer>
                 </div>

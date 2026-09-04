@@ -7,44 +7,32 @@ export default function GrafikDonutDistribusi({ donutPenerimaan = {} }) {
     const { donutData, totalAll } = useMemo(() => {
         const raw = [
             { 
-                name: 'Pembelian', 
-                value: Number(donutPenerimaan['Pembelian'] || donutPenerimaan['PEMBELIAN'] || 0), 
+                name: 'Pondasi', 
+                value: Number(donutPenerimaan['Pondasi'] || donutPenerimaan['PONDASI'] || donutPenerimaan['Pembelian'] || 0), 
                 color: '#10b981', 
                 badgeClass: 'bg-emerald-500' 
             },
             { 
-                name: 'Peminjaman', 
-                value: Number(donutPenerimaan['Peminjaman'] || donutPenerimaan['PEMINJAMAN'] || 0), 
+                name: 'Erection', 
+                value: Number(donutPenerimaan['Erection'] || donutPenerimaan['ERECTION'] || donutPenerimaan['Peminjaman'] || 0), 
                 color: '#3b82f6', 
                 badgeClass: 'bg-blue-500' 
             },
             { 
-                name: 'Pengembalian', 
-                value: Number(donutPenerimaan['Pengembalian'] || donutPenerimaan['PENGEMBALIAN'] || 0), 
+                name: 'CME', 
+                value: Number(donutPenerimaan['CME'] || donutPenerimaan['cme'] || donutPenerimaan['Pengembalian'] || 0), 
                 color: '#f59e0b', 
                 badgeClass: 'bg-amber-500' 
             },
             { 
-                name: 'Proyek', 
-                value: Number(
-                    donutPenerimaan['Proyek'] || 
-                    donutPenerimaan['PROYEK'] || 
-                    donutPenerimaan['Barang ke Site'] || 
-                    donutPenerimaan['BARANG_KE_SITE'] || 
-                    0
-                ), 
+                name: 'RFI / ATP', 
+                value: Number(donutPenerimaan['RFI / ATP'] || donutPenerimaan['RFI'] || donutPenerimaan['ATP'] || donutPenerimaan['Proyek'] || 0), 
                 color: '#f43f5e', 
                 badgeClass: 'bg-rose-500' 
             },
             { 
-                name: 'Non Proyek', 
-                value: Number(
-                    donutPenerimaan['Non Proyek'] || 
-                    donutPenerimaan['NON_PROYEK'] || 
-                    donutPenerimaan['Pemakaian Internal'] || 
-                    donutPenerimaan['PEMAKAIAN_INTERNAL'] || 
-                    0
-                ), 
+                name: 'Selesai 100%', 
+                value: Number(donutPenerimaan['Selesai 100%'] || donutPenerimaan['COMPLETED'] || donutPenerimaan['Non Proyek'] || 0), 
                 color: '#8b5cf6', 
                 badgeClass: 'bg-purple-500' 
             },
@@ -66,7 +54,7 @@ export default function GrafikDonutDistribusi({ donutPenerimaan = {} }) {
                 <div className="flex items-center gap-2">
                     <PieChartIcon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                     <CardTitle className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                        Distribusi Mutasi Transaksi
+                        Distribusi Tahapan Proyek
                     </CardTitle>
                 </div>
             </CardHeader>
@@ -77,13 +65,13 @@ export default function GrafikDonutDistribusi({ donutPenerimaan = {} }) {
                             {totalAll.toLocaleString('id-ID')}
                         </span>
                         <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider mt-1">
-                            TOTAL UNIT
+                            TOTAL SITE
                         </span>
                     </div>
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                             <Pie 
-                                data={totalAll === 0 ? [{ name: 'Belum Ada Transaksi', value: 1, color: '#334155' }] : donutData}
+                                data={totalAll === 0 ? [{ name: 'Belum Ada Site', value: 1, color: '#334155' }] : donutData}
                                 cx="50%"
                                 cy="50%"
                                 innerRadius={58}
@@ -98,11 +86,12 @@ export default function GrafikDonutDistribusi({ donutPenerimaan = {} }) {
                             </Pie>
                             <Tooltip
                                 contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px', fontSize: '12px', color: '#f8fafc' }}
-                                formatter={(val, name) => [`${val.toLocaleString('id-ID')} Unit (${totalAll > 0 ? ((val / totalAll) * 100).toFixed(1) : 0}%)`, name]}
+                                formatter={(val, name) => [`${val.toLocaleString('id-ID')} Site (${totalAll > 0 ? ((val / totalAll) * 100).toFixed(1) : 0}%)`, name]}
                             />
                         </PieChart>
                     </ResponsiveContainer>
                 </div>
+
                 <div className="w-full grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/60">
                     {donutData.map((item, index) => (
                         <div 

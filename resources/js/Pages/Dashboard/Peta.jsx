@@ -6,23 +6,22 @@ import Tabel from '@/components/Tabel';
 import Map from '@/components/Map';
 import { MapPin, Plus, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { usePage, router } from '@inertiajs/react';
-import ModalGudang from './ModalGudang';
 import { useConfirm } from '@/Layouts/AuthenticatedLayout';
 
-const GUDANG_MAP_CONFIG = {
+const SITE_MAP_CONFIG = {
     ACTIVE: {
-        label: 'Gudang Aktif',
+        label: 'Site Proyek Aktif',
         color: '#2563eb',
         bg: 'rgba(37, 99, 235, 0.35)',
     }
 };
 
 const TABLE_COLUMNS = [
-    { key: 'kode_gudang', altKeys: ['kode_gudang', 'kode', 'code'], label: 'Kode Gudang' },
-    { key: 'nama_gudang', altKeys: ['nama_gudang', 'name', 'nama'], label: 'Nama Gudang' },
-    { key: 'lokasi', altKeys: ['lokasi', 'alamat', 'address'], label: 'Alamat / Lokasi' },
+    { key: 'kode_gudang', altKeys: ['site_id', 'kode_gudang'], label: 'Site ID' },
+    { key: 'nama_gudang', altKeys: ['site_name', 'nama_gudang'], label: 'Nama Site' },
+    { key: 'lokasi', altKeys: ['lokasi', 'alamat'], label: 'Spesifikasi & Wilayah' },
     { key: 'koordinat', label: 'Koordinat (Lat, Lng)' },
-    { key: 'total_qty', label: 'Total Stok Fisik' },
+    { key: 'total_qty', label: 'Progress Bobot (%)' },
 ];
 
 export default function PetaGudang({ mapData = [] }) {
@@ -32,12 +31,7 @@ export default function PetaGudang({ mapData = [] }) {
     const isAdmin = userRole === 'admin';
     const confirm = useConfirm();
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isEditMode, setIsEditMode] = useState(false);
-    const [selectedItem, setSelectedItem] = useState(null);
     const [selectedIds, setSelectedIds] = useState([]);
-
-    // Client-Side Pagination
     const [currentPage, setCurrentPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
     const [perPageInput, setPerPageInput] = useState(10);
@@ -64,20 +58,6 @@ export default function PetaGudang({ mapData = [] }) {
         setCurrentPage(1);
     };
 
-    const handleOpenAdd = () => {
-        if (!canWrite) return;
-        setIsEditMode(false);
-        setSelectedItem(null);
-        setIsModalOpen(true);
-    };
-
-    const handleOpenEdit = (gudang) => {
-        if (!canWrite || !gudang) return;
-        setIsEditMode(true);
-        setSelectedItem(gudang);
-        setIsModalOpen(true);
-    };
-
     const handleSelectAll = (checked) => {
         if (checked) {
             const allIds = mapData.map(item => getItemId(item)).filter(Boolean);
@@ -96,13 +76,13 @@ export default function PetaGudang({ mapData = [] }) {
     const handleDeleteSelected = () => {
         if (!isAdmin || selectedIds.length === 0) return;
         confirm({
-            title: 'Hapus Lokasi Gudang',
-            message: `Apakah Anda yakin ingin MENGHAPUS ${selectedIds.length} data lokasi gudang terpilih? Data yang dihapus tidak dapat dikembalikan.`,
+            title: 'Hapus Titik Proyek',
+            message: `Apakah Anda yakin ingin MENGHAPUS ${selectedIds.length} data site proyek terpilih?`,
             variant: 'danger',
-            confirmText: 'Ya, Hapus Data',
+            confirmText: 'Ya, Hapus',
             cancelText: 'Batal',
             onConfirm: () => {
-                router.post('/gudang/bulk-delete', { ids: selectedIds }, {
+                router.post('/project/bulk-delete', { ids: selectedIds }, {
                     preserveScroll: true,
                     onSuccess: () => setSelectedIds([])
                 });
@@ -132,35 +112,30 @@ export default function PetaGudang({ mapData = [] }) {
                                 {value || '-'}
                             </span>
                         );
-
                     case 'nama_gudang':
                         return (
                             <span className="font-semibold text-slate-800 dark:text-slate-200">
                                 {value || '-'}
                             </span>
                         );
-
                     case 'lokasi':
                         return (
                             <span className="text-slate-600 dark:text-slate-400 text-xs">
                                 {value || '-'}
                             </span>
                         );
-
                     case 'koordinat':
                         return (
                             <span className="font-mono text-slate-500 text-[11px]">
                                 {item.latitude && item.longitude ? `${Number(item.latitude).toFixed(4)}, ${Number(item.longitude).toFixed(4)}` : '-'}
                             </span>
                         );
-
                     case 'total_qty':
                         return (
-                            <span className="font-mono text-xs font-bold text-blue-600 dark:text-blue-400">
-                                {(item.total_qty || 0).toLocaleString('id-ID')} <span className="text-[10px] font-normal text-slate-400">Unit</span>
+                            <span className="font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                                {item.total_qty || 0}%
                             </span>
                         );
-
                     default:
                         return value !== undefined && value !== null && value !== '' ? String(value) : '-';
                 }
@@ -170,48 +145,45 @@ export default function PetaGudang({ mapData = [] }) {
 
     return (
         <Card className="bg-white/80 dark:bg-slate-900/60 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 rounded-2xl overflow-hidden shadow-sm flex flex-col">
-            {/* 1. Header Card Peta */}
             <CardHeader className="px-5 py-3.5 border-b border-slate-200/80 dark:border-slate-800/80 flex flex-row items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                     <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-600 dark:text-amber-400">
                         <MapPin className="h-4 w-4" />
                     </div>
                     <CardTitle className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-100">
-                        Peta Sebaran Gudang Logistik
+                        Peta Sebaran Lokasi Site Menara
                     </CardTitle>
                 </div>
                 <div className="flex items-center gap-3">
                     <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
-                        <strong className="text-blue-600 dark:text-amber-400 font-bold">{mapData.length}</strong> Lokasi Teridentifikasi
+                        <strong className="text-blue-600 dark:text-amber-400 font-bold">{mapData.length}</strong> Titik Site Teridentifikasi
                     </span>
                 </div>
             </CardHeader>
 
-            {/* 2. Peta Leaflet */}
             <CardContent className="p-0">
                 <div className="w-full h-[540px] relative border-b border-slate-200/80 dark:border-slate-800/80">
                     <Map
                         data={mapData}
                         statusKey="status"
-                        statusConfig={GUDANG_MAP_CONFIG}
+                        statusConfig={SITE_MAP_CONFIG}
                         height="h-[540px]"
                         getPopupData={(item, lat, lng) => ({
-                            title: item.nama_gudang || item.kode_gudang,
+                            title: `${item.kode_gudang || ''} - ${item.nama_gudang || ''}`,
                             details: [
-                                { label: 'Kode Gudang', value: item.kode_gudang || '-' },
-                                { label: 'Lokasi Area', value: item.lokasi || '-' },
-                                { label: 'Total Stok Fisik', value: `${(item.total_qty || 0).toLocaleString('id-ID')} Unit` },
+                                { label: 'Site ID', value: item.kode_gudang || '-' },
+                                { label: 'Spesifikasi / Wilayah', value: item.lokasi || '-' },
+                                { label: 'Progress Pekerjaan', value: `${item.total_qty || 0}%` },
                                 { label: 'Koordinat', value: `${Number(lat).toFixed(4)}, ${Number(lng).toFixed(4)}`, isMonospace: true }
                             ],
-                            statusText: 'GUDANG AKTIF'
+                            statusText: 'SITE PROYEK AKTIF'
                         })}
                     />
                 </div>
 
-                {/* 3. Sub-Header Tabel */}
                 <div className="px-5 py-2.5 bg-slate-50/50 dark:bg-slate-800/40 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                        Daftar Titik Gudang Operasional
+                        Daftar Titik Site Menara PT Indojar Mulia Abadi
                     </span>
                     <div className="flex items-center gap-2">
                         {isAdmin && selectedIds.length > 0 && (
@@ -230,17 +202,16 @@ export default function PetaGudang({ mapData = [] }) {
                             <Button 
                                 type="button"
                                 size="sm"
-                                onClick={handleOpenAdd}
+                                onClick={() => router.get('/project')}
                                 className="h-8 text-xs gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm transition-colors cursor-pointer"
                             >
                                 <Plus className="w-3.5 h-3.5" />
-                                <span>Tambah Data Baru</span>
+                                <span>Ke Master Proyek</span>
                             </Button>
                         )}
                     </div>
                 </div>
 
-                {/* 4. Tabel Rincian Stok */}
                 <div className="w-full [&>div]:border-0 [&>div]:rounded-none [&>div]:shadow-none border-b border-slate-200 dark:border-slate-800">
                     <Tabel
                         data={paginatedList}
@@ -248,14 +219,12 @@ export default function PetaGudang({ mapData = [] }) {
                         selectedIds={selectedIds}
                         onSelectAll={handleSelectAll}
                         onSelectRow={handleSelectRow}
-                        onEditRow={canWrite ? handleOpenEdit : undefined}
                         getItemId={getItemId}
                         getRowNumber={getRowNumber}
-                        emptyMessage="Belum ada data titik lokasi gudang terdaftar."
+                        emptyMessage="Belum ada data titik koordinat site menara terdaftar."
                     />
                 </div>
 
-                {/* 5. Pagination Footer */}
                 <div className="p-4 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500 bg-slate-50/50 dark:bg-slate-900/50">
                     <div className="flex items-center gap-2">
                         <span>Tampilkan</span>
@@ -280,9 +249,11 @@ export default function PetaGudang({ mapData = [] }) {
                         />
                         <span>data per halaman</span>
                     </div>
+
                     <div className="text-slate-500">
-                        Menampilkan <span className="font-semibold text-slate-700 dark:text-slate-300">{fromIndex}</span> - <span className="font-semibold text-slate-700 dark:text-slate-300">{toIndex}</span> dari <span className="font-semibold text-slate-700 dark:text-slate-300">{totalData}</span> data
+                        Menampilkan <span className="font-semibold text-slate-700 dark:text-slate-300">{fromIndex}</span> - <span className="font-semibold text-slate-700 dark:text-slate-300">{toIndex}</span> dari <span className="font-semibold text-slate-700 dark:text-slate-300">{totalData}</span> site
                     </div>
+
                     <div className="flex items-center gap-1">
                         <Button
                             type="button"
@@ -323,14 +294,6 @@ export default function PetaGudang({ mapData = [] }) {
                     </div>
                 </div>
             </CardContent>
-
-            {/* Modal Tambah/Edit Lokasi Gudang */}
-            <ModalGudang
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                isEditMode={isEditMode}
-                selectedItem={selectedItem}
-            />
         </Card>
     );
 }

@@ -6,6 +6,7 @@ use App\Models\Project;
 use App\Models\ProjectPhoto;
 use App\Models\ProjectProgress;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -14,53 +15,105 @@ class ProjectController extends Controller
 {
     public function index(Request $request): Response
     {
-        $search  = $request->input('search');
-        $status  = $request->input('status', 'ALL');
-        $wilayah = $request->input('wilayah', 'ALL');
+        $search   = $request->input('search');
+        $perPage  = (int) $request->input('per_page', 10);
+        $rawOrder = strtolower((string) $request->input('order', 'desc'));
+        $order    = in_array($rawOrder, ['asc', 'desc'], true) ? $rawOrder : 'desc';
 
-        $query = Project::with(['picUser'])->latest();
+        $query = Project::with(['picUser']);
 
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('site_id', 'like', "%{$search}%")
                   ->orWhere('site_name', 'like', "%{$search}%")
                   ->orWhere('pid', 'like', "%{$search}%")
-                  ->orWhere('project_code', 'like', "%{$search}%");
+                  ->orWhere('project_code', 'like', "%{$search}%")
+                  ->orWhere('wilayah', 'like', "%{$search}%")
+                  ->orWhere('client_name', 'like', "%{$search}%");
             });
         }
 
-        if ($status && $status !== 'ALL') {
-            $query->where('status', $status);
-        }
+        $projects = $query->orderBy('id', $order)
+            ->paginate($perPage)
+            ->withQueryString();
 
-        if ($wilayah && $wilayah !== 'ALL') {
-            $query->where('wilayah', $wilayah);
-        }
+        $existingOptions = [
+            'tipeTowerList'   => Project::whereNotNull('tipe_tower')->distinct()->pluck('tipe_tower')->values(),
+            'tinggiTowerList' => Project::whereNotNull('tinggi_tower')->distinct()->pluck('tinggi_tower')->values(),
+            'wilayahList'     => Project::whereNotNull('wilayah')->distinct()->pluck('wilayah')->values(),
+            'clientList'      => Project::whereNotNull('client_name')->distinct()->pluck('client_name')->values(),
+            'konsultanList'   => Project::whereNotNull('konsultan')->distinct()->pluck('konsultan')->values(),
+        ];
 
         return Inertia::render('Project/Index', [
-            'projects' => $query->paginate(10)->withQueryString(),
-            'filters'  => [
-                'search'  => $search ?? '',
-                'status'  => $status,
-                'wilayah' => $wilayah,
+            'projects'        => $projects,
+            'existingOptions' => $existingOptions,
+            'filters'         => [
+                'search'   => $search ?? '',
+                'order'    => $order,
+                'per_page' => $perPage,
             ],
-            'wilayahList' => Project::whereNotNull('wilayah')->distinct()->pluck('wilayah')->values(),
         ]);
     }
 
     public function store(Request $request)
     {
+        // Mendukung Multi-Baris dari Modal / Paste Excel
+        if ($request->has('items') && is_array($request->items)) {
+            $validated = $request->validate([
+                'items'                     => 'required|array|min:1',
+                'items.*.site_id'           => 'required|string|max:100',
+                'items.*.site_name'         => 'required|string|max:255',
+                'items.*.pid'               => 'nullable|string|max:100',
+                'items.*.tipe_tower'        => 'nullable|string|max:100',
+                'items.*.tinggi_tower'      => 'nullable|string|max:50',
+                'items.*.wilayah'           => 'nullable|string|max:100',
+                'items.*.client_name'       => 'nullable|string|max:255',
+                'items.*.konsultan'         => 'nullable|string|max:255',
+                'items.*.target_rfi_date'   => 'nullable|date',
+                'items.*.status'            => 'nullable|string',
+            ]);
+
+            DB::transaction(function () use ($validated, $request) {
+                $lastCount = Project::count();
+                foreach ($validated['items'] as $item) {
+                    $lastCount++;
+                    $projectCode = 'PRJ-IMA-' . date('Y') . '-' . str_pad($lastCount, 3, '0', STR_PAD_LEFT);
+
+                    Project::create([
+                        'project_code'     => $projectCode,
+                        'site_id'          => strtoupper(trim($item['site_id'])),
+                        'site_name'        => strtoupper(trim($item['site_name'])),
+                        'pid'              => !empty($item['pid']) ? trim($item['pid']) : null,
+                        'tipe_tower'       => $item['tipe_tower'] ?: 'SST 4 LEGS',
+                        'tinggi_tower'     => $item['tinggi_tower'] ?: '52M',
+                        'wilayah'          => !empty($item['wilayah']) ? trim($item['wilayah']) : null,
+                        'client_name'      => $item['client_name'] ?: 'Telkomsel / Mitratel',
+                        'kontraktor'       => 'PT. INDOJAR MULIA ABADI',
+                        'konsultan'        => $item['konsultan'] ?: 'PT. ATRYA REKAYASA',
+                        'target_rfi_date'  => $item['target_rfi_date'] ?: null,
+                        'status'           => $item['status'] ?: 'PLANNING',
+                        'progress_percent' => 0,
+                        'pic_user_id'      => $request->user()->id,
+                    ]);
+                }
+            });
+
+            return redirect()->back()->with('success', count($validated['items']) . ' Site Proyek berhasil ditambahkan.');
+        }
+
+        // Single Insert
         $validated = $request->validate([
-            'pid'              => 'nullable|string|max:100',
             'site_id'          => 'required|string|max:100',
             'site_name'        => 'required|string|max:255',
+            'pid'              => 'nullable|string|max:100',
+            'tipe_tower'       => 'nullable|string|max:100',
+            'tinggi_tower'     => 'nullable|string|max:50',
+            'wilayah'          => 'nullable|string|max:100',
             'client_name'      => 'nullable|string|max:255',
             'konsultan'        => 'nullable|string|max:255',
-            'tipe_tower'       => 'required|string|max:100',
-            'tinggi_tower'     => 'required|string|max:50',
-            'wilayah'          => 'nullable|string|max:100',
-            'alamat_site'      => 'nullable|string|max:500',
             'lat_long'         => 'nullable|string|max:100',
+            'alamat_site'      => 'nullable|string|max:500',
             'spk_date'         => 'nullable|date',
             'target_rfi_date'  => 'nullable|date',
             'status'           => 'required|string',
@@ -75,20 +128,7 @@ class ProjectController extends Controller
 
         Project::create($validated);
 
-        return redirect()->back()->with('success', 'Master Proyek baru PT Indojar Mulia Abadi berhasil ditambahkan.');
-    }
-
-    public function show(int $id): Response
-    {
-        $project = Project::with([
-            'picUser', 
-            'progresses.user', 
-            'photos'
-        ])->findOrFail($id);
-
-        return Inertia::render('Project/Show', [
-            'project' => $project
-        ]);
+        return redirect()->back()->with('success', 'Master Proyek berhasil ditambahkan.');
     }
 
     public function update(Request $request, int $id)
@@ -96,16 +136,16 @@ class ProjectController extends Controller
         $project = Project::findOrFail($id);
 
         $validated = $request->validate([
-            'pid'              => 'nullable|string|max:100',
             'site_id'          => 'required|string|max:100',
             'site_name'        => 'required|string|max:255',
+            'pid'              => 'nullable|string|max:100',
+            'tipe_tower'       => 'nullable|string|max:100',
+            'tinggi_tower'     => 'nullable|string|max:50',
+            'wilayah'          => 'nullable|string|max:100',
             'client_name'      => 'nullable|string|max:255',
             'konsultan'        => 'nullable|string|max:255',
-            'tipe_tower'       => 'required|string|max:100',
-            'tinggi_tower'     => 'required|string|max:50',
-            'wilayah'          => 'nullable|string|max:100',
-            'alamat_site'      => 'nullable|string|max:500',
             'lat_long'         => 'nullable|string|max:100',
+            'alamat_site'      => 'nullable|string|max:500',
             'spk_date'         => 'nullable|date',
             'target_rfi_date'  => 'nullable|date',
             'status'           => 'required|string',
@@ -123,71 +163,44 @@ class ProjectController extends Controller
         $project = Project::findOrFail($id);
         $project->delete();
 
-        return redirect()->back()->with('success', 'Proyek berhasil dihapus.');
+        return redirect()->back()->with('success', 'Site proyek berhasil dihapus.');
     }
 
-    public function storeProgress(Request $request, int $projectId)
+    public function bulkDelete(Request $request)
     {
-        $project = Project::findOrFail($projectId);
-
-        $validated = $request->validate([
-            'tahap'             => 'required|string|in:PONDASI,ERECTION,CME,RFI,ATP',
-            'item_pekerjaan'    => 'required|string|max:255',
-            'tanggal_pekerjaan' => 'required|date',
-            'bobot_persen'      => 'required|numeric|between:0,100',
-            'keterangan'        => 'nullable|string|max:1000',
-        ]);
-
-        $validated['project_id'] = $project->id;
-        $validated['user_id']    = $request->user()->id;
-
-        ProjectProgress::create($validated);
-
-        // Update persentase dan status utama proyek
-        $totalProgress = min(100, (float) $project->progresses()->sum('bobot_persen') + $validated['bobot_persen']);
-        $project->update([
-            'progress_percent' => $totalProgress,
-            'status'           => $validated['tahap'],
-        ]);
-
-        return redirect()->back()->with('success', 'Progress pekerjaan lapangan berhasil ditambahkan.');
-    }
-
-    public function storePhoto(Request $request, int $projectId)
-    {
-        $project = Project::findOrFail($projectId);
-
         $request->validate([
-            'kategori'     => 'required|string',
-            'judul_foto'   => 'required|string|max:255',
-            'tanggal_foto' => 'required|date',
-            'hasil_ukur'   => 'nullable|string|max:100',
-            'catatan'      => 'nullable|string|max:500',
-            'foto'         => 'required|image|max:10240', // Maks 10MB
+            'ids'   => 'required|array',
+            'ids.*' => 'exists:projects,id',
         ]);
 
-        $path = $request->file('foto')->store("indojar/projects/{$project->site_id}", 'public');
+        Project::destroy($request->ids);
 
-        ProjectPhoto::create([
-            'project_id'   => $project->id,
-            'kategori'     => $request->kategori,
-            'judul_foto'   => $request->judul_foto,
-            'tanggal_foto' => $request->tanggal_foto,
-            'hasil_ukur'   => $request->hasil_ukur,
-            'catatan'      => $request->catatan,
-            'file_path'    => '/storage/' . $path,
-        ]);
-
-        return redirect()->back()->with('success', 'Dokumentasi foto teknis berhasil diunggah.');
+        return redirect()->back()->with('success', count($request->ids) . ' site proyek berhasil dihapus.');
     }
 
-    public function destroyPhoto(int $photoId)
+    public function reset(Request $request)
     {
-        $photo = ProjectPhoto::findOrFail($photoId);
-        $cleanPath = str_replace('/storage/', '', $photo->file_path);
-        Storage::disk('public')->delete($cleanPath);
-        $photo->delete();
+        if ($request->user()->role !== 'admin') {
+            abort(403, 'Hanya Admin yang dapat mengosongkan data proyek.');
+        }
 
-        return redirect()->back()->with('success', 'Foto dokumentasi berhasil dihapus.');
+        ProjectProgress::query()->delete();
+        ProjectPhoto::query()->delete();
+        Project::query()->delete();
+
+        return redirect()->back()->with('success', 'Seluruh master data proyek berhasil dikosongkan.');
+    }
+
+    public function show(int $id): Response
+    {
+        $project = Project::with([
+            'picUser', 
+            'progresses.user', 
+            'photos'
+        ])->findOrFail($id);
+
+        return Inertia::render('Project/Show', [
+            'project' => $project
+        ]);
     }
 }

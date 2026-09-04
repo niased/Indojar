@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import { Boxes } from 'lucide-react';
 
 // Import asset langsung dari resources/images
-import defaultLogo from '../../images/ppll.png';
+import defaultLogo from '../../images/indojar.png';
 
 export function AppLogo({ 
     className, 
@@ -32,7 +32,7 @@ export function AppLogo({
                 <span className={cn("font-black text-base tracking-wider block leading-none", textClassName)}>
                     PT INDOJAR MULIA ABADI
                 </span>
-                <span className="text-[10px] text-amber-500 font-bold tracking-[0.2em] uppercase mt-1 block">
+                <span className="text-[10px] text-green-500 font-bold tracking-[0.2em] uppercase mt-1 block">
                     Project Management
                 </span>
             </div>

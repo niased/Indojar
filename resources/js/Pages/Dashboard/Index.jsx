@@ -19,11 +19,11 @@ import {
     DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
 
-// Import Komponen Terpisah (Disesuaikan untuk Proyek & Site Indojar)
-import StatistikGudang from './StatistikGudang';
+// Import Komponen Bersih (Tanpa kata gudang)
+import Statistik from './Statistik';
 import GrafikTransaksi from './GrafikTransaksi';
-import PetaGudang from './PetaGudang';
-import TabelTransaksi from './TabelTransaksi';
+import Peta from './Peta';
+import TabelAktivitas from './TabelAktivitas';
 
 export default function DashboardIndex({ 
     kpi = {}, 
@@ -45,18 +45,18 @@ export default function DashboardIndex({
     const currentGudang = String(filters.gudang_id || 'ALL');
     const currentKondisi = String(filters.kondisi || 'ALL');
 
-    const gudangList = useMemo(() => {
+    const wilayahList = useMemo(() => {
         return [
-            { id: 'ALL', nama_gudang: 'Semua Wilayah Site', kode_gudang: 'ALL' },
+            { id: 'ALL', nama_gudang: 'Semua Wilayah Proyek', kode_gudang: 'ALL' },
             ...(options.gudangs || [])
         ];
     }, [options.gudangs]);
 
     const kondisiList = [
         { id: 'ALL', label: 'Semua Status Proyek' },
-        { id: 'Baru', label: 'Planning / Pondasi' },
-        { id: 'Bekas', label: 'Erection / CME' },
-        { id: 'Rusak', label: 'RFI / ATP / Selesai' }
+        { id: 'Baru', label: 'Tahap Pondasi' },
+        { id: 'Bekas', label: 'Tahap Erection / CME' },
+        { id: 'Rusak', label: 'Tahap RFI / ATP' }
     ];
 
     const handleFilterChange = (key, value) => {
@@ -84,11 +84,11 @@ export default function DashboardIndex({
 
     const isFiltered = currentGudang !== 'ALL' || currentKondisi !== 'ALL';
 
-    const selectedGudangLabel = useMemo(() => {
-        if (currentGudang === 'ALL') return 'Semua Wilayah Site';
-        const found = gudangList.find(g => String(g.id) === currentGudang);
+    const selectedWilayahLabel = useMemo(() => {
+        if (currentGudang === 'ALL') return 'Semua Wilayah Proyek';
+        const found = wilayahList.find(g => String(g.id) === currentGudang);
         return found ? `${found.nama_gudang}` : 'Pilih Wilayah';
-    }, [currentGudang, gudangList]);
+    }, [currentGudang, wilayahList]);
 
     const selectedKondisiLabel = useMemo(() => {
         if (currentKondisi === 'ALL') return 'Semua Status Proyek';
@@ -105,7 +105,7 @@ export default function DashboardIndex({
                 cacheBust: true,
                 quality: 1.0,
                 pixelRatio: 2,
-                backgroundColor: isDarkMode ? '#080d24' : '#f8fafc'
+                backgroundColor: isDarkMode ? '#05130e' : '#f8fafc'
             });
             const link = document.createElement('a');
             const fileName = `Dashboard_Proyek_Indojar-${currentGudang}_${new Date().toISOString().slice(0, 10)}.png`;
@@ -145,20 +145,20 @@ export default function DashboardIndex({
                             Dashboard Proyek & Site Tower
                         </h1>
                         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                            Pusat kendali dan monitoring progres pekerjaan sipil pondasi, erection tower, CME, dan dokumentasi lapangan.
+                            Pusat kendali dan monitoring progres konstruksi menara, pondasi sipil, erection, CME, dan sebaran site lapangan.
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
                         <Link href="/project">
-                            <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-md shadow-blue-500/20 transition-all cursor-pointer">
+                            <button className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-md shadow-emerald-600/20 transition-all cursor-pointer">
                                 <Briefcase className="w-4 h-4" />
                                 <span>Master Proyek</span>
                             </button>
                         </Link>
                         <Link href="/laporan">
-                            <button className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 rounded-xl text-xs font-semibold shadow-md transition-all cursor-pointer">
+                            <button className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white dark:bg-[#07241a] dark:text-slate-200 dark:hover:bg-[#0b3325] border border-emerald-800/40 rounded-xl text-xs font-semibold shadow-md transition-all cursor-pointer">
                                 <Layers className="w-4 h-4" />
-                                <span>Laporan Proyek</span>
+                                <span>Laporan Rekapitulasi</span>
                             </button>
                         </Link>
                     </div>
@@ -168,20 +168,20 @@ export default function DashboardIndex({
                 <div className="flex flex-wrap items-center justify-between gap-4 bg-white dark:bg-slate-900/50 p-4 border border-slate-200 dark:border-slate-800/80 rounded-xl shadow-sm">
                     <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                         <div className="flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider pr-1">
-                            <Filter className="w-4 h-4 text-blue-600 dark:text-amber-400" />
+                            <Filter className="w-4 h-4 text-emerald-600 dark:text-amber-400" />
                             <span>Filter Dashboard</span>
                         </div>
                         <div className="h-4 w-[1px] bg-slate-200 dark:bg-slate-800 hidden sm:block" />
                         
-                        {/* Filter Wilayah / Site */}
+                        {/* Filter Wilayah */}
                         <div className="w-full sm:w-48">
                             <DropdownMenu>
                                 <DropdownMenuTrigger className="w-full bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 h-9 px-3 rounded-lg flex items-center justify-between text-xs font-medium focus:outline-none shadow-sm">
-                                    <span className="truncate">{selectedGudangLabel}</span>
+                                    <span className="truncate">{selectedWilayahLabel}</span>
                                     <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-1" />
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="w-56 max-h-60 overflow-y-auto bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 z-50">
-                                    {gudangList.map((g) => {
+                                    {wilayahList.map((g) => {
                                         const isSelected = currentGudang === String(g.id);
                                         return (
                                             <DropdownMenuItem 
@@ -190,7 +190,7 @@ export default function DashboardIndex({
                                                 className="flex items-center justify-between text-xs cursor-pointer px-3 py-2"
                                             >
                                                 <span className="truncate">{g.nama_gudang}</span>
-                                                {isSelected && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-amber-400 shrink-0 ml-1" />}
+                                                {isSelected && <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-amber-400 shrink-0 ml-1" />}
                                             </DropdownMenuItem>
                                         );
                                     })}
@@ -215,7 +215,7 @@ export default function DashboardIndex({
                                                 className="flex items-center justify-between text-xs cursor-pointer px-3 py-2"
                                             >
                                                 <span>{k.label}</span>
-                                                {isSelected && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-amber-400 shrink-0 ml-1" />}
+                                                {isSelected && <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-amber-400 shrink-0 ml-1" />}
                                             </DropdownMenuItem>
                                         );
                                     })}
@@ -239,7 +239,7 @@ export default function DashboardIndex({
                         <button
                             onClick={handleDownloadDashboardImage}
                             disabled={isExporting}
-                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-semibold transition-all shadow-md shadow-blue-600/20 cursor-pointer disabled:opacity-50"
+                            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-semibold transition-all shadow-md shadow-emerald-600/20 cursor-pointer disabled:opacity-50"
                         >
                             {isExporting ? (
                                 <>
@@ -260,9 +260,9 @@ export default function DashboardIndex({
                 <div ref={dashboardRef} className="capture-area space-y-5 p-5 bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-slate-900 rounded-xl overflow-hidden">
                     <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800/80 pb-3">
                         <div>
-                            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">Ringkasan Operasional Proyek & Site</h2>
+                            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">Ringkasan Operasional Konstruksi Menara</h2>
                             <p className="text-xs text-slate-500 dark:text-slate-400">
-                                Wilayah: {selectedGudangLabel} &bull; Status: {selectedKondisiLabel} &bull; PT Indojar Mulia Abadi
+                                Wilayah: {selectedWilayahLabel} &bull; Status: {selectedKondisiLabel} &bull; PT Indojar Mulia Abadi
                             </p>
                         </div>
                         <span className="text-[10px] text-slate-400 font-mono">
@@ -270,14 +270,14 @@ export default function DashboardIndex({
                         </span>
                     </div>
 
-                    <StatistikGudang kpi={kpi} />
+                    <Statistik kpi={kpi} />
                     <GrafikTransaksi 
                         chartData={chartData} 
                         kondisiChartData={kondisiChartData} 
                         donutPenerimaan={donutPenerimaan}
                     />
-                    <PetaGudang mapData={mapData} />
-                    <TabelTransaksi recentTransactions={recentTransactions} teamMembers={teamMembers} />
+                    <Peta mapData={mapData} />
+                    <TabelAktivitas recentTransactions={recentTransactions} teamMembers={teamMembers} />
                 </div>
             </div>
         </AuthenticatedLayout>

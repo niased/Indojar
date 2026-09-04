@@ -1,54 +1,54 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Package, ArrowDownCircle, ArrowLeftRight, ArrowUpRight, Coins } from 'lucide-react';
+import { Building2, HardHat, Layers, Zap, CheckCircle2 } from 'lucide-react';
 
 export default function StatistikGudang({ kpi = {} }) {
-    const totalBarang = kpi.totalBarang ?? 0;
-    const totalBarangMasuk = kpi.totalBarangMasuk ?? 0;
-    const totalTransfer = kpi.totalTransfer ?? 0;
-    const totalBarangKeluar = kpi.totalBarangKeluar ?? 0;
-    const totalNilaiAset = kpi.totalNilaiPembelian ?? kpi.totalNilaiAset ?? 0;
+    const totalSite = kpi.totalBarang ?? kpi.totalProjects ?? 0;
+    const totalPondasi = kpi.totalBarangMasuk ?? kpi.countPondasi ?? 0;
+    const totalErection = kpi.totalTransfer ?? kpi.countErection ?? 0;
+    const totalCME = kpi.totalBarangKeluar ?? kpi.countCME ?? 0;
+    const totalRFI_ATP = kpi.totalNilaiAset ?? kpi.countRFI_ATP ?? 0;
 
     const cards = [
         {
-            title: 'TOTAL MASTER BARANG',
-            value: totalBarang.toLocaleString('id-ID'),
-            desc: 'Item SKU terdaftar',
-            icon: Package,
+            title: 'TOTAL SITE MENARA',
+            value: totalSite.toLocaleString('id-ID'),
+            desc: 'Site kontrak terdaftar',
+            icon: Building2,
             iconBg: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
             valColor: 'text-slate-900 dark:text-white',
         },
         {
-            title: 'TOTAL BARANG MASUK',
-            value: totalBarangMasuk.toLocaleString('id-ID'),
-            desc: 'Unit masuk operasional',
-            icon: ArrowDownCircle,
+            title: 'TAHAP PONDASI',
+            value: totalPondasi.toLocaleString('id-ID'),
+            desc: 'Pekerjaan sipil & cor',
+            icon: HardHat,
             iconBg: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
             valColor: 'text-emerald-600 dark:text-emerald-400',
         },
         {
-            title: 'TOTAL TRANSFER GUDANG',
-            value: totalTransfer.toLocaleString('id-ID'),
-            desc: 'Unit terdistribusi antar-hub',
-            icon: ArrowLeftRight,
+            title: 'TAHAP ERECTION',
+            value: totalErection.toLocaleString('id-ID'),
+            desc: 'Rangka struktur tower',
+            icon: Layers,
             iconBg: 'bg-sky-500/10 text-sky-600 dark:text-sky-400',
             valColor: 'text-sky-600 dark:text-sky-400',
         },
         {
-            title: 'TOTAL BARANG KELUAR',
-            value: totalBarangKeluar.toLocaleString('id-ID'),
-            desc: 'Unit keluar operasional',
-            icon: ArrowUpRight,
-            iconBg: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
-            valColor: 'text-rose-600 dark:text-rose-400',
-        },
-        {
-            title: 'TOTAL NILAI ASET GUDANG',
-            value: `Rp ${Number(totalNilaiAset).toLocaleString('id-ID')}`,
-            desc: 'Akumulasi nilai beli aset fisik',
-            icon: Coins,
+            title: 'TAHAP CME & POWER',
+            value: totalCME.toLocaleString('id-ID'),
+            desc: 'Kelistrikan & grounding',
+            icon: Zap,
             iconBg: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
             valColor: 'text-amber-600 dark:text-amber-400',
+        },
+        {
+            title: 'SIAP RFI / ATP',
+            value: totalRFI_ATP.toLocaleString('id-ID'),
+            desc: 'Uji terima konsultan',
+            icon: CheckCircle2,
+            iconBg: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
+            valColor: 'text-rose-600 dark:text-rose-400',
         },
     ];
 

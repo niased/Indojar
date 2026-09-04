@@ -11,9 +11,9 @@ export default function GrafikLineKondisi({ data = [] }) {
     };
 
     const legends = [
-        { key: 'Baru', label: '% Baru (Segel)', color: 'bg-emerald-500' },
-        { key: 'Bekas', label: '% Bekas (Second)', color: 'bg-amber-500' },
-        { key: 'Rusak', label: '% Rusak', color: 'bg-rose-500' },
+        { key: 'Baru', label: '% Tahap Pondasi', color: 'bg-emerald-500' },
+        { key: 'Bekas', label: '% Tahap Erection / CME', color: 'bg-amber-500' },
+        { key: 'Rusak', label: '% Siap RFI / ATP', color: 'bg-rose-500' },
     ];
 
     return (
@@ -23,7 +23,7 @@ export default function GrafikLineKondisi({ data = [] }) {
                     <div className="flex items-center gap-2">
                         <LineChartIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                         <CardTitle className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                            Grafik Tren Persentase Kondisi Barang Bulanan (% Line Chart)
+                            Grafik Capaian Persentase Tahapan Proyek (% Line Chart)
                         </CardTitle>
                     </div>
                     <div className="flex items-center gap-3">
@@ -84,26 +84,26 @@ export default function GrafikLineKondisi({ data = [] }) {
                                     const d = payload[0].payload;
                                     return (
                                         <div className="bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-xs shadow-xl">
-                                            <div className="font-bold border-b border-slate-800 pb-1 mb-2">Bulan: {d.fullMonth || d.name}</div>
-                                            {activeKondisi.Baru && <div className="text-emerald-400">Baru: {d.Baru} ({d.pctBaru}%)</div>}
-                                            {activeKondisi.Bekas && <div className="text-amber-400">Bekas: {d.Bekas} ({d.pctBekas}%)</div>}
-                                            {activeKondisi.Rusak && <div className="text-rose-400">Rusak: {d.Rusak} ({d.pctRusak}%)</div>}
+                                            <div className="font-bold border-b border-slate-800 pb-1 mb-2">Periode: {d.fullMonth || d.name}</div>
+                                            {activeKondisi.Baru && <div className="text-emerald-400">Pondasi: {d.Baru} ({d.pctBaru}%)</div>}
+                                            {activeKondisi.Bekas && <div className="text-amber-400">Erection/CME: {d.Bekas} ({d.pctBekas}%)</div>}
+                                            {activeKondisi.Rusak && <div className="text-rose-400">RFI / ATP: {d.Rusak} ({d.pctRusak}%)</div>}
                                         </div>
                                     );
                                 }}
                             />
                             {activeKondisi.Baru && (
-                                <Line type="monotone" dataKey="pctBaru" name="% Baru" stroke="#10b981" strokeWidth={2.8} dot={{ fill: '#10b981', r: 4 }}>
+                                <Line type="monotone" dataKey="pctBaru" name="% Pondasi" stroke="#10b981" strokeWidth={2.8} dot={{ fill: '#10b981', r: 4 }}>
                                     <LabelList dataKey="pctBaru" position="top" offset={8} fill="#059669" fontSize={10} fontWeight={800} formatter={(v) => v > 0 ? `${v}%` : ''} />
                                 </Line>
                             )}
                             {activeKondisi.Bekas && (
-                                <Line type="monotone" dataKey="pctBekas" name="% Bekas" stroke="#f59e0b" strokeWidth={2.5} dot={{ fill: '#f59e0b', r: 3.5 }}>
+                                <Line type="monotone" dataKey="pctBekas" name="% Erection / CME" stroke="#f59e0b" strokeWidth={2.5} dot={{ fill: '#f59e0b', r: 3.5 }}>
                                     <LabelList dataKey="pctBekas" position="top" offset={8} fill="#d97706" fontSize={10} fontWeight={800} formatter={(v) => v > 0 ? `${v}%` : ''} />
                                 </Line>
                             )}
                             {activeKondisi.Rusak && (
-                                <Line type="monotone" dataKey="pctRusak" name="% Rusak" stroke="#f43f5e" strokeWidth={2.5} dot={{ fill: '#f43f5e', r: 3.5 }}>
+                                <Line type="monotone" dataKey="pctRusak" name="% RFI / ATP" stroke="#f43f5e" strokeWidth={2.5} dot={{ fill: '#f43f5e', r: 3.5 }}>
                                     <LabelList dataKey="pctRusak" position="top" offset={8} fill="#e11d48" fontSize={10} fontWeight={800} formatter={(v) => v > 0 ? `${v}%` : ''} />
                                 </Line>
                             )}
