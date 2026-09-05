@@ -1,15 +1,9 @@
 import React from 'react';
 import Modal from '@/components/Modal';
-import { Button } from "@/components/ui/button";
+import HybridDropdown from '@/components/HybridDropdown';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { 
-    AlertCircle, 
-    MapPin, 
-    Briefcase, 
-    ExternalLink 
-} from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { useModalProjectControl, LIST_STATUS_PROYEK } from './ModalProjectControl';
 
 export default function ModalProject({
@@ -49,6 +43,7 @@ export default function ModalProject({
                     <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
                         1. Identitas Pokok Site Menara
                     </span>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1">
                             <Label className="text-[11px] font-bold">Site ID *</Label>
@@ -60,6 +55,7 @@ export default function ModalProject({
                                 required
                             />
                         </div>
+
                         <div className="space-y-1">
                             <Label className="text-[11px] font-bold">Nama Site *</Label>
                             <Input
@@ -71,6 +67,7 @@ export default function ModalProject({
                             />
                         </div>
                     </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div className="space-y-1">
                             <Label className="text-[11px]">Project ID (PID)</Label>
@@ -81,6 +78,7 @@ export default function ModalProject({
                                 className="h-8 text-xs font-mono bg-white dark:bg-slate-950"
                             />
                         </div>
+
                         <div className="space-y-1">
                             <Label className="text-[11px]">Site ID DMT</Label>
                             <Input
@@ -90,6 +88,7 @@ export default function ModalProject({
                                 className="h-8 text-xs font-mono bg-white dark:bg-slate-950"
                             />
                         </div>
+
                         <div className="space-y-1">
                             <Label className="text-[11px]">Site ID Tenant</Label>
                             <Input
@@ -107,55 +106,61 @@ export default function ModalProject({
                     <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
                         2. Klasifikasi Kontrak & Penanggung Jawab
                     </span>
+
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div className="space-y-1">
                             <Label className="text-[11px] font-bold">Area Operasional *</Label>
-                            <select
+                            <HybridDropdown
                                 value={formData.area_id}
-                                onChange={(e) => handleFieldChange('area_id', e.target.value)}
-                                className="w-full h-8 px-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg font-semibold text-xs"
-                                required
-                            >
-                                <option value="">-- Pilih Area --</option>
-                                {areas.map((a) => (
-                                    <option key={a.id} value={a.id}>
-                                        {a.nama_area} ({a.regional})
-                                    </option>
-                                ))}
-                            </select>
+                                options={areas.map((a) => ({
+                                    value: String(a.id),
+                                    label: a.nama_area,
+                                    subLabel: a.regional
+                                }))}
+                                onChange={(value) => handleFieldChange('area_id', value)}
+                                placeholder="-- Pilih Area --"
+                                searchPlaceholder="Cari area..."
+                                allowCustom={false}
+                                className="w-full"
+                                inputClassName="h-8 text-xs font-semibold bg-white dark:bg-slate-950"
+                            />
                         </div>
+
                         <div className="space-y-1">
                             <Label className="text-[11px] font-bold">Scope of Work (SOW) *</Label>
-                            <select
+                            <HybridDropdown
                                 value={formData.sow_id}
-                                onChange={(e) => handleFieldChange('sow_id', e.target.value)}
-                                className="w-full h-8 px-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg font-bold text-xs"
-                                required
-                            >
-                                <option value="">-- Pilih SOW --</option>
-                                {sows.map((s) => (
-                                    <option key={s.id} value={s.id}>
-                                        {s.nama_sow}
-                                    </option>
-                                ))}
-                            </select>
+                                options={sows.map((s) => ({
+                                    value: String(s.id),
+                                    label: s.nama_sow
+                                }))}
+                                onChange={(value) => handleFieldChange('sow_id', value)}
+                                placeholder="-- Pilih SOW --"
+                                searchPlaceholder="Cari SOW..."
+                                allowCustom={false}
+                                className="w-full"
+                                inputClassName="h-8 text-xs font-bold bg-white dark:bg-slate-950"
+                            />
                         </div>
+
                         <div className="space-y-1">
                             <Label className="text-[11px] font-bold">PIC Waslap Lapangan</Label>
-                            <select
+                            <HybridDropdown
                                 value={formData.pic_user_id}
-                                onChange={(e) => handleFieldChange('pic_user_id', e.target.value)}
-                                className="w-full h-8 px-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg font-semibold text-xs"
-                            >
-                                <option value="">-- Pilih PIC --</option>
-                                {users.map((u) => (
-                                    <option key={u.id} value={u.id}>
-                                        {u.name}
-                                    </option>
-                                ))}
-                            </select>
+                                options={users.map((u) => ({
+                                    value: String(u.id),
+                                    label: u.name
+                                }))}
+                                onChange={(value) => handleFieldChange('pic_user_id', value)}
+                                placeholder="-- Pilih PIC --"
+                                searchPlaceholder="Cari PIC..."
+                                allowCustom={false}
+                                className="w-full"
+                                inputClassName="h-8 text-xs font-semibold bg-white dark:bg-slate-950"
+                            />
                         </div>
                     </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1">
                             <Label className="text-[11px]">Klien / Operator Pemilik</Label>
@@ -165,6 +170,7 @@ export default function ModalProject({
                                 className="h-8 text-xs bg-white dark:bg-slate-950"
                             />
                         </div>
+
                         <div className="space-y-1">
                             <Label className="text-[11px]">Konsultan Pengawas</Label>
                             <Input
@@ -187,6 +193,7 @@ export default function ModalProject({
                             className="h-8 text-xs font-mono bg-white dark:bg-slate-950"
                         />
                     </div>
+
                     <div className="space-y-1">
                         <Label className="text-[11px]">Tanggal PO / SPK</Label>
                         <Input
@@ -196,6 +203,7 @@ export default function ModalProject({
                             className="h-8 text-xs bg-white dark:bg-slate-950 cursor-pointer"
                         />
                     </div>
+
                     <div className="space-y-1">
                         <Label className="text-[11px]">Target RFI</Label>
                         <Input
@@ -213,6 +221,7 @@ export default function ModalProject({
                         <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
                             3. Spesifikasi Menara & Koordinat Lapangan
                         </span>
+
                         {hasCoordinates && (
                             <a
                                 href={`https://www.google.com/maps?q=${formData.latitude},${formData.longitude}`}
@@ -225,6 +234,7 @@ export default function ModalProject({
                             </a>
                         )}
                     </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1">
                             <Label className="text-[11px]">Tipe Menara</Label>
@@ -235,6 +245,7 @@ export default function ModalProject({
                                 className="h-8 text-xs font-semibold bg-white dark:bg-slate-950"
                             />
                         </div>
+
                         <div className="space-y-1">
                             <Label className="text-[11px]">Tinggi Menara</Label>
                             <Input
@@ -245,6 +256,7 @@ export default function ModalProject({
                             />
                         </div>
                     </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1">
                             <Label className="text-[11px] font-bold">Latitude (Lintang)</Label>
@@ -257,6 +269,7 @@ export default function ModalProject({
                                 className="h-8 text-xs font-mono bg-white dark:bg-slate-950"
                             />
                         </div>
+
                         <div className="space-y-1">
                             <Label className="text-[11px] font-bold">Longitude (Bujur)</Label>
                             <Input
@@ -269,6 +282,7 @@ export default function ModalProject({
                             />
                         </div>
                     </div>
+
                     <div className="space-y-1">
                         <Label className="text-[11px]">Alamat Lengkap Site</Label>
                         <Input
@@ -284,18 +298,21 @@ export default function ModalProject({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1">
                         <Label className="text-[11px] font-bold">Status Operasional Proyek</Label>
-                        <select
+                        <HybridDropdown
                             value={formData.status}
-                            onChange={(e) => handleFieldChange('status', e.target.value)}
-                            className="w-full h-8 px-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg font-bold text-xs"
-                        >
-                            {LIST_STATUS_PROYEK.map((st) => (
-                                <option key={st} value={st}>
-                                    {st}
-                                </option>
-                            ))}
-                        </select>
+                            options={LIST_STATUS_PROYEK.map((st) => ({
+                                value: st,
+                                label: st
+                            }))}
+                            onChange={(value) => handleFieldChange('status', value)}
+                            placeholder="-- Pilih Status --"
+                            searchPlaceholder="Cari status..."
+                            allowCustom={false}
+                            className="w-full"
+                            inputClassName="h-8 text-xs font-bold bg-white dark:bg-slate-950"
+                        />
                     </div>
+
                     <div className="space-y-1">
                         <Label className="text-[11px]">Status Proses Klien</Label>
                         <Input

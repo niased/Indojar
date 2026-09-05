@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '@/components/Modal';
-import { Button } from "@/components/ui/button";
+import HybridDropdown from '@/components/HybridDropdown';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { 
-    Upload, 
-    ImageIcon, 
-    X, 
-    Sliders, 
-    CheckCircle2 
+import {
+    Upload,
+    X,
+    Sliders
 } from 'lucide-react';
 import { router } from '@inertiajs/react';
 
@@ -40,6 +38,7 @@ export default function ModalPekerjaan({
     useEffect(() => {
         if (isOpen) {
             setFotoFile(null);
+
             if (isEditMode && selectedItem) {
                 setFormData({
                     project_id: selectedItem.project_id ? String(selectedItem.project_id) : '',
@@ -50,11 +49,12 @@ export default function ModalPekerjaan({
                     bobot: selectedItem.bobot !== undefined ? selectedItem.bobot : 10.0,
                     progress_percent: selectedItem.progress_percent || 0,
                     status: selectedItem.status || 'PLANNING',
-                    tanggal_pekerjaan: selectedItem.tanggal_pekerjaan 
-                        ? String(selectedItem.tanggal_pekerjaan).split('T')[0] 
+                    tanggal_pekerjaan: selectedItem.tanggal_pekerjaan
+                        ? String(selectedItem.tanggal_pekerjaan).split('T')[0]
                         : new Date().toISOString().slice(0, 10),
                     catatan: selectedItem.catatan || '',
                 });
+
                 setFotoPreview(selectedItem.foto || null);
             } else {
                 setFormData({
@@ -69,6 +69,7 @@ export default function ModalPekerjaan({
                     tanggal_pekerjaan: new Date().toISOString().slice(0, 10),
                     catatan: '',
                 });
+
                 setFotoPreview(null);
             }
         }
@@ -77,17 +78,23 @@ export default function ModalPekerjaan({
     const handleFieldChange = (field, value) => {
         setFormData((prev) => {
             const next = { ...prev, [field]: value };
-            // Sinkronkan status otomatis dari progres
+
             if (field === 'progress_percent') {
                 const val = parseFloat(value) || 0;
-                next.status = val >= 100 ? 'COMPLETED' : val > 0 ? 'IN_PROGRESS' : 'PLANNING';
+                next.status = val >= 100
+                    ? 'COMPLETED'
+                    : val > 0
+                        ? 'IN_PROGRESS'
+                        : 'PLANNING';
             }
+
             return next;
         });
     };
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
+
         if (file) {
             setFotoFile(file);
             setFotoPreview(URL.createObjectURL(file));
@@ -104,6 +111,7 @@ export default function ModalPekerjaan({
         setIsProcessing(true);
 
         const payload = new FormData();
+
         Object.keys(formData).forEach((key) => {
             payload.append(key, formData[key] ?? '');
         });
@@ -114,6 +122,7 @@ export default function ModalPekerjaan({
 
         if (isEditMode && selectedItem) {
             payload.append('_method', 'PUT');
+
             router.post(route('pekerjaan.update', selectedItem.id), payload, {
                 preserveScroll: true,
                 onSuccess: () => {
@@ -140,7 +149,11 @@ export default function ModalPekerjaan({
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title={isEditMode ? `Edit Pekerjaan: ${selectedItem?.kode_pekerjaan || ''}` : 'Tambah Rincian Pekerjaan WBS'}
+            title={
+                isEditMode
+                    ? `Edit Pekerjaan: ${selectedItem?.kode_pekerjaan || ''}`
+                    : 'Tambah Rincian Pekerjaan WBS'
+            }
             onSubmit={handleSubmit}
             submitLabel={isEditMode ? 'Simpan Perubahan' : 'Simpan Pekerjaan'}
             isProcessing={isProcessing}
@@ -149,58 +162,85 @@ export default function ModalPekerjaan({
                 {/* 1. Pilih Proyek & Tahapan */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
                     <div className="space-y-1">
-                        <Label className="text-[11px] font-bold">Site Proyek *</Label>
-                        <select
+                        <Label className="text-[11px] font-bold">
+                            Site Proyek *
+                        </Label>
+
+                        <HybridDropdown
                             value={formData.project_id}
-                            onChange={(e) => handleFieldChange('project_id', e.target.value)}
-                            className="w-full h-8 px-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg font-bold text-xs"
-                            required
-                        >
-                            <option value="">-- Pilih Site Proyek --</option>
-                            {projects.map((p) => (
-                                <option key={p.id} value={p.id}>
-                                    {p.site_id} - {p.site_name}
-                                </option>
-                            ))}
-                        </select>
+                            options={projects.map((p) => ({
+                                value: String(p.id),
+                                label: `${p.site_id} - ${p.site_name}`
+                            }))}
+                            onChange={(value) =>
+                                handleFieldChange('project_id', value)
+                            }
+                            placeholder="-- Pilih Site Proyek --"
+                            searchPlaceholder="Cari site proyek..."
+                            allowCustom={false}
+                            className="w-full"
+                            inputClassName="h-8 text-xs font-bold bg-white dark:bg-slate-950"
+                        />
                     </div>
 
                     <div className="space-y-1">
-                        <Label className="text-[11px] font-bold">Tahapan Konstruksi *</Label>
-                        <select
+                        <Label className="text-[11px] font-bold">
+                            Tahapan Konstruksi *
+                        </Label>
+
+                        <HybridDropdown
                             value={formData.stage_id}
-                            onChange={(e) => handleFieldChange('stage_id', e.target.value)}
-                            className="w-full h-8 px-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg font-bold text-xs"
-                            required
-                        >
-                            <option value="">-- Pilih Tahap --</option>
-                            {stages.map((st) => (
-                                <option key={st.id} value={st.id}>
-                                    {st.nama_stage}
-                                </option>
-                            ))}
-                        </select>
+                            options={stages.map((st) => ({
+                                value: String(st.id),
+                                label: st.nama_stage
+                            }))}
+                            onChange={(value) =>
+                                handleFieldChange('stage_id', value)
+                            }
+                            placeholder="-- Pilih Tahap --"
+                            searchPlaceholder="Cari tahap..."
+                            allowCustom={false}
+                            className="w-full"
+                            inputClassName="h-8 text-xs font-bold bg-white dark:bg-slate-950"
+                        />
                     </div>
                 </div>
 
                 {/* 2. Kode WBS & Uraian Pekerjaan */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div className="space-y-1">
-                        <Label className="text-[11px] font-bold">Kode WBS *</Label>
+                        <Label className="text-[11px] font-bold">
+                            Kode WBS *
+                        </Label>
+
                         <Input
                             placeholder="Contoh: PND-01, ERC-02"
                             value={formData.kode_pekerjaan}
-                            onChange={(e) => handleFieldChange('kode_pekerjaan', e.target.value.toUpperCase())}
+                            onChange={(e) =>
+                                handleFieldChange(
+                                    'kode_pekerjaan',
+                                    e.target.value.toUpperCase()
+                                )
+                            }
                             className="h-8 text-xs font-mono font-bold bg-white dark:bg-slate-950"
                             required
                         />
                     </div>
+
                     <div className="sm:col-span-2 space-y-1">
-                        <Label className="text-[11px] font-bold">Nama Pekerjaan Fisik *</Label>
+                        <Label className="text-[11px] font-bold">
+                            Nama Pekerjaan Fisik *
+                        </Label>
+
                         <Input
                             placeholder="Contoh: Cor Beton K-300 & Uji Slump"
                             value={formData.nama_pekerjaan}
-                            onChange={(e) => handleFieldChange('nama_pekerjaan', e.target.value)}
+                            onChange={(e) =>
+                                handleFieldChange(
+                                    'nama_pekerjaan',
+                                    e.target.value
+                                )
+                            }
                             className="h-8 text-xs font-semibold bg-white dark:bg-slate-950"
                             required
                         />
@@ -211,7 +251,10 @@ export default function ModalPekerjaan({
                 <div className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 space-y-3">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1">
-                            <Label className="text-[11px] font-bold">Bobot Kontrak (%) *</Label>
+                            <Label className="text-[11px] font-bold">
+                                Bobot Kontrak (%) *
+                            </Label>
+
                             <Input
                                 type="number"
                                 step="0.01"
@@ -219,17 +262,31 @@ export default function ModalPekerjaan({
                                 max="100"
                                 placeholder="Contoh: 15.00"
                                 value={formData.bobot}
-                                onChange={(e) => handleFieldChange('bobot', e.target.value)}
+                                onChange={(e) =>
+                                    handleFieldChange(
+                                        'bobot',
+                                        e.target.value
+                                    )
+                                }
                                 className="h-8 text-xs font-mono font-bold bg-white dark:bg-slate-950"
                                 required
                             />
                         </div>
+
                         <div className="space-y-1">
-                            <Label className="text-[11px] font-bold">Satuan Pengukuran</Label>
+                            <Label className="text-[11px] font-bold">
+                                Satuan Pengukuran
+                            </Label>
+
                             <Input
                                 placeholder="Lot, M3, Kg, Titik, Ton"
                                 value={formData.satuan}
-                                onChange={(e) => handleFieldChange('satuan', e.target.value)}
+                                onChange={(e) =>
+                                    handleFieldChange(
+                                        'satuan',
+                                        e.target.value
+                                    )
+                                }
                                 className="h-8 text-xs font-medium bg-white dark:bg-slate-950"
                             />
                         </div>
@@ -242,17 +299,24 @@ export default function ModalPekerjaan({
                                 <Sliders className="w-3.5 h-3.5 text-emerald-500" />
                                 <span>Realisasi Progres Fisik:</span>
                             </div>
+
                             <span className="font-mono text-sm font-black text-emerald-600 dark:text-emerald-400">
                                 {formData.progress_percent}%
                             </span>
                         </div>
+
                         <input
                             type="range"
                             min="0"
                             max="100"
                             step="1"
                             value={formData.progress_percent}
-                            onChange={(e) => handleFieldChange('progress_percent', e.target.value)}
+                            onChange={(e) =>
+                                handleFieldChange(
+                                    'progress_percent',
+                                    e.target.value
+                                )
+                            }
                             className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-600"
                         />
                     </div>
@@ -261,26 +325,54 @@ export default function ModalPekerjaan({
                 {/* 4. Tanggal Pengerjaan & Status */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1">
-                        <Label className="text-[11px] font-bold">Tanggal Pengerjaan Fisik *</Label>
+                        <Label className="text-[11px] font-bold">
+                            Tanggal Pengerjaan Fisik *
+                        </Label>
+
                         <Input
                             type="date"
                             value={formData.tanggal_pekerjaan}
-                            onChange={(e) => handleFieldChange('tanggal_pekerjaan', e.target.value)}
+                            onChange={(e) =>
+                                handleFieldChange(
+                                    'tanggal_pekerjaan',
+                                    e.target.value
+                                )
+                            }
                             className="h-8 text-xs bg-white dark:bg-slate-950 cursor-pointer"
                             required
                         />
                     </div>
+
                     <div className="space-y-1">
-                        <Label className="text-[11px] font-bold">Status Pekerjaan</Label>
-                        <select
+                        <Label className="text-[11px] font-bold">
+                            Status Pekerjaan
+                        </Label>
+
+                        <HybridDropdown
                             value={formData.status}
-                            onChange={(e) => handleFieldChange('status', e.target.value)}
-                            className="w-full h-8 px-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg font-bold text-xs"
-                        >
-                            <option value="PLANNING">PLANNING (Rencana)</option>
-                            <option value="IN_PROGRESS">IN_PROGRESS (Dalam Proses)</option>
-                            <option value="COMPLETED">COMPLETED (Selesai 100%)</option>
-                        </select>
+                            options={[
+                                {
+                                    value: 'PLANNING',
+                                    label: 'PLANNING (Rencana)'
+                                },
+                                {
+                                    value: 'IN_PROGRESS',
+                                    label: 'IN_PROGRESS (Dalam Proses)'
+                                },
+                                {
+                                    value: 'COMPLETED',
+                                    label: 'COMPLETED (Selesai 100%)'
+                                }
+                            ]}
+                            onChange={(value) =>
+                                handleFieldChange('status', value)
+                            }
+                            placeholder="-- Pilih Status --"
+                            searchPlaceholder="Cari status..."
+                            allowCustom={false}
+                            className="w-full"
+                            inputClassName="h-8 text-xs font-bold bg-white dark:bg-slate-950"
+                        />
                     </div>
                 </div>
 
@@ -292,11 +384,12 @@ export default function ModalPekerjaan({
 
                     {fotoPreview ? (
                         <div className="relative w-full h-36 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950 flex items-center justify-center">
-                            <img 
-                                src={fotoPreview} 
-                                alt="Pratinjau Foto" 
-                                className="h-full object-contain" 
+                            <img
+                                src={fotoPreview}
+                                alt="Pratinjau Foto"
+                                className="h-full object-contain"
                             />
+
                             <button
                                 type="button"
                                 onClick={handleRemoveFoto}
@@ -309,12 +402,15 @@ export default function ModalPekerjaan({
                     ) : (
                         <label className="flex flex-col items-center justify-center w-full h-24 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-emerald-500 bg-white dark:bg-slate-950 cursor-pointer transition-colors">
                             <Upload className="w-5 h-5 text-slate-400 mb-1" />
+
                             <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
                                 Klik untuk memilih foto dokumentasi fisik
                             </span>
+
                             <span className="text-[9px] text-slate-400">
                                 Format JPG, PNG, WEBP (Maks. 5MB)
                             </span>
+
                             <input
                                 type="file"
                                 accept="image/*"
@@ -327,12 +423,17 @@ export default function ModalPekerjaan({
 
                 {/* 6. Catatan Tambahan Waslap */}
                 <div className="space-y-1">
-                    <Label className="text-[11px]">Catatan / Keterangan Teknis</Label>
+                    <Label className="text-[11px]">
+                        Catatan / Keterangan Teknis
+                    </Label>
+
                     <textarea
                         rows={2}
                         placeholder="Contoh: Mutu beton K-300 kubus sesuai standar, slump test 12±2 cm..."
                         value={formData.catatan}
-                        onChange={(e) => handleFieldChange('catatan', e.target.value)}
+                        onChange={(e) =>
+                            handleFieldChange('catatan', e.target.value)
+                        }
                         className="w-full p-2.5 text-xs bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg"
                     />
                 </div>

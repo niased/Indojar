@@ -1,10 +1,13 @@
+// resources/js/Pages/Welcome.jsx
+
 import React, { useEffect, useState } from 'react';
 import { Head } from '@inertiajs/react';
 
 import Navbar from './Welcome/Navbar';
 import HeroWelcome from './Welcome/HeroWelcome';
 import AboutWelcome from './Welcome/AboutWelcome';
-import VisionMissionServices from './Welcome/VisionMissionServices';
+import VisionMissionWelcome from './Welcome/VisionMissionWelcome';
+import ServiceWelcome from './Welcome/ServiceWelcome';
 import ProjectsCtaFooter from './Welcome/ProjectsCtaFooter';
 
 export default function Welcome({ auth }) {
@@ -58,16 +61,6 @@ export default function Welcome({ auth }) {
                     'PT Indojar Mulia Abadi mengawali kiprahnya pada tahun 2014 di sektor pendukung industri pertambangan. Menjawab kebutuhan transformasi digital nasional, pada tahun 2021 perusahaan memperluas kompetensinya ke sektor telekomunikasi seluler.',
                 p2:
                     'Melalui sinergi tenaga ahli bersertifikasi, kepatuhan ketat terhadap K3, serta koordinasi terpadu bersama konsultan pengawas, kami memastikan setiap site terbangun tepat mutu dan tepat waktu hingga serah terima berita acara.',
-                visionTitle: 'Our Vision',
-                visionDesc:
-                    'We believe that we are capable of becoming a leading company in the business of central telecommunication construction with the fast and excellence satisfactory service.',
-                missionTitle: 'Our Mission',
-                m1:
-                    'Ensuring the quality of each product and providing services that meet customer expectations.',
-                m2:
-                    'Establishing and maintaining close relationships with customers.',
-                m3:
-                    'Improving skills and abilities of the team continuously to meet and maintain customer satisfaction.',
             },
 
             services: {
@@ -150,16 +143,6 @@ export default function Welcome({ auth }) {
                     'PT Indojar Mulia Abadi began its operations in 2014 serving the mining industry. In response to nationwide digital acceleration, in 2021 the company strategically expanded its core capabilities to the cellular telecommunication sector.',
                 p2:
                     'Backed by certified field engineers, rigorous HSE standards, and seamless coordination with supervisory consultants, we ensure every site meets rigorous technical benchmarks from ground-breaking to handover acceptance.',
-                visionTitle: 'Our Vision',
-                visionDesc:
-                    'We believe that we are capable of becoming a leading company in the business of central telecommunication construction with the fast and excellence satisfactory service.',
-                missionTitle: 'Our Mission',
-                m1:
-                    'Ensuring the quality of each product and providing services that meet customer expectations.',
-                m2:
-                    'Establishing and maintaining close relationships with customers.',
-                m3:
-                    'Improving skills and abilities of the team continuously to meet and maintain customer satisfaction.',
             },
 
             services: {
@@ -224,6 +207,7 @@ export default function Welcome({ auth }) {
         >
             <Head title="PT Indojar Mulia Abadi" />
 
+            {/* Lapisan 1: Navbar */}
             <Navbar
                 auth={auth}
                 lang={lang}
@@ -234,13 +218,16 @@ export default function Welcome({ auth }) {
             />
 
             {/* Lapisan 2: Hero */}
-            <HeroWelcome />
+            <HeroWelcome t={currentDict} />
 
             {/* Lapisan 3: About */}
             <AboutWelcome t={currentDict} />
 
-            {/* Lapisan 4 & 5 */}
-            <VisionMissionServices t={currentDict} />
+            {/* Lapisan 4: Vision & Mission */}
+            <VisionMissionWelcome lang={lang} />
+
+            {/* Lapisan 5: Services */}
+            <ServiceWelcome t={currentDict} />
 
             {/* Lapisan 6, 7 & 8 */}
             <ProjectsCtaFooter

@@ -1,19 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Toolbar from '@/components/Toolbar';
+import HybridDropdown from '@/components/HybridDropdown';
 import CrudTable from './CrudTable';
 import ModalProject from './ModalProject';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
-    Plus, 
-    Search, 
-    X, 
-    ChevronLeft, 
-    ChevronRight, 
-    Filter, 
-    Layers, 
-    MapPin, 
-    Briefcase 
+import {
+    Plus,
+    Search,
+    X,
+    ChevronLeft,
+    ChevronRight
 } from 'lucide-react';
 import { router, usePage } from '@inertiajs/react';
 import { useConfirm } from '@/Layouts/AuthenticatedLayout';
@@ -58,19 +55,39 @@ export default function TabMasterData({
     const handleFitZoom = () => setZoomLevel(75);
 
     const isMounted = useRef(false);
+
     useEffect(() => {
         if (!isMounted.current) {
             isMounted.current = true;
             return;
         }
+
         const timer = setTimeout(() => {
-            fetchFilteredData(searchTerm, selectedArea, selectedSow, selectedStatus, sortOrder, perPage, 1);
+            fetchFilteredData(
+                searchTerm,
+                selectedArea,
+                selectedSow,
+                selectedStatus,
+                sortOrder,
+                perPage,
+                1
+            );
         }, 400);
+
         return () => clearTimeout(timer);
     }, [searchTerm, selectedArea, selectedSow, selectedStatus]);
 
-    const fetchFilteredData = (search, areaId, sowId, status, order, itemsPerPage, page = 1) => {
+    const fetchFilteredData = (
+        search,
+        areaId,
+        sowId,
+        status,
+        order,
+        itemsPerPage,
+        page = 1
+    ) => {
         setSelectedIds([]);
+
         router.get(
             route('project.index'),
             {
@@ -94,18 +111,40 @@ export default function TabMasterData({
 
     const toggleSort = () => {
         const nextOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+
         setSortOrder(nextOrder);
-        fetchFilteredData(searchTerm, selectedArea, selectedSow, selectedStatus, nextOrder, perPage, 1);
+
+        fetchFilteredData(
+            searchTerm,
+            selectedArea,
+            selectedSow,
+            selectedStatus,
+            nextOrder,
+            perPage,
+            1
+        );
     };
 
     const handlePerPageSubmit = () => {
         let val = parseInt(perPageInput, 10);
+
         if (isNaN(val) || val < 1) val = 10;
         else if (val > 100) val = 100;
+
         setPerPageInput(val);
+
         if (val !== perPage) {
             setPerPage(val);
-            fetchFilteredData(searchTerm, selectedArea, selectedSow, selectedStatus, sortOrder, val, 1);
+
+            fetchFilteredData(
+                searchTerm,
+                selectedArea,
+                selectedSow,
+                selectedStatus,
+                sortOrder,
+                val,
+                1
+            );
         }
     };
 
@@ -120,7 +159,9 @@ export default function TabMasterData({
 
     const handleSelectRow = (id) => {
         setSelectedIds((prev) =>
-            prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+            prev.includes(id)
+                ? prev.filter((item) => item !== id)
+                : [...prev, id]
         );
     };
 
@@ -131,6 +172,7 @@ export default function TabMasterData({
 
     const handleDeleteSelected = () => {
         if (!isAdmin || selectedIds.length === 0) return;
+
         confirm({
             title: 'Hapus Proyek Terpilih',
             message: `Apakah kamu yakin ingin MENGHAPUS ${selectedIds.length} site proyek terpilih beserta seluruh rincian pekerjaannya?`,
@@ -138,18 +180,23 @@ export default function TabMasterData({
             confirmText: 'Ya, Hapus Semua',
             cancelText: 'Batal',
             onConfirm: () => {
-                router.post(route('project.bulk-delete'), { ids: selectedIds }, {
-                    preserveScroll: true,
-                    onStart: () => setIsProcessing(true),
-                    onSuccess: () => setSelectedIds([]),
-                    onFinish: () => setIsProcessing(false),
-                });
+                router.post(
+                    route('project.bulk-delete'),
+                    { ids: selectedIds },
+                    {
+                        preserveScroll: true,
+                        onStart: () => setIsProcessing(true),
+                        onSuccess: () => setSelectedIds([]),
+                        onFinish: () => setIsProcessing(false),
+                    }
+                );
             },
         });
     };
 
     const handleReset = () => {
         if (!isAdmin) return;
+
         confirm({
             title: 'Kosongkan Master Proyek',
             message: 'Apakah kamu yakin ingin MENGHAPUS SELURUH data proyek dan rincian pekerjaan? Tindakan ini tidak dapat dibatalkan.',
@@ -157,12 +204,16 @@ export default function TabMasterData({
             confirmText: 'Ya, Kosongkan Data',
             cancelText: 'Batal',
             onConfirm: () => {
-                router.post(route('project.reset'), {}, {
-                    preserveScroll: true,
-                    onStart: () => setIsProcessing(true),
-                    onSuccess: () => setSelectedIds([]),
-                    onFinish: () => setIsProcessing(false),
-                });
+                router.post(
+                    route('project.reset'),
+                    {},
+                    {
+                        preserveScroll: true,
+                        onStart: () => setIsProcessing(true),
+                        onSuccess: () => setSelectedIds([]),
+                        onFinish: () => setIsProcessing(false),
+                    }
+                );
             },
         });
     };
@@ -181,8 +232,10 @@ export default function TabMasterData({
 
     const getRowNumber = (index) => {
         if (!projects) return index + 1;
+
         const currentPage = projects.current_page || 1;
         const limit = projects.per_page || 10;
+
         return (currentPage - 1) * limit + index + 1;
     };
 
@@ -203,56 +256,58 @@ export default function TabMasterData({
                 onResetZoom={handleResetZoom}
                 onFitZoom={handleFitZoom}
                 leftContent={
-                    <div className="flex flex-wrap items-center gap-2">
-                        {/* Filter Area */}
-                        <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-xs">
-                            <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                            <select
-                                value={selectedArea}
-                                onChange={(e) => setSelectedArea(e.target.value)}
-                                className="bg-transparent border-0 p-0 text-xs font-semibold text-slate-700 dark:text-slate-300 focus:ring-0 cursor-pointer"
-                            >
-                                <option value="ALL">Semua Area</option>
-                                {areas.map((a) => (
-                                    <option key={a.id} value={a.id}>
-                                        {a.nama_area} ({a.regional})
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                    <div className="flex flex-nowrap items-center gap-2">
+                        <HybridDropdown
+                            value={selectedArea}
+                            options={[
+                                { value: 'ALL', label: 'Semua Area' },
+                                ...areas.map((a) => ({
+                                    value: String(a.id),
+                                    label: a.nama_area,
+                                    subLabel: a.regional
+                                }))
+                            ]}
+                            onChange={setSelectedArea}
+                            placeholder="Semua Area"
+                            searchPlaceholder="Cari area..."
+                            allowCustom={false}
+                            className="!w-40 shrink-0"
+                            inputClassName="font-semibold text-slate-700 dark:text-slate-300"
+                        />
 
-                        {/* Filter SOW */}
-                        <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-xs">
-                            <Briefcase className="w-3.5 h-3.5 text-slate-400" />
-                            <select
-                                value={selectedSow}
-                                onChange={(e) => setSelectedSow(e.target.value)}
-                                className="bg-transparent border-0 p-0 text-xs font-semibold text-slate-700 dark:text-slate-300 focus:ring-0 cursor-pointer"
-                            >
-                                <option value="ALL">Semua SOW</option>
-                                {sows.map((s) => (
-                                    <option key={s.id} value={s.id}>
-                                        {s.nama_sow}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                        <HybridDropdown
+                            value={selectedSow}
+                            options={[
+                                { value: 'ALL', label: 'Semua SOW' },
+                                ...sows.map((s) => ({
+                                    value: String(s.id),
+                                    label: s.nama_sow
+                                }))
+                            ]}
+                            onChange={setSelectedSow}
+                            placeholder="Semua SOW"
+                            searchPlaceholder="Cari SOW..."
+                            allowCustom={false}
+                            className="!w-40 shrink-0"
+                            inputClassName="font-semibold text-slate-700 dark:text-slate-300"
+                        />
 
-                        {/* Filter Status */}
-                        <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-xs">
-                            <Filter className="w-3.5 h-3.5 text-slate-400" />
-                            <select
-                                value={selectedStatus}
-                                onChange={(e) => setSelectedStatus(e.target.value)}
-                                className="bg-transparent border-0 p-0 text-xs font-semibold text-slate-700 dark:text-slate-300 focus:ring-0 cursor-pointer"
-                            >
-                                <option value="ALL">Semua Status</option>
-                                <option value="PLANNING">PLANNING</option>
-                                <option value="ON_PROGRESS">ON_PROGRESS</option>
-                                <option value="ISSUE">ISSUE</option>
-                                <option value="COMPLETED">COMPLETED</option>
-                            </select>
-                        </div>
+                        <HybridDropdown
+                            value={selectedStatus}
+                            options={[
+                                { value: 'ALL', label: 'Semua Status' },
+                                { value: 'PLANNING', label: 'PLANNING' },
+                                { value: 'ON_PROGRESS', label: 'ON_PROGRESS' },
+                                { value: 'ISSUE', label: 'ISSUE' },
+                                { value: 'COMPLETED', label: 'COMPLETED' }
+                            ]}
+                            onChange={setSelectedStatus}
+                            placeholder="Semua Status"
+                            searchPlaceholder="Cari status..."
+                            allowCustom={false}
+                            className="!w-40 shrink-0"
+                            inputClassName="font-semibold text-slate-700 dark:text-slate-300"
+                        />
                     </div>
                 }
             />
@@ -262,10 +317,11 @@ export default function TabMasterData({
                 <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Total: {projects?.total || 0} Site Terdaftar
                 </span>
-                
+
                 <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
                     <div className="relative w-full sm:w-64">
                         <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+
                         <Input
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -273,6 +329,7 @@ export default function TabMasterData({
                             disabled={isProcessing}
                             className="h-8 pl-8 pr-7 text-xs bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
                         />
+
                         {searchTerm && (
                             <button
                                 type="button"
@@ -316,6 +373,7 @@ export default function TabMasterData({
                 <div className="p-4 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500 bg-slate-50/50 dark:bg-slate-900/50">
                     <div className="flex items-center gap-2">
                         <span>Tampilkan</span>
+
                         <Input
                             type="number"
                             min={1}
@@ -324,8 +382,12 @@ export default function TabMasterData({
                             disabled={isProcessing}
                             onChange={(e) => {
                                 const val = e.target.value;
-                                if (val !== '' && Number(val) > 100) setPerPageInput(100);
-                                else setPerPageInput(val);
+
+                                if (val !== '' && Number(val) > 100) {
+                                    setPerPageInput(100);
+                                } else {
+                                    setPerPageInput(val);
+                                }
                             }}
                             onBlur={handlePerPageSubmit}
                             onKeyDown={(e) => {
@@ -336,18 +398,46 @@ export default function TabMasterData({
                             }}
                             className="h-8 w-16 text-center text-xs font-bold bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
+
                         <span>data per halaman</span>
                     </div>
 
                     <div className="text-slate-500">
-                        Menampilkan <span className="font-semibold text-slate-700 dark:text-slate-300">{projects.from || 0}</span> – <span className="font-semibold text-slate-700 dark:text-slate-300">{projects.to || 0}</span> dari <span className="font-semibold text-slate-700 dark:text-slate-300">{projects.total || 0}</span> data
+                        Menampilkan{' '}
+                        <span className="font-semibold text-slate-700 dark:text-slate-300">
+                            {projects.from || 0}
+                        </span>{' '}
+                        –{' '}
+                        <span className="font-semibold text-slate-700 dark:text-slate-300">
+                            {projects.to || 0}
+                        </span>{' '}
+                        dari{' '}
+                        <span className="font-semibold text-slate-700 dark:text-slate-300">
+                            {projects.total || 0}
+                        </span>{' '}
+                        data
                     </div>
 
                     <div className="flex items-center gap-1">
                         {projects.links?.map((link, idx) => {
                             let label = link.label;
-                            if (label.includes('Previous') || label.includes('&laquo;')) label = <ChevronLeft className="w-3.5 h-3.5" />;
-                            else if (label.includes('Next') || label.includes('&raquo;')) label = <ChevronRight className="w-3.5 h-3.5" />;
+
+                            if (
+                                label.includes('Previous') ||
+                                label.includes('&laquo;')
+                            ) {
+                                label = (
+                                    <ChevronLeft className="w-3.5 h-3.5" />
+                                );
+                            } else if (
+                                label.includes('Next') ||
+                                label.includes('&raquo;')
+                            ) {
+                                label = (
+                                    <ChevronRight className="w-3.5 h-3.5" />
+                                );
+                            }
+
                             return (
                                 <Button
                                     key={`page-${idx}`}
@@ -355,9 +445,21 @@ export default function TabMasterData({
                                     variant={link.active ? "default" : "outline"}
                                     size="sm"
                                     disabled={!link.url || isProcessing}
-                                    onClick={() => link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })}
+                                    onClick={() =>
+                                        link.url &&
+                                        router.get(
+                                            link.url,
+                                            {},
+                                            {
+                                                preserveState: true,
+                                                preserveScroll: true
+                                            }
+                                        )
+                                    }
                                     className={`h-8 min-w-[32px] px-2 text-xs font-semibold dark:border-slate-800 ${
-                                        link.active ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                        link.active
+                                            ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                                     }`}
                                 >
                                     {label}
