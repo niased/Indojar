@@ -3,410 +3,320 @@ import Modal from '@/components/Modal';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
-    PlusCircle, 
-    Trash2, 
-    ClipboardPaste, 
-    AlertCircle 
+    AlertCircle, 
+    MapPin, 
+    Briefcase, 
+    ExternalLink 
 } from 'lucide-react';
-import HybridDropdown from '@/components/HybridDropdown';
-import { 
-    useModalProjectControl, 
-    MAX_ROWS_LIMIT,
-    LIST_STATUS_PROYEK 
-} from './ModalProjectControl';
+import { useModalProjectControl, LIST_STATUS_PROYEK } from './ModalProjectControl';
 
 export default function ModalProject({
     isOpen,
     onClose,
     isEditMode = false,
     selectedItem = null,
-    existingOptions = {}
+    areas = [],
+    sows = [],
+    users = []
 }) {
     const {
         isProcessing,
-        editData,
-        setEditData,
-        addItems,
-        tipeTowerOptions,
-        tinggiTowerOptions,
-        wilayahOptions,
-        clientOptions,
-        konsultanOptions,
-        handleContainerPaste,
-        handlePasteFromClipboardButton,
-        handleAddMoreRows,
-        handleRemoveAddRow,
-        handleAddItemChange,
+        formData,
+        setFormData,
         handleSubmitForm
-    } = useModalProjectControl({ isOpen, isEditMode, selectedItem, existingOptions, onClose });
+    } = useModalProjectControl({ isOpen, isEditMode, selectedItem, areas, sows, users, onClose });
 
-    const handleFilteredPaste = (e) => {
-        const targetTag = e.target?.tagName;
-        if (targetTag === 'INPUT' || targetTag === 'TEXTAREA') {
-            return;
-        }
-        handleContainerPaste?.(e);
+    const handleFieldChange = (field, value) => {
+        setFormData((prev) => ({ ...prev, [field]: value }));
     };
+
+    const hasCoordinates = Boolean(formData.latitude && formData.longitude);
 
     return (
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title={isEditMode ? 'Edit Data Site Proyek' : 'Tambah Master Proyek & Site Menara'}
+            title={isEditMode ? `Edit Proyek: ${selectedItem?.site_id || ''}` : 'Tambah Master Proyek & Site Menara'}
             onSubmit={handleSubmitForm}
-            submitLabel={isEditMode ? 'Simpan Perubahan' : 'Simpan Semua Proyek'}
+            submitLabel={isEditMode ? 'Simpan Perubahan' : 'Simpan Proyek'}
             isProcessing={isProcessing}
-            onPaste={!isEditMode ? handleFilteredPaste : undefined}
-            headerExtra={
-                !isEditMode && (
-                    <div className="flex items-center gap-2">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={handlePasteFromClipboardButton}
-                            className="h-7 text-xs gap-1.5 border-emerald-500/40 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 cursor-pointer"
-                        >
-                            <ClipboardPaste className="w-3.5 h-3.5" />
-                            <span>Paste dari Excel</span>
-                        </Button>
-                        <Badge 
-                            variant="secondary"
-                            className={`text-[11px] font-mono font-bold ${
-                                addItems.length >= MAX_ROWS_LIMIT
-                                    ? 'bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/40'
-                                    : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
-                            }`}
-                        >
-                            {addItems.length} / {MAX_ROWS_LIMIT} Baris
-                        </Badge>
-                    </div>
-                )
-            }
         >
-            {!isEditMode && (
-                <Alert className="shrink-0 mb-3 bg-blue-50/90 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 text-blue-900 dark:text-blue-300 p-3 rounded-xl flex items-start gap-2.5 shadow-xs">
-                    <AlertCircle className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
-                    <AlertDescription className="text-xs leading-relaxed">
-                        <strong>Smart Input Proyek:</strong> Kamu dapat mengisi langsung kolom per baris atau copy kolom dari Excel (Site ID, Nama Site, PID, Tipe Tower, Tinggi, Wilayah, Klien, Target RFI) lalu tekan tombol <strong>Paste dari Excel</strong>.
-                    </AlertDescription>
-                </Alert>
-            )}
-
-            <div className="space-y-4">
-                {isEditMode ? (
-                    <div className="space-y-3 p-1">
-                        {/* Baris 1: Site ID, Nama Site, PID */}
-                        <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                            <div className="sm:col-span-4 space-y-1.5">
-                                <Label className="text-xs font-semibold">Site ID *</Label>
-                                <Input 
-                                    disabled={isProcessing}
-                                    value={editData.site_id || ''} 
-                                    onChange={(e) => setEditData({ ...editData, site_id: e.target.value.toUpperCase() })} 
-                                    placeholder="Contoh: SRG117" 
-                                    className="h-8 text-xs font-mono font-bold uppercase"
-                                    required 
-                                />
-                            </div>
-                            <div className="sm:col-span-5 space-y-1.5">
-                                <Label className="text-xs font-semibold">Nama Site *</Label>
-                                <Input 
-                                    disabled={isProcessing}
-                                    value={editData.site_name || ''} 
-                                    onChange={(e) => setEditData({ ...editData, site_name: e.target.value.toUpperCase() })} 
-                                    placeholder="Contoh: LANUDGORDA" 
-                                    className="h-8 text-xs font-semibold uppercase"
-                                    required 
-                                />
-                            </div>
-                            <div className="sm:col-span-3 space-y-1.5">
-                                <Label className="text-xs font-semibold">PID / WBS</Label>
-                                <Input 
-                                    disabled={isProcessing}
-                                    value={editData.pid || ''} 
-                                    onChange={(e) => setEditData({ ...editData, pid: e.target.value })} 
-                                    placeholder="Contoh: 24TS01B0531" 
-                                    className="h-8 text-xs font-mono"
-                                />
-                            </div>
+            <div className="space-y-4 text-xs">
+                {/* 1. Identitas Pokok Site Menara */}
+                <div className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 space-y-3">
+                    <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
+                        1. Identitas Pokok Site Menara
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                            <Label className="text-[11px] font-bold">Site ID *</Label>
+                            <Input
+                                placeholder="Contoh: SRG117, BGR021"
+                                value={formData.site_id}
+                                onChange={(e) => handleFieldChange('site_id', e.target.value.toUpperCase())}
+                                className="h-8 text-xs font-mono font-bold bg-white dark:bg-slate-950"
+                                required
+                            />
                         </div>
-
-                        {/* Baris 2: Spesifikasi Tower & Wilayah */}
-                        <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                            <div className="sm:col-span-5 space-y-1.5">
-                                <Label className="text-xs font-semibold">Tipe Menara *</Label>
-                                <HybridDropdown
-                                    value={editData.tipe_tower || 'SST 4 LEGS'}
-                                    options={tipeTowerOptions}
-                                    onChange={(val) => setEditData({ ...editData, tipe_tower: val })}
-                                    placeholder="Pilih tipe menara..."
-                                    searchPlaceholder="Cari tipe..."
-                                    disabled={isProcessing}
-                                />
-                            </div>
-                            <div className="sm:col-span-3 space-y-1.5">
-                                <Label className="text-xs font-semibold">Tinggi Menara *</Label>
-                                <HybridDropdown
-                                    value={editData.tinggi_tower || '52M'}
-                                    options={tinggiTowerOptions}
-                                    onChange={(val) => setEditData({ ...editData, tinggi_tower: val })}
-                                    placeholder="Tinggi..."
-                                    searchPlaceholder="Cari tinggi..."
-                                    disabled={isProcessing}
-                                />
-                            </div>
-                            <div className="sm:col-span-4 space-y-1.5">
-                                <Label className="text-xs font-semibold">Wilayah / Kota-Kab</Label>
-                                <HybridDropdown
-                                    value={editData.wilayah || ''}
-                                    options={wilayahOptions}
-                                    onChange={(val) => setEditData({ ...editData, wilayah: val })}
-                                    placeholder="Wilayah..."
-                                    searchPlaceholder="Cari wilayah..."
-                                    disabled={isProcessing}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Baris 3: Klien & Konsultan */}
-                        <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                            <div className="sm:col-span-6 space-y-1.5">
-                                <Label className="text-xs font-semibold">Klien / Operator</Label>
-                                <HybridDropdown
-                                    value={editData.client_name || 'Telkomsel / Mitratel'}
-                                    options={clientOptions}
-                                    onChange={(val) => setEditData({ ...editData, client_name: val })}
-                                    placeholder="Klien..."
-                                    searchPlaceholder="Cari klien..."
-                                    disabled={isProcessing}
-                                />
-                            </div>
-                            <div className="sm:col-span-6 space-y-1.5">
-                                <Label className="text-xs font-semibold">Konsultan Pengawas</Label>
-                                <HybridDropdown
-                                    value={editData.konsultan || 'PT. ATRYA REKAYASA'}
-                                    options={konsultanOptions}
-                                    onChange={(val) => setEditData({ ...editData, konsultan: val })}
-                                    placeholder="Konsultan..."
-                                    searchPlaceholder="Cari konsultan..."
-                                    disabled={isProcessing}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Baris 4: Koordinat & Alamat */}
-                        <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                            <div className="sm:col-span-4 space-y-1.5">
-                                <Label className="text-xs font-semibold">Koordinat GPS (Lat, Long)</Label>
-                                <Input 
-                                    disabled={isProcessing}
-                                    value={editData.lat_long || ''} 
-                                    onChange={(e) => setEditData({ ...editData, lat_long: e.target.value })} 
-                                    placeholder="-6.1234, 106.5678" 
-                                    className="h-8 text-xs font-mono"
-                                />
-                            </div>
-                            <div className="sm:col-span-8 space-y-1.5">
-                                <Label className="text-xs font-semibold">Alamat Detail Site</Label>
-                                <Input 
-                                    disabled={isProcessing}
-                                    value={editData.alamat_site || ''} 
-                                    onChange={(e) => setEditData({ ...editData, alamat_site: e.target.value })} 
-                                    placeholder="Detail lokasi pembangunan..." 
-                                    className="h-8 text-xs"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Baris 5: Status, Bobot, Target RFI */}
-                        <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-                            <div className="sm:col-span-4 space-y-1.5">
-                                <Label className="text-xs font-semibold">Tahap Pekerjaan *</Label>
-                                <HybridDropdown
-                                    value={editData.status || 'PLANNING'}
-                                    options={LIST_STATUS_PROYEK}
-                                    onChange={(val) => setEditData({ ...editData, status: val })}
-                                    placeholder="Status..."
-                                    searchPlaceholder="Cari status..."
-                                    allowCustom={false}
-                                    disabled={isProcessing}
-                                />
-                            </div>
-                            <div className="sm:col-span-4 space-y-1.5">
-                                <Label className="text-xs font-semibold">Bobot Progress (%)</Label>
-                                <Input 
-                                    type="number"
-                                    step="0.01"
-                                    min={0}
-                                    max={100}
-                                    disabled={isProcessing}
-                                    value={editData.progress_percent || 0} 
-                                    onChange={(e) => setEditData({ ...editData, progress_percent: parseFloat(e.target.value) || 0 })} 
-                                    className="h-8 text-xs font-bold"
-                                />
-                            </div>
-                            <div className="sm:col-span-4 space-y-1.5">
-                                <Label className="text-xs font-semibold">Target RFI</Label>
-                                <Input 
-                                    type="date"
-                                    disabled={isProcessing}
-                                    value={editData.target_rfi_date || ''} 
-                                    onChange={(e) => setEditData({ ...editData, target_rfi_date: e.target.value })} 
-                                    className="h-8 text-xs"
-                                />
-                            </div>
+                        <div className="space-y-1">
+                            <Label className="text-[11px] font-bold">Nama Site *</Label>
+                            <Input
+                                placeholder="Contoh: LANUDGORDA, CIPARIGI"
+                                value={formData.site_name}
+                                onChange={(e) => handleFieldChange('site_name', e.target.value.toUpperCase())}
+                                className="h-8 text-xs font-bold bg-white dark:bg-slate-950"
+                                required
+                            />
                         </div>
                     </div>
-                ) : (
-                    /* Multi-Row Add Mode */
-                    <div className="space-y-4">
-                        {addItems.map((item, idx) => (
-                            <div key={`add-row-${idx}`} className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 relative space-y-3">
-                                <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
-                                    <span className="text-xs font-bold text-blue-600 dark:text-blue-400">
-                                        Site Proyek #{idx + 1}
-                                    </span>
-                                    {addItems.length > 1 && (
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => handleRemoveAddRow(idx)}
-                                            className="h-7 px-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 text-xs gap-1 cursor-pointer"
-                                        >
-                                            <Trash2 className="w-3.5 h-3.5" /> Hapus Baris
-                                        </Button>
-                                    )}
-                                </div>
-
-                                <div className="space-y-3">
-                                    {/* Baris 1: Site ID, Nama Site, PID */}
-                                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                                        <div className="sm:col-span-4 space-y-1">
-                                            <Label className="text-[11px] font-medium">Site ID *</Label>
-                                            <Input 
-                                                disabled={isProcessing}
-                                                value={item.site_id} 
-                                                onChange={(e) => handleAddItemChange(idx, 'site_id', e.target.value)} 
-                                                placeholder="Contoh: SRG117" 
-                                                className="h-8 text-xs bg-white dark:bg-slate-900 font-mono font-bold uppercase"
-                                                required 
-                                            />
-                                        </div>
-                                        <div className="sm:col-span-5 space-y-1">
-                                            <Label className="text-[11px] font-medium">Nama Site *</Label>
-                                            <Input 
-                                                disabled={isProcessing}
-                                                value={item.site_name} 
-                                                onChange={(e) => handleAddItemChange(idx, 'site_name', e.target.value)} 
-                                                placeholder="Contoh: LANUDGORDA" 
-                                                className="h-8 text-xs bg-white dark:bg-slate-900 font-semibold uppercase"
-                                                required 
-                                            />
-                                        </div>
-                                        <div className="sm:col-span-3 space-y-1">
-                                            <Label className="text-[11px] font-medium">PID / WBS</Label>
-                                            <Input 
-                                                disabled={isProcessing}
-                                                value={item.pid} 
-                                                onChange={(e) => handleAddItemChange(idx, 'pid', e.target.value)} 
-                                                placeholder="24TS01B0531" 
-                                                className="h-8 text-xs bg-white dark:bg-slate-900 font-mono"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* Baris 2: Tipe, Tinggi, Wilayah */}
-                                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                                        <div className="sm:col-span-4 space-y-1">
-                                            <Label className="text-[11px] font-medium">Tipe Menara *</Label>
-                                            <HybridDropdown
-                                                value={item.tipe_tower}
-                                                options={tipeTowerOptions}
-                                                onChange={(val) => handleAddItemChange(idx, 'tipe_tower', val)}
-                                                placeholder="Tipe Menara..."
-                                                searchPlaceholder="Cari tipe..."
-                                                disabled={isProcessing}
-                                            />
-                                        </div>
-                                        <div className="sm:col-span-4 space-y-1">
-                                            <Label className="text-[11px] font-medium">Tinggi Menara *</Label>
-                                            <HybridDropdown
-                                                value={item.tinggi_tower}
-                                                options={tinggiTowerOptions}
-                                                onChange={(val) => handleAddItemChange(idx, 'tinggi_tower', val)}
-                                                placeholder="Tinggi..."
-                                                searchPlaceholder="Cari tinggi..."
-                                                disabled={isProcessing}
-                                            />
-                                        </div>
-                                        <div className="sm:col-span-4 space-y-1">
-                                            <Label className="text-[11px] font-medium">Wilayah</Label>
-                                            <HybridDropdown
-                                                value={item.wilayah}
-                                                options={wilayahOptions}
-                                                onChange={(val) => handleAddItemChange(idx, 'wilayah', val)}
-                                                placeholder="Wilayah..."
-                                                searchPlaceholder="Cari wilayah..."
-                                                disabled={isProcessing}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* Baris 3: Klien, Target RFI, Status */}
-                                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                                        <div className="sm:col-span-5 space-y-1">
-                                            <Label className="text-[11px] font-medium">Klien / Operator</Label>
-                                            <HybridDropdown
-                                                value={item.client_name}
-                                                options={clientOptions}
-                                                onChange={(val) => handleAddItemChange(idx, 'client_name', val)}
-                                                placeholder="Klien..."
-                                                searchPlaceholder="Cari klien..."
-                                                disabled={isProcessing}
-                                            />
-                                        </div>
-                                        <div className="sm:col-span-4 space-y-1">
-                                            <Label className="text-[11px] font-medium">Target RFI</Label>
-                                            <Input 
-                                                type="date"
-                                                disabled={isProcessing}
-                                                value={item.target_rfi_date} 
-                                                onChange={(e) => handleAddItemChange(idx, 'target_rfi_date', e.target.value)} 
-                                                className="h-8 text-xs bg-white dark:bg-slate-900"
-                                            />
-                                        </div>
-                                        <div className="sm:col-span-3 space-y-1">
-                                            <Label className="text-[11px] font-medium">Status *</Label>
-                                            <HybridDropdown
-                                                value={item.status}
-                                                options={LIST_STATUS_PROYEK}
-                                                onChange={(val) => handleAddItemChange(idx, 'status', val)}
-                                                placeholder="Status..."
-                                                searchPlaceholder="Cari status..."
-                                                allowCustom={false}
-                                                disabled={isProcessing}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-
-                        <div className="flex items-center gap-2 pt-1">
-                            <Button type="button" variant="outline" size="sm" onClick={() => handleAddMoreRows(1)} className="h-8 text-xs gap-1.5 cursor-pointer">
-                                <PlusCircle className="w-3.5 h-3.5" /> <span>Tambah 1 Baris</span>
-                            </Button>
-                            <Button type="button" variant="outline" size="sm" onClick={() => handleAddMoreRows(5)} className="h-8 text-xs gap-1.5 cursor-pointer">
-                                <PlusCircle className="w-3.5 h-3.5" /> <span>Tambah 5 Baris</span>
-                            </Button>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="space-y-1">
+                            <Label className="text-[11px]">Project ID (PID)</Label>
+                            <Input
+                                placeholder="Contoh: 21SF10C0013"
+                                value={formData.pid}
+                                onChange={(e) => handleFieldChange('pid', e.target.value)}
+                                className="h-8 text-xs font-mono bg-white dark:bg-slate-950"
+                            />
+                        </div>
+                        <div className="space-y-1">
+                            <Label className="text-[11px]">Site ID DMT</Label>
+                            <Input
+                                placeholder="ID Menara Mitratel"
+                                value={formData.site_id_dmt}
+                                onChange={(e) => handleFieldChange('site_id_dmt', e.target.value)}
+                                className="h-8 text-xs font-mono bg-white dark:bg-slate-950"
+                            />
+                        </div>
+                        <div className="space-y-1">
+                            <Label className="text-[11px]">Site ID Tenant</Label>
+                            <Input
+                                placeholder="ID Operator Tenant"
+                                value={formData.site_id_tenant}
+                                onChange={(e) => handleFieldChange('site_id_tenant', e.target.value)}
+                                className="h-8 text-xs font-mono bg-white dark:bg-slate-950"
+                            />
                         </div>
                     </div>
-                )}
+                </div>
+
+                {/* 2. Klasifikasi Kontrak & Teritori */}
+                <div className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 space-y-3">
+                    <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
+                        2. Klasifikasi Kontrak & Penanggung Jawab
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="space-y-1">
+                            <Label className="text-[11px] font-bold">Area Operasional *</Label>
+                            <select
+                                value={formData.area_id}
+                                onChange={(e) => handleFieldChange('area_id', e.target.value)}
+                                className="w-full h-8 px-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg font-semibold text-xs"
+                                required
+                            >
+                                <option value="">-- Pilih Area --</option>
+                                {areas.map((a) => (
+                                    <option key={a.id} value={a.id}>
+                                        {a.nama_area} ({a.regional})
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="space-y-1">
+                            <Label className="text-[11px] font-bold">Scope of Work (SOW) *</Label>
+                            <select
+                                value={formData.sow_id}
+                                onChange={(e) => handleFieldChange('sow_id', e.target.value)}
+                                className="w-full h-8 px-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg font-bold text-xs"
+                                required
+                            >
+                                <option value="">-- Pilih SOW --</option>
+                                {sows.map((s) => (
+                                    <option key={s.id} value={s.id}>
+                                        {s.nama_sow}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="space-y-1">
+                            <Label className="text-[11px] font-bold">PIC Waslap Lapangan</Label>
+                            <select
+                                value={formData.pic_user_id}
+                                onChange={(e) => handleFieldChange('pic_user_id', e.target.value)}
+                                className="w-full h-8 px-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg font-semibold text-xs"
+                            >
+                                <option value="">-- Pilih PIC --</option>
+                                {users.map((u) => (
+                                    <option key={u.id} value={u.id}>
+                                        {u.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                            <Label className="text-[11px]">Klien / Operator Pemilik</Label>
+                            <Input
+                                value={formData.client_name}
+                                onChange={(e) => handleFieldChange('client_name', e.target.value)}
+                                className="h-8 text-xs bg-white dark:bg-slate-950"
+                            />
+                        </div>
+                        <div className="space-y-1">
+                            <Label className="text-[11px]">Konsultan Pengawas</Label>
+                            <Input
+                                value={formData.konsultan}
+                                onChange={(e) => handleFieldChange('konsultan', e.target.value)}
+                                className="h-8 text-xs bg-white dark:bg-slate-950"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* 3. Legalitas Kontrak & No. PO */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                        <Label className="text-[11px]">Nomor PO / SPK</Label>
+                        <Input
+                            placeholder="Contoh: 4100088581"
+                            value={formData.no_po}
+                            onChange={(e) => handleFieldChange('no_po', e.target.value)}
+                            className="h-8 text-xs font-mono bg-white dark:bg-slate-950"
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <Label className="text-[11px]">Tanggal PO / SPK</Label>
+                        <Input
+                            type="date"
+                            value={formData.tgl_po}
+                            onChange={(e) => handleFieldChange('tgl_po', e.target.value)}
+                            className="h-8 text-xs bg-white dark:bg-slate-950 cursor-pointer"
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <Label className="text-[11px]">Target RFI</Label>
+                        <Input
+                            type="date"
+                            value={formData.target_rfi_date}
+                            onChange={(e) => handleFieldChange('target_rfi_date', e.target.value)}
+                            className="h-8 text-xs bg-white dark:bg-slate-950 cursor-pointer font-bold text-emerald-600 dark:text-emerald-400"
+                        />
+                    </div>
+                </div>
+
+                {/* 4. Spesifikasi Menara & Lokasi Koordinat */}
+                <div className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 space-y-3">
+                    <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                            3. Spesifikasi Menara & Koordinat Lapangan
+                        </span>
+                        {hasCoordinates && (
+                            <a
+                                href={`https://www.google.com/maps?q=${formData.latitude},${formData.longitude}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                            >
+                                <ExternalLink className="w-3 h-3" />
+                                <span>Cek Peta</span>
+                            </a>
+                        )}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                            <Label className="text-[11px]">Tipe Menara</Label>
+                            <Input
+                                placeholder="SST 4 LEGS, Monopole, Guyed"
+                                value={formData.tipe_tower}
+                                onChange={(e) => handleFieldChange('tipe_tower', e.target.value)}
+                                className="h-8 text-xs font-semibold bg-white dark:bg-slate-950"
+                            />
+                        </div>
+                        <div className="space-y-1">
+                            <Label className="text-[11px]">Tinggi Menara</Label>
+                            <Input
+                                placeholder="52M, 42M, 32M"
+                                value={formData.tinggi_tower}
+                                onChange={(e) => handleFieldChange('tinggi_tower', e.target.value)}
+                                className="h-8 text-xs font-semibold bg-white dark:bg-slate-950"
+                            />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                            <Label className="text-[11px] font-bold">Latitude (Lintang)</Label>
+                            <Input
+                                type="number"
+                                step="0.00000001"
+                                placeholder="-6.07123400"
+                                value={formData.latitude}
+                                onChange={(e) => handleFieldChange('latitude', e.target.value)}
+                                className="h-8 text-xs font-mono bg-white dark:bg-slate-950"
+                            />
+                        </div>
+                        <div className="space-y-1">
+                            <Label className="text-[11px] font-bold">Longitude (Bujur)</Label>
+                            <Input
+                                type="number"
+                                step="0.00000001"
+                                placeholder="106.35412300"
+                                value={formData.longitude}
+                                onChange={(e) => handleFieldChange('longitude', e.target.value)}
+                                className="h-8 text-xs font-mono bg-white dark:bg-slate-950"
+                            />
+                        </div>
+                    </div>
+                    <div className="space-y-1">
+                        <Label className="text-[11px]">Alamat Lengkap Site</Label>
+                        <Input
+                            placeholder="Desa, Kecamatan, Kabupaten, Patokan Akses Jalan..."
+                            value={formData.alamat_site}
+                            onChange={(e) => handleFieldChange('alamat_site', e.target.value)}
+                            className="h-8 text-xs bg-white dark:bg-slate-950"
+                        />
+                    </div>
+                </div>
+
+                {/* 5. Status & Catatan */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                        <Label className="text-[11px] font-bold">Status Operasional Proyek</Label>
+                        <select
+                            value={formData.status}
+                            onChange={(e) => handleFieldChange('status', e.target.value)}
+                            className="w-full h-8 px-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg font-bold text-xs"
+                        >
+                            {LIST_STATUS_PROYEK.map((st) => (
+                                <option key={st} value={st}>
+                                    {st}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="space-y-1">
+                        <Label className="text-[11px]">Status Proses Klien</Label>
+                        <Input
+                            placeholder="Contoh: jaguar, mitratel"
+                            value={formData.proses_status}
+                            onChange={(e) => handleFieldChange('proses_status', e.target.value)}
+                            className="h-8 text-xs bg-white dark:bg-slate-950"
+                        />
+                    </div>
+                </div>
+
+                <div className="space-y-1">
+                    <Label className="text-[11px]">Catatan / Keterangan Khusus</Label>
+                    <textarea
+                        rows={2}
+                        placeholder="Catatan kendala lahan, izin warga, atau instruksi khusus..."
+                        value={formData.catatan_proyek}
+                        onChange={(e) => handleFieldChange('catatan_proyek', e.target.value)}
+                        className="w-full p-2.5 text-xs bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg"
+                    />
+                </div>
             </div>
         </Modal>
     );

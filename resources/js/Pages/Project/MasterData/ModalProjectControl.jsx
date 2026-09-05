@@ -1,206 +1,188 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 
-export const MAX_ROWS_LIMIT = 500;
-
-export const LIST_TIPE_TOWER = [
-    'SST 4 LEGS',
-    'SST 3 LEGS',
-    'MONOPOLE',
-    'GUYED TOWER',
-    'ROOFTOP POLE',
-    'MINI TOWER'
-];
-
-export const LIST_TINGGI_TOWER = [
-    '72M',
-    '62M',
-    '52M',
-    '42M',
-    '36M',
-    '32M',
-    '25M',
-    '20M',
-    '15M'
-];
+export const MAX_ROWS_LIMIT = 50;
 
 export const LIST_STATUS_PROYEK = [
     'PLANNING',
-    'PONDASI',
-    'ERECTION',
-    'CME',
-    'RFI',
-    'ATP',
-    'COMPLETED'
+    'ON_PROGRESS',
+    'ISSUE',
+    'COMPLETED',
 ];
 
-export const LIST_CLIENT = [
-    'Telkomsel / Mitratel',
-    'Indosat Ooredoo Hutchison',
-    'XL Axiata',
-    'Smartfren'
-];
-
-export function useModalProjectControl({ isOpen, isEditMode, selectedItem, existingOptions, onClose }) {
+export function useModalProjectControl({
+    isOpen,
+    isEditMode = false,
+    selectedItem = null,
+    areas = [],
+    sows = [],
+    users = [],
+    onClose
+}) {
     const [isProcessing, setIsProcessing] = useState(false);
-    const [editData, setEditData] = useState({});
-    const [addItems, setAddItems] = useState([]);
 
-    const tipeTowerOptions = useMemo(() => {
-        const set = new Set([...LIST_TIPE_TOWER, ...(existingOptions?.tipeTowerList || [])]);
-        return Array.from(set).filter(Boolean);
-    }, [existingOptions?.tipeTowerList]);
-
-    const tinggiTowerOptions = useMemo(() => {
-        const set = new Set([...LIST_TINGGI_TOWER, ...(existingOptions?.tinggiTowerList || [])]);
-        return Array.from(set).filter(Boolean);
-    }, [existingOptions?.tinggiTowerList]);
-
-    const wilayahOptions = useMemo(() => existingOptions?.wilayahList || [], [existingOptions?.wilayahList]);
-    const clientOptions = useMemo(() => {
-        const set = new Set([...LIST_CLIENT, ...(existingOptions?.clientList || [])]);
-        return Array.from(set).filter(Boolean);
-    }, [existingOptions?.clientList]);
-
-    const konsultanOptions = useMemo(() => existingOptions?.konsultanList || ['PT. ATRYA REKAYASA'], [existingOptions?.konsultanList]);
-
-    const createEmptyRow = useCallback(() => ({
+    // Template Baris Kosong untuk Batch Add (Paste Excel)
+    const createEmptyRow = () => ({
         site_id: '',
         site_name: '',
         pid: '',
+        site_id_dmt: '',
+        site_id_tenant: '',
+        area_id: areas[0]?.id ? String(areas[0].id) : '',
+        sow_id: sows[0]?.id ? String(sows[0].id) : '',
         tipe_tower: 'SST 4 LEGS',
         tinggi_tower: '52M',
-        wilayah: '',
+        client_name: 'Telkomsel / Mitratel',
+        no_po: '',
+        status: 'PLANNING',
+    });
+
+    const [addItems, setAddItems] = useState([createEmptyRow()]);
+
+    // State untuk Single Insert / Edit Form
+    const [formData, setFormData] = useState({
+        site_id: '',
+        site_name: '',
+        pid: '',
+        site_id_dmt: '',
+        site_id_tenant: '',
+        area_id: '',
+        sow_id: '',
         client_name: 'Telkomsel / Mitratel',
         konsultan: 'PT. ATRYA REKAYASA',
-        lat_long: '',
-        alamat_site: '',
+        no_po: '',
+        tgl_po: '',
         spk_date: '',
+        kompensasi: '',
+        tipe_tower: 'SST 4 LEGS',
+        tinggi_tower: '52M',
+        alamat_site: '',
+        latitude: '',
+        longitude: '',
         target_rfi_date: '',
         status: 'PLANNING',
-        progress_percent: 0,
-        catatan_proyek: ''
-    }), []);
+        proses_status: '',
+        pic_user_id: '',
+        catatan_proyek: '',
+    });
 
     useEffect(() => {
         if (isOpen) {
             if (isEditMode && selectedItem) {
-                setEditData({
-                    id: selectedItem.id,
-                    site_id: (selectedItem.site_id || '').toUpperCase(),
-                    site_name: (selectedItem.site_name || '').toUpperCase(),
+                setFormData({
+                    site_id: selectedItem.site_id || '',
+                    site_name: selectedItem.site_name || '',
                     pid: selectedItem.pid || '',
+                    site_id_dmt: selectedItem.site_id_dmt || '',
+                    site_id_tenant: selectedItem.site_id_tenant || '',
+                    area_id: selectedItem.area_id ? String(selectedItem.area_id) : '',
+                    sow_id: selectedItem.sow_id ? String(selectedItem.sow_id) : '',
+                    client_name: selectedItem.client_name || 'Telkomsel / Mitratel',
+                    konsultan: selectedItem.konsultan || '',
+                    no_po: selectedItem.no_po || '',
+                    tgl_po: selectedItem.tgl_po ? String(selectedItem.tgl_po).split('T')[0] : '',
+                    spk_date: selectedItem.spk_date ? String(selectedItem.spk_date).split('T')[0] : '',
+                    kompensasi: selectedItem.kompensasi || '',
                     tipe_tower: selectedItem.tipe_tower || 'SST 4 LEGS',
                     tinggi_tower: selectedItem.tinggi_tower || '52M',
-                    wilayah: selectedItem.wilayah || '',
-                    client_name: selectedItem.client_name || 'Telkomsel / Mitratel',
-                    konsultan: selectedItem.konsultan || 'PT. ATRYA REKAYASA',
-                    lat_long: selectedItem.lat_long || '',
                     alamat_site: selectedItem.alamat_site || '',
-                    spk_date: selectedItem.spk_date ? selectedItem.spk_date.substring(0, 10) : '',
-                    target_rfi_date: selectedItem.target_rfi_date ? selectedItem.target_rfi_date.substring(0, 10) : '',
+                    latitude: selectedItem.latitude !== null ? String(selectedItem.latitude) : '',
+                    longitude: selectedItem.longitude !== null ? String(selectedItem.longitude) : '',
+                    target_rfi_date: selectedItem.target_rfi_date ? String(selectedItem.target_rfi_date).split('T')[0] : '',
                     status: selectedItem.status || 'PLANNING',
-                    progress_percent: selectedItem.progress_percent || 0,
+                    proses_status: selectedItem.proses_status || '',
+                    pic_user_id: selectedItem.pic_user_id ? String(selectedItem.pic_user_id) : '',
                     catatan_proyek: selectedItem.catatan_proyek || '',
                 });
             } else {
+                setFormData({
+                    site_id: '',
+                    site_name: '',
+                    pid: '',
+                    site_id_dmt: '',
+                    site_id_tenant: '',
+                    area_id: areas[0]?.id ? String(areas[0].id) : '',
+                    sow_id: sows[0]?.id ? String(sows[0].id) : '',
+                    client_name: 'Telkomsel / Mitratel',
+                    konsultan: 'PT. ATRYA REKAYASA',
+                    no_po: '',
+                    tgl_po: '',
+                    spk_date: '',
+                    kompensasi: '',
+                    tipe_tower: 'SST 4 LEGS',
+                    tinggi_tower: '52M',
+                    alamat_site: '',
+                    latitude: '',
+                    longitude: '',
+                    target_rfi_date: '',
+                    status: 'PLANNING',
+                    proses_status: '',
+                    pic_user_id: users[0]?.id ? String(users[0].id) : '',
+                    catatan_proyek: '',
+                });
                 setAddItems([createEmptyRow()]);
             }
-        } else {
-            setEditData({});
-            setAddItems([]);
-            setIsProcessing(false);
         }
-    }, [isOpen, isEditMode, selectedItem, createEmptyRow]);
+    }, [isOpen, isEditMode, selectedItem, areas, sows, users]);
 
-    const parseAndApplyExcelData = useCallback((pastedText) => {
-        if (!pastedText) return false;
-        let rawRows = pastedText.trim().split(/\r\n|\n|\r/).filter(row => row.trim().length > 0);
-        if (rawRows.length === 1 && !rawRows[0].includes('\t')) return false;
-
-        if (rawRows.length > MAX_ROWS_LIMIT) {
-            alert(`Perhatian: Data paste dibatasi maksimal ${MAX_ROWS_LIMIT} baris.`);
-            rawRows = rawRows.slice(0, MAX_ROWS_LIMIT);
-        }
-
-        const parsedItems = rawRows.map(rowStr => {
-            const cells = rowStr.split('\t').map(c => c.trim().replace(/^"(.*)"$/, '$1'));
-            const rowObj = createEmptyRow();
-
-            // Pemetaan Kolom Excel:
-            // 0: Site ID, 1: Nama Site, 2: PID, 3: Tipe Tower, 4: Tinggi Tower, 5: Wilayah, 6: Klien, 7: Target RFI, 8: Status
-            rowObj.site_id         = (cells[0] ?? '').toUpperCase();
-            rowObj.site_name       = (cells[1] ?? '').toUpperCase();
-            rowObj.pid             = cells[2] ?? '';
-            rowObj.tipe_tower      = cells[3] ?? 'SST 4 LEGS';
-            rowObj.tinggi_tower    = cells[4] ?? '52M';
-            rowObj.wilayah         = cells[5] ?? '';
-            rowObj.client_name     = cells[6] ?? 'Telkomsel / Mitratel';
-            rowObj.target_rfi_date = cells[7] ?? '';
-            rowObj.status          = cells[8] ? cells[8].toUpperCase() : 'PLANNING';
-
-            return rowObj;
+    const handleAddMoreRows = (count = 1) => {
+        setAddItems((prev) => {
+            const available = MAX_ROWS_LIMIT - prev.length;
+            if (available <= 0) return prev;
+            const toAdd = Math.min(count, available);
+            return [...prev, ...Array.from({ length: toAdd }, () => createEmptyRow())];
         });
+    };
 
-        if (parsedItems.length > 0) {
-            setAddItems(parsedItems);
-            return true;
-        }
-        return false;
-    }, [createEmptyRow]);
-
-    const handleContainerPaste = useCallback((e) => {
-        if (isEditMode) return;
-        const pastedText = e.clipboardData.getData('text');
-        if (parseAndApplyExcelData(pastedText)) e.preventDefault();
-    }, [isEditMode, parseAndApplyExcelData]);
-
-    const handlePasteFromClipboardButton = useCallback(async () => {
-        try {
-            const text = await navigator.clipboard.readText();
-            if (text && !parseAndApplyExcelData(text)) {
-                alert('Format teks clipboard bukan urutan tabel Excel yang valid.');
-            }
-        } catch (err) {
-            alert('Gagal membaca clipboard. Izinkan akses clipboard browser atau gunakan shortcut Ctrl+V.');
-        }
-    }, [parseAndApplyExcelData]);
-
-    const handleAddMoreRows = useCallback((count = 1) => {
-        setAddItems(prev => {
-            if (prev.length + count > MAX_ROWS_LIMIT) {
-                alert(`Maksimal penambahan data sekaligus adalah ${MAX_ROWS_LIMIT} baris.`);
-                return prev;
-            }
-            return [...prev, ...Array.from({ length: count }, () => createEmptyRow())];
-        });
-    }, [createEmptyRow]);
-
-    const handleRemoveAddRow = useCallback((index) => {
+    const handleRemoveAddRow = (index) => {
         if (addItems.length <= 1) return;
-        setAddItems(prev => prev.filter((_, i) => i !== index));
-    }, [addItems.length]);
+        setAddItems((prev) => prev.filter((_, i) => i !== index));
+    };
 
-    const handleAddItemChange = useCallback((index, field, value) => {
-        setAddItems(prev => {
+    const handleAddItemChange = (index, field, value) => {
+        setAddItems((prev) => {
             const updated = [...prev];
-            const finalVal = (field === 'site_id' || field === 'site_name') ? value.toUpperCase() : value;
-            updated[index] = { ...updated[index], [field]: finalVal };
+            updated[index] = { ...updated[index], [field]: value };
             return updated;
         });
-    }, []);
+    };
+
+    // Paste Parser dari Excel
+    const handlePasteFromClipboard = (clipboardText) => {
+        if (!clipboardText) return;
+        const rows = clipboardText.trim().split(/\r\n|\n|\r/);
+        if (rows.length === 0) return;
+
+        const parsed = rows.map((line) => {
+            const cols = line.split('\t');
+            // Urutan umum salin Excel Indojar: Site ID, Site Name, PID, SOW, Area, Tinggi
+            return {
+                site_id: cols[0]?.trim() || '',
+                site_name: cols[1]?.trim() || '',
+                pid: cols[2]?.trim() || '',
+                site_id_dmt: cols[3]?.trim() || '',
+                site_id_tenant: cols[4]?.trim() || '',
+                tipe_tower: cols[5]?.trim() || 'SST 4 LEGS',
+                tinggi_tower: cols[6]?.trim() || '52M',
+                client_name: cols[7]?.trim() || 'Telkomsel / Mitratel',
+                no_po: cols[8]?.trim() || '',
+                status: 'PLANNING',
+                area_id: areas[0]?.id ? String(areas[0].id) : '',
+                sow_id: sows[0]?.id ? String(sows[0].id) : '',
+            };
+        }).filter((item) => item.site_id || item.site_name);
+
+        if (parsed.length > 0) {
+            setAddItems(parsed.slice(0, MAX_ROWS_LIMIT));
+        }
+    };
 
     const handleSubmitForm = (e) => {
         e?.preventDefault();
+        setIsProcessing(true);
 
-        if (isEditMode) {
-            if (!editData.site_id?.trim() || !editData.site_name?.trim()) {
-                alert('Site ID dan Nama Site wajib diisi.');
-                return;
-            }
-
-            setIsProcessing(true);
-            router.put(`/project/${editData.id}`, editData, {
+        if (isEditMode && selectedItem) {
+            router.put(route('project.update', selectedItem.id), formData, {
                 preserveScroll: true,
                 onSuccess: () => {
                     setIsProcessing(false);
@@ -210,22 +192,8 @@ export function useModalProjectControl({ isOpen, isEditMode, selectedItem, exist
                 onFinish: () => setIsProcessing(false),
             });
         } else {
-            const siteIdSet = new Set();
-            for (let i = 0; i < addItems.length; i++) {
-                const item = addItems[i];
-                if (!item.site_id?.trim() || !item.site_name?.trim()) {
-                    alert(`Baris #${i + 1}: Site ID dan Nama Site wajib diisi.`);
-                    return;
-                }
-                if (siteIdSet.has(item.site_id)) {
-                    alert(`Baris #${i + 1}: Site ID "${item.site_id}" terduplikasi pada form.`);
-                    return;
-                }
-                siteIdSet.add(item.site_id);
-            }
-
-            setIsProcessing(true);
-            router.post('/project', { items: addItems }, {
+            // Single insert jika hanya 1 baris
+            router.post(route('project.store'), formData, {
                 preserveScroll: true,
                 onSuccess: () => {
                     setIsProcessing(false);
@@ -239,19 +207,13 @@ export function useModalProjectControl({ isOpen, isEditMode, selectedItem, exist
 
     return {
         isProcessing,
-        editData,
-        setEditData,
+        formData,
+        setFormData,
         addItems,
-        handleContainerPaste,
-        handlePasteFromClipboardButton,
         handleAddMoreRows,
         handleRemoveAddRow,
         handleAddItemChange,
+        handlePasteFromClipboard,
         handleSubmitForm,
-        tipeTowerOptions,
-        tinggiTowerOptions,
-        wilayahOptions,
-        clientOptions,
-        konsultanOptions,
     };
 }

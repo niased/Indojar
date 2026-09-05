@@ -15,6 +15,8 @@ import {
 import {
     LayoutDashboard,
     Briefcase,
+    Wrench,
+    Layers,
     FileSpreadsheet,
     User as UserIcon,
     LogOut,
@@ -34,6 +36,8 @@ const ROUTE_FALLBACKS = {
     'dashboard': '/dashboard',
     'home': '/dashboard',
     'project.index': '/project',
+    'pekerjaan.index': '/pekerjaan',
+    'master-data.index': '/master-data',
     'laporan.index': '/laporan',
     'admin.users.index': '/admin/users',
     'profile.edit': '/profile',
@@ -165,10 +169,10 @@ export default function AuthenticatedLayout({ header, children }) {
 
     return (
         <ConfirmContext.Provider value={confirm}>
-            {/* BACKGROUND BIRU ELEGAN ASLI */}
+            {/* Latar Belakang Biru Elegan */}
             <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50/40 to-amber-50/20 dark:from-[#080d24] dark:via-[#0c1538] dark:to-[#060a1c] text-slate-900 dark:text-slate-100 font-sans selection:bg-emerald-500 selection:text-slate-950 transition-colors duration-300 relative overflow-x-hidden">
                 
-                {/* Backdrop Animasi Garis & Grid Biru Asli */}
+                {/* Backdrop Garis & Grid Animasi */}
                 <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-20 dark:opacity-25 print:hidden">
                     <div className="absolute inset-0 bg-[linear-gradient(to_right,#3b82f615_1px,transparent_1px),linear-gradient(to_bottom,#3b82f615_1px,transparent_1px)] bg-[size:48px_48px]" />
                     
@@ -302,7 +306,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
                     </div>
 
-                    {/* TIER 2: NAVBAR KHUSUS HIJAU INDOJAR + AKSEN EMAS */}
+                    {/* TIER 2: NAVBAR HIJAU INDOJAR + AKSEN EMAS */}
                     <div 
                         className={`hidden md:flex justify-center w-full transition-all duration-300 ease-in-out z-40 bg-gradient-to-r from-[#064e3b] via-[#047857] to-[#064e3b] dark:from-[#03231a] dark:via-[#064232] dark:to-[#03231a] border-b border-emerald-800/80 dark:border-emerald-900/60 shadow-md ${
                             isNavOpen ? 'max-h-14 opacity-100 overflow-visible' : 'max-h-0 opacity-0 overflow-hidden'
@@ -336,7 +340,33 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <span>Master Proyek & Site</span>
                             </Link>
 
-                            {/* 3. Laporan Rekapitulasi */}
+                            {/* 3. Master Pekerjaan */}
+                            <Link
+                                href={getRoute('pekerjaan.index')}
+                                className={`flex items-center gap-2 px-1 h-full font-medium text-sm transition-all duration-200 outline-none border-b-[3px] ${
+                                    checkActive('pekerjaan.index')
+                                        ? 'border-amber-400 text-amber-300 font-bold'
+                                        : 'border-transparent text-white/80 hover:text-white hover:border-white/50'
+                                }`}
+                            >
+                                <Wrench className="w-4 h-4" />
+                                <span>Master Pekerjaan</span>
+                            </Link>
+
+                            {/* 4. Master Data Kamus (Area, SOW, Stage, Template Task) */}
+                            <Link
+                                href={getRoute('master-data.index')}
+                                className={`flex items-center gap-2 px-1 h-full font-medium text-sm transition-all duration-200 outline-none border-b-[3px] ${
+                                    checkActive('master-data.index')
+                                        ? 'border-amber-400 text-amber-300 font-bold'
+                                        : 'border-transparent text-white/80 hover:text-white hover:border-white/50'
+                                }`}
+                            >
+                                <Layers className="w-4 h-4" />
+                                <span>Master Data Kamus</span>
+                            </Link>
+
+                            {/* 5. Laporan Rekapitulasi */}
                             <Link
                                 href={getRoute('laporan.index')}
                                 className={`flex items-center gap-2 px-1 h-full font-medium text-sm transition-all duration-200 outline-none border-b-[3px] ${
@@ -380,6 +410,22 @@ export default function AuthenticatedLayout({ header, children }) {
                                 }`}
                             >
                                 <Briefcase className="w-4 h-4" /> Master Proyek & Site
+                            </Link>
+                            <Link 
+                                href={getRoute('pekerjaan.index')} 
+                                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                                    checkActive('pekerjaan.index') ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                }`}
+                            >
+                                <Wrench className="w-4 h-4" /> Master Pekerjaan
+                            </Link>
+                            <Link 
+                                href={getRoute('master-data.index')} 
+                                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                                    checkActive('master-data.index') ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                }`}
+                            >
+                                <Layers className="w-4 h-4" /> Master Data Kamus
                             </Link>
                             <Link 
                                 href={getRoute('laporan.index')} 

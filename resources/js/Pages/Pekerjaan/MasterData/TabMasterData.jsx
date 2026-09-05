@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Toolbar from '@/components/Toolbar';
-import CrudTable from './CrudTable';
-import ModalProject from './ModalProject';
+import CrudTablePekerjaan from './CrudTable';
+import ModalPekerjaan from './ModalPekerjaan';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
@@ -10,19 +10,16 @@ import {
     X, 
     ChevronLeft, 
     ChevronRight, 
-    Filter, 
-    Layers, 
-    MapPin, 
-    Briefcase 
+    Radio, 
+    ListOrdered 
 } from 'lucide-react';
 import { router, usePage } from '@inertiajs/react';
 import { useConfirm } from '@/Layouts/AuthenticatedLayout';
 
-export default function TabMasterData({
-    projects,
-    areas = [],
-    sows = [],
-    users = [],
+export default function TabPekerjaan({
+    pekerjaans,
+    projects = [],
+    stages = [],
     filters = {}
 }) {
     const { auth } = usePage().props;
@@ -33,24 +30,23 @@ export default function TabMasterData({
 
     // State Filter & Pencarian
     const [searchTerm, setSearchTerm] = useState(filters?.search || '');
-    const [selectedArea, setSelectedArea] = useState(filters?.area_id || 'ALL');
-    const [selectedSow, setSelectedSow] = useState(filters?.sow_id || 'ALL');
-    const [selectedStatus, setSelectedStatus] = useState(filters?.status || 'ALL');
-    const [sortOrder, setSortOrder] = useState(filters?.order || 'desc');
+    const [selectedProject, setSelectedProject] = useState(filters?.project_id || 'ALL');
+    const [selectedStage, setSelectedStage] = useState(filters?.stage_id || 'ALL');
+    const [sortOrder, setSortOrder] = useState(filters?.order || 'asc');
     const [perPage, setPerPage] = useState(filters?.per_page || 10);
     const [perPageInput, setPerPageInput] = useState(filters?.per_page || 10);
     const [isProcessing, setIsProcessing] = useState(false);
 
-    // Zoom & Selection
+    // Zoom & Seleksi Baris
     const [zoomLevel, setZoomLevel] = useState(100);
     const [selectedIds, setSelectedIds] = useState([]);
 
-    // Modal State
+    // State Modal Form
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
 
-    const dataList = projects?.data || [];
+    const dataList = pekerjaans?.data || [];
 
     const handleZoomIn = () => setZoomLevel((prev) => Math.min(prev + 10, 120));
     const handleZoomOut = () => setZoomLevel((prev) => Math.max(prev - 10, 50));
@@ -64,20 +60,19 @@ export default function TabMasterData({
             return;
         }
         const timer = setTimeout(() => {
-            fetchFilteredData(searchTerm, selectedArea, selectedSow, selectedStatus, sortOrder, perPage, 1);
+            fetchFilteredData(searchTerm, selectedProject, selectedStage, sortOrder, perPage, 1);
         }, 400);
         return () => clearTimeout(timer);
-    }, [searchTerm, selectedArea, selectedSow, selectedStatus]);
+    }, [searchTerm, selectedProject, selectedStage]);
 
-    const fetchFilteredData = (search, areaId, sowId, status, order, itemsPerPage, page = 1) => {
+    const fetchFilteredData = (search, projectId, stageId, order, itemsPerPage, page = 1) => {
         setSelectedIds([]);
         router.get(
-            route('project.index'),
+            route('pekerjaan.index'),
             {
                 search: search || undefined,
-                area_id: areaId !== 'ALL' ? areaId : undefined,
-                sow_id: sowId !== 'ALL' ? sowId : undefined,
-                status: status !== 'ALL' ? status : undefined,
+                project_id: projectId !== 'ALL' ? projectId : undefined,
+                stage_id: stageId !== 'ALL' ? stageId : undefined,
                 order: order,
                 per_page: itemsPerPage,
                 page,
@@ -95,7 +90,7 @@ export default function TabMasterData({
     const toggleSort = () => {
         const nextOrder = sortOrder === 'asc' ? 'desc' : 'asc';
         setSortOrder(nextOrder);
-        fetchFilteredData(searchTerm, selectedArea, selectedSow, selectedStatus, nextOrder, perPage, 1);
+        fetchFilteredData(searchTerm, selectedProject, selectedStage, nextOrder, perPage, 1);
     };
 
     const handlePerPageSubmit = () => {
@@ -105,7 +100,7 @@ export default function TabMasterData({
         setPerPageInput(val);
         if (val !== perPage) {
             setPerPage(val);
-            fetchFilteredData(searchTerm, selectedArea, selectedSow, selectedStatus, sortOrder, val, 1);
+            fetchFilteredData(searchTerm, selectedProject, selectedStage, sortOrder, val, 1);
         }
     };
 
@@ -125,20 +120,19 @@ export default function TabMasterData({
     };
 
     const handleExport = () => {
-        const exportUrl = route('project.export');
-        window.open(exportUrl, '_blank');
+        window.open(route('pekerjaan.export'), '_blank');
     };
 
     const handleDeleteSelected = () => {
         if (!isAdmin || selectedIds.length === 0) return;
         confirm({
-            title: 'Hapus Proyek Terpilih',
-            message: `Apakah kamu yakin ingin MENGHAPUS ${selectedIds.length} site proyek terpilih beserta seluruh rincian pekerjaannya?`,
+            title: 'Hapus Item Pekerjaan',
+            message: `Apakah kamu yakin ingin menghapus ${selectedIds.length} item pekerjaan terpilih? Foto Cloudinary terkait juga akan dihapus.`,
             variant: 'danger',
             confirmText: 'Ya, Hapus Semua',
             cancelText: 'Batal',
             onConfirm: () => {
-                router.post(route('project.bulk-delete'), { ids: selectedIds }, {
+                router.post(route('pekerjaan.bulk-delete'), { ids: selectedIds }, {
                     preserveScroll: true,
                     onStart: () => setIsProcessing(true),
                     onSuccess: () => setSelectedIds([]),
@@ -151,13 +145,13 @@ export default function TabMasterData({
     const handleReset = () => {
         if (!isAdmin) return;
         confirm({
-            title: 'Kosongkan Master Proyek',
-            message: 'Apakah kamu yakin ingin MENGHAPUS SELURUH data proyek dan rincian pekerjaan? Tindakan ini tidak dapat dibatalkan.',
+            title: 'Kosongkan Seluruh Pekerjaan WBS',
+            message: 'Apakah kamu yakin ingin mengosongkan seluruh data item pekerjaan? Tindakan ini tidak dapat dibatalkan.',
             variant: 'danger',
             confirmText: 'Ya, Kosongkan Data',
             cancelText: 'Batal',
             onConfirm: () => {
-                router.post(route('project.reset'), {}, {
+                router.post(route('pekerjaan.reset'), {}, {
                     preserveScroll: true,
                     onStart: () => setIsProcessing(true),
                     onSuccess: () => setSelectedIds([]),
@@ -180,9 +174,9 @@ export default function TabMasterData({
     };
 
     const getRowNumber = (index) => {
-        if (!projects) return index + 1;
-        const currentPage = projects.current_page || 1;
-        const limit = projects.per_page || 10;
+        if (!pekerjaans) return index + 1;
+        const currentPage = pekerjaans.current_page || 1;
+        const limit = pekerjaans.per_page || 10;
         return (currentPage - 1) * limit + index + 1;
     };
 
@@ -204,53 +198,37 @@ export default function TabMasterData({
                 onFitZoom={handleFitZoom}
                 leftContent={
                     <div className="flex flex-wrap items-center gap-2">
-                        {/* Filter Area */}
+                        {/* Filter Site Proyek */}
                         <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-xs">
-                            <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                            <Radio className="w-3.5 h-3.5 text-slate-400" />
                             <select
-                                value={selectedArea}
-                                onChange={(e) => setSelectedArea(e.target.value)}
-                                className="bg-transparent border-0 p-0 text-xs font-semibold text-slate-700 dark:text-slate-300 focus:ring-0 cursor-pointer"
+                                value={selectedProject}
+                                onChange={(e) => setSelectedProject(e.target.value)}
+                                className="bg-transparent border-0 p-0 text-xs font-semibold text-slate-700 dark:text-slate-300 focus:ring-0 cursor-pointer max-w-[160px] truncate"
                             >
-                                <option value="ALL">Semua Area</option>
-                                {areas.map((a) => (
-                                    <option key={a.id} value={a.id}>
-                                        {a.nama_area} ({a.regional})
+                                <option value="ALL">Semua Site Proyek</option>
+                                {projects.map((p) => (
+                                    <option key={p.id} value={p.id}>
+                                        {p.site_id} - {p.site_name}
                                     </option>
                                 ))}
                             </select>
                         </div>
 
-                        {/* Filter SOW */}
+                        {/* Filter Tahapan */}
                         <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-xs">
-                            <Briefcase className="w-3.5 h-3.5 text-slate-400" />
+                            <ListOrdered className="w-3.5 h-3.5 text-slate-400" />
                             <select
-                                value={selectedSow}
-                                onChange={(e) => setSelectedSow(e.target.value)}
+                                value={selectedStage}
+                                onChange={(e) => setSelectedStage(e.target.value)}
                                 className="bg-transparent border-0 p-0 text-xs font-semibold text-slate-700 dark:text-slate-300 focus:ring-0 cursor-pointer"
                             >
-                                <option value="ALL">Semua SOW</option>
-                                {sows.map((s) => (
-                                    <option key={s.id} value={s.id}>
-                                        {s.nama_sow}
+                                <option value="ALL">Semua Tahap</option>
+                                {stages.map((st) => (
+                                    <option key={st.id} value={st.id}>
+                                        {st.nama_stage}
                                     </option>
                                 ))}
-                            </select>
-                        </div>
-
-                        {/* Filter Status */}
-                        <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-xs">
-                            <Filter className="w-3.5 h-3.5 text-slate-400" />
-                            <select
-                                value={selectedStatus}
-                                onChange={(e) => setSelectedStatus(e.target.value)}
-                                className="bg-transparent border-0 p-0 text-xs font-semibold text-slate-700 dark:text-slate-300 focus:ring-0 cursor-pointer"
-                            >
-                                <option value="ALL">Semua Status</option>
-                                <option value="PLANNING">PLANNING</option>
-                                <option value="ON_PROGRESS">ON_PROGRESS</option>
-                                <option value="ISSUE">ISSUE</option>
-                                <option value="COMPLETED">COMPLETED</option>
                             </select>
                         </div>
                     </div>
@@ -260,16 +238,16 @@ export default function TabMasterData({
             {/* Sub-Header: Search & Tombol Tambah */}
             <div className="px-5 py-2.5 bg-slate-50/50 dark:bg-slate-800/40 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Total: {projects?.total || 0} Site Terdaftar
+                    Total: {pekerjaans?.total || 0} Item Pekerjaan
                 </span>
-                
+
                 <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
                     <div className="relative w-full sm:w-64">
                         <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                         <Input
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Cari Site ID / Nama / No PO..."
+                            placeholder="Cari Kode WBS / Pekerjaan / Site..."
                             disabled={isProcessing}
                             className="h-8 pl-8 pr-7 text-xs bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
                         />
@@ -292,15 +270,15 @@ export default function TabMasterData({
                             className="h-8 text-xs gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-xs shrink-0 cursor-pointer"
                         >
                             <Plus className="w-3.5 h-3.5" />
-                            <span>Tambah Proyek</span>
+                            <span>Tambah Pekerjaan</span>
                         </Button>
                     )}
                 </div>
             </div>
 
-            {/* Tabel Data */}
+            {/* Tabel Data Pekerjaan */}
             <div className="w-full overflow-x-auto relative border-b border-slate-200 dark:border-slate-800">
-                <CrudTable
+                <CrudTablePekerjaan
                     dataList={dataList}
                     selectedIds={selectedIds}
                     onSelectAll={handleSelectAll}
@@ -312,7 +290,7 @@ export default function TabMasterData({
             </div>
 
             {/* Pagination Footer */}
-            {projects && (
+            {pekerjaans && (
                 <div className="p-4 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500 bg-slate-50/50 dark:bg-slate-900/50">
                     <div className="flex items-center gap-2">
                         <span>Tampilkan</span>
@@ -340,17 +318,17 @@ export default function TabMasterData({
                     </div>
 
                     <div className="text-slate-500">
-                        Menampilkan <span className="font-semibold text-slate-700 dark:text-slate-300">{projects.from || 0}</span> – <span className="font-semibold text-slate-700 dark:text-slate-300">{projects.to || 0}</span> dari <span className="font-semibold text-slate-700 dark:text-slate-300">{projects.total || 0}</span> data
+                        Menampilkan <span className="font-semibold text-slate-700 dark:text-slate-300">{pekerjaans.from || 0}</span> – <span className="font-semibold text-slate-700 dark:text-slate-300">{pekerjaans.to || 0}</span> dari <span className="font-semibold text-slate-700 dark:text-slate-300">{pekerjaans.total || 0}</span> data
                     </div>
 
                     <div className="flex items-center gap-1">
-                        {projects.links?.map((link, idx) => {
+                        {pekerjaans.links?.map((link, idx) => {
                             let label = link.label;
                             if (label.includes('Previous') || label.includes('&laquo;')) label = <ChevronLeft className="w-3.5 h-3.5" />;
                             else if (label.includes('Next') || label.includes('&raquo;')) label = <ChevronRight className="w-3.5 h-3.5" />;
                             return (
                                 <Button
-                                    key={`page-${idx}`}
+                                    key={`page-pek-${idx}`}
                                     type="button"
                                     variant={link.active ? "default" : "outline"}
                                     size="sm"
@@ -368,8 +346,8 @@ export default function TabMasterData({
                 </div>
             )}
 
-            {/* Modal Tambah & Edit Proyek */}
-            <ModalProject
+            {/* Modal Tambah / Edit Pekerjaan */}
+            <ModalPekerjaan
                 isOpen={isModalOpen}
                 onClose={() => {
                     setIsModalOpen(false);
@@ -377,9 +355,8 @@ export default function TabMasterData({
                 }}
                 isEditMode={isEditMode}
                 selectedItem={selectedItem}
-                areas={areas}
-                sows={sows}
-                users={users}
+                projects={projects}
+                stages={stages}
             />
         </div>
     );
