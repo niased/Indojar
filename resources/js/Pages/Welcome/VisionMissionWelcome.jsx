@@ -143,7 +143,7 @@ export default function VisionMissionWelcome({ lang = 'id' }) {
                 <div className="
                     absolute
                     left-[17.8%]
-                    top-[56.9%]
+                    top-[55.9%]
                     z-10
                     w-[34%]
                     max-w-[590px]
@@ -189,7 +189,7 @@ export default function VisionMissionWelcome({ lang = 'id' }) {
                 <div className="
                     absolute
                     left-[17.8%]
-                    top-[84.2%]
+                    top-[82.2%]
                     z-10
                     w-[34%]
                     max-w-[590px]
@@ -214,7 +214,7 @@ export default function VisionMissionWelcome({ lang = 'id' }) {
                     right-[0%]
                     top-[16%]
                     z-30
-                    h-[75%]
+                    h-[76%]
                     w-[41.5%]
                     overflow-hidden
                     rounded-tl-[7vw]
@@ -229,7 +229,7 @@ export default function VisionMissionWelcome({ lang = 'id' }) {
                         }
                         className="
                             h-full
-                            w-[175%]
+                            w-[125%]
                             max-w-none
                             object-cover
                             object-left

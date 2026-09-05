@@ -1,170 +1,172 @@
-import React from 'react';
-import {
-    Building2,
-    HardHat,
-    Layers,
-    Radio,
-} from 'lucide-react';
+// resources/js/Pages/Welcome/ServiceWelcome.jsx
 
-export default function ServiceWelcome({ t }) {
+import React from 'react';
+
+import serviceBackground from '@/../images/service.png';
+
+export default function ServiceWelcome() {
     const services = [
         {
-            title: 'Tower Construction / B2S SACME',
-            description: t.services.s1Desc,
-            icon: Building2,
-            accent: 'emerald',
+            title: (
+                <>
+                    Tower Construction
+                    <br />
+                    / B2S SACME
+                </>
+            ),
         },
         {
             title: 'Tower Strengthening',
-            description: t.services.s2Desc,
-            icon: HardHat,
-            accent: 'amber',
         },
         {
-            title: 'Colocation Works',
-            description: t.services.s3Desc,
-            icon: Layers,
-            accent: 'blue',
+            title: 'Colocation',
         },
         {
             title: 'And Others',
-            description:
-                'Perbaikan umum infrastruktur menara, pemeliharaan site, penarikan kabel, dan perizinan teknis lapangan.',
-            icon: Radio,
-            accent: 'purple',
         },
     ];
 
     return (
         <section
             id="layanan"
-            className="
-                border-b
-                border-slate-200
-                px-6
-                py-20
-                sm:px-10
-                lg:py-24
-                dark:border-slate-800
-            "
+            className="w-full overflow-hidden bg-[#f4f6f1]"
         >
-            <div className="mx-auto max-w-7xl">
+            <div className="relative aspect-[16/9] w-full">
 
-                {/* Header */}
-                <div className="max-w-2xl">
+                {/* =====================================================
+                    BACKGROUND
+                ===================================================== */}
+                <img
+                    src={serviceBackground}
+                    alt=""
+                    className="
+                        absolute
+                        inset-0
+                        h-full
+                        w-full
+                        object-cover
+                    "
+                />
 
-                    <span className="
-                        text-[10px]
-                        font-semibold
-                        uppercase
-                        tracking-[0.14em]
-                        text-emerald-600
-                        dark:text-emerald-400
-                    ">
-                        {t.services.tag}
-                    </span>
 
+                {/* =====================================================
+                    SECTION TITLE
+                    EDIT POSISI DI SINI
+                ===================================================== */}
+                <div className="
+                    absolute
+                    left-[55%]
+                    top-[27%]
+                    z-20
+                    w-[44%]
+                ">
                     <h2 className="
-                        mt-4
                         font-heading
-                        text-3xl
-                        font-semibold
-                        tracking-[-0.03em]
-                        text-slate-900
-                        dark:text-white
-                        sm:text-4xl
-                        lg:text-5xl
+                        text-[clamp(34px,3.1vw,60px)]
+                        font-bold
+                        uppercase
+                        leading-[0.95]
+                        tracking-[-0.035em]
+                        text-white
                     ">
-                        {t.services.title}
+                        PRODUK & LAYANAN
                     </h2>
-
                 </div>
 
 
-                {/* Services */}
+                {/* =====================================================
+                    SERVICE 01
+                    EDIT POSISI DI SINI
+                ===================================================== */}
                 <div className="
-                    mt-12
-                    grid
-                    gap-5
-                    sm:grid-cols-2
-                    lg:grid-cols-4
+                    absolute
+                    left-[14.4%]
+                    top-[28%]
+                    z-10
+                    w-[31%]
                 ">
-                    {services.map((service) => {
-                        const Icon = service.icon;
+                    <h3 className="
+                        font-heading
+                        text-[clamp(14px,1.45vw,25px)]
+                        font-semibold
+                        leading-[1.05]
+                        tracking-[-0.02em]
+                        text-[#075d35]
+                    ">
+                        {services[0].title}
+                    </h3>
+                </div>
 
-                        return (
-                            <article
-                                key={service.title}
-                                className="
-                                    group
-                                    flex
-                                    min-h-[280px]
-                                    flex-col
-                                    justify-between
-                                    rounded-2xl
-                                    border
-                                    border-slate-200
-                                    bg-white
-                                    p-6
-                                    transition-all
-                                    duration-300
-                                    hover:-translate-y-1
-                                    hover:shadow-lg
-                                    dark:border-slate-800
-                                    dark:bg-slate-900/60
-                                "
-                            >
-                                <div>
 
-                                    <div className="
-                                        flex
-                                        h-11
-                                        w-11
-                                        items-center
-                                        justify-center
-                                        rounded-xl
-                                        bg-emerald-500/10
-                                        text-emerald-600
-                                        dark:text-emerald-400
-                                    ">
-                                        <Icon className="h-5 w-5" />
-                                    </div>
+                {/* =====================================================
+                    SERVICE 02
+                    EDIT POSISI DI SINI
+                ===================================================== */}
+                <div className="
+                    absolute
+                    left-[14.4%]
+                    top-[45%]
+                    z-10
+                    w-[31%]
+                ">
+                    <h3 className="
+                        font-heading
+                        text-[clamp(14px,1.45vw,25px)]
+                        font-semibold
+                        leading-[1.05]
+                        tracking-[-0.02em]
+                        text-[#075d35]
+                    ">
+                        {services[1].title}
+                    </h3>
+                </div>
 
-                                    <h3 className="
-                                        mt-6
-                                        text-sm
-                                        font-semibold
-                                        leading-6
-                                        text-slate-900
-                                        dark:text-white
-                                    ">
-                                        {service.title}
-                                    </h3>
 
-                                    <p className="
-                                        mt-3
-                                        text-sm
-                                        leading-6
-                                        text-slate-500
-                                        dark:text-slate-400
-                                    ">
-                                        {service.description}
-                                    </p>
+                {/* =====================================================
+                    SERVICE 03
+                    EDIT POSISI DI SINI
+                ===================================================== */}
+                <div className="
+                    absolute
+                    left-[14.5%]
+                    top-[60.5%]
+                    z-10
+                    w-[31%]
+                ">
+                    <h3 className="
+                        font-heading
+                        text-[clamp(14px,1.45vw,25px)]
+                        font-semibold
+                        leading-[1.05]
+                        tracking-[-0.02em]
+                        text-[#075d35]
+                    ">
+                        {services[2].title}
+                    </h3>
+                </div>
 
-                                </div>
 
-                                <div className="
-                                    mt-8
-                                    h-px
-                                    w-full
-                                    bg-slate-100
-                                    transition-colors
-                                    group-hover:bg-emerald-400/50
-                                    dark:bg-slate-800
-                                " />
-                            </article>
-                        );
-                    })}
+                {/* =====================================================
+                    SERVICE 04
+                    EDIT POSISI DI SINI
+                ===================================================== */}
+                <div className="
+                    absolute
+                    left-[14.4%]
+                    top-[76%]
+                    z-10
+                    w-[31%]
+                ">
+                    <h3 className="
+                        font-heading
+                        text-[clamp(14px,1.45vw,25px)]
+                        font-semibold
+                        leading-[1.05]
+                        tracking-[-0.02em]
+                        text-[#075d35]
+                    ">
+                        {services[3].title}
+                    </h3>
                 </div>
 
             </div>

@@ -8,24 +8,30 @@ import HeroWelcome from './Welcome/HeroWelcome';
 import AboutWelcome from './Welcome/AboutWelcome';
 import VisionMissionWelcome from './Welcome/VisionMissionWelcome';
 import ServiceWelcome from './Welcome/ServiceWelcome';
+import ServiceShowCaseWelcome from './Welcome/ServiceShowCaseWelcome';
 import ProjectsCtaFooter from './Welcome/ProjectsCtaFooter';
 
 export default function Welcome({ auth }) {
     const [isDark, setIsDark] = useState(() => {
-        if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem('theme');
-            return saved ? saved === 'dark' : true;
+        if (typeof window === 'undefined') {
+            return true;
         }
 
-        return true;
+        const saved = localStorage.getItem('theme');
+
+        return saved ? saved === 'dark' : true;
     });
+
+    const [lang, setLang] = useState('id');
 
     useEffect(() => {
         document.documentElement.classList.toggle('dark', isDark);
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    }, [isDark]);
 
-    const [lang, setLang] = useState('id');
+        localStorage.setItem(
+            'theme',
+            isDark ? 'dark' : 'light'
+        );
+    }, [isDark]);
 
     const t = {
         id: {
@@ -56,7 +62,8 @@ export default function Welcome({ auth }) {
 
             about: {
                 tag: 'TENTANG KAMI',
-                title: 'Dedikasi Membangun Infrastruktur Jaringan yang Andal',
+                title:
+                    'Dedikasi Membangun Infrastruktur Jaringan yang Andal',
                 p1:
                     'PT Indojar Mulia Abadi mengawali kiprahnya pada tahun 2014 di sektor pendukung industri pertambangan. Menjawab kebutuhan transformasi digital nasional, pada tahun 2021 perusahaan memperluas kompetensinya ke sektor telekomunikasi seluler.',
                 p2:
@@ -64,7 +71,7 @@ export default function Welcome({ auth }) {
             },
 
             services: {
-                tag: 'OUR PRODUCTS & SERVICES',
+                tag: 'PRODUK & LAYANAN',
                 title: 'Layanan Konstruksi Telekomunikasi Terpadu',
                 s1Desc:
                     'Penyediaan layanan pembangunan menara telekomunikasi baru berdasarkan lokasi dan spesifikasi permintaan pelanggan.',
@@ -76,7 +83,8 @@ export default function Welcome({ auth }) {
 
             projects: {
                 tag: 'OUR PROJECTS',
-                title: 'Portofolio Pekerjaan yang Telah Selesai',
+                title:
+                    'Portofolio Pekerjaan yang Telah Selesai',
                 subtitle:
                     'Rangkaian proyek menara dan CME yang berhasil diserahterimakan dengan standar uji terima konsultan pengawas.',
                 b2sTab: 'Proyek B2S SACME (Menara Baru)',
@@ -89,12 +97,14 @@ export default function Welcome({ auth }) {
 
             clients: {
                 tag: 'OUR CLIENTS',
-                title: 'Dipercaya Operator & Penyedia Menara Nasional',
+                title:
+                    'Dipercaya Operator & Penyedia Menara Nasional',
             },
 
             contact: {
                 tag: 'CONTACT US',
-                title: 'Mari Bersinergi Membangun Jaringan Masa Depan',
+                title:
+                    'Mari Bersinergi Membangun Jaringan Masa Depan',
                 officeHead: 'Kantor Pusat',
                 officeAddr:
                     'DBS Bank Tower Lt. 28, Ciputra World One, Jl. Prof. Dr. Satrio Kav. 3-5, Jakarta 12940',
@@ -146,8 +156,9 @@ export default function Welcome({ auth }) {
             },
 
             services: {
-                tag: 'OUR PRODUCTS & SERVICES',
-                title: 'Integrated Telecommunication Construction',
+                tag: 'PRODUCTS & SERVICES',
+                title:
+                    'Integrated Telecommunication Construction',
                 s1Desc:
                     'PT Indojar Mulia Abadi provides service for new towers construction based on the location and specifications of customer requests.',
                 s2Desc:
@@ -161,27 +172,37 @@ export default function Welcome({ auth }) {
                 title: 'Selected Executed Projects',
                 subtitle:
                     'Demonstrated execution capability across multiple provinces, fully verified by partner supervisory consultants.',
-                b2sTab: 'B2S SACME Projects (New Towers)',
-                strTab: 'Tower Strengthening Projects',
-                thSite: 'Site Identifier / Name',
-                thCity: 'City / Regency',
-                thProvince: 'Province',
-                thScope: 'Scope of Work',
+                b2sTab:
+                    'B2S SACME Projects (New Towers)',
+                strTab:
+                    'Tower Strengthening Projects',
+                thSite:
+                    'Site Identifier / Name',
+                thCity:
+                    'City / Regency',
+                thProvince:
+                    'Province',
+                thScope:
+                    'Scope of Work',
             },
 
             clients: {
                 tag: 'OUR CLIENTS',
-                title: 'Trusted by Partner Operators & Providers',
+                title:
+                    'Trusted by Partner Operators & Providers',
             },
 
             contact: {
                 tag: 'CONTACT US',
-                title: 'Connect with Our Engineering Team',
+                title:
+                    'Connect with Our Engineering Team',
                 officeHead: 'Headquarters',
                 officeAddr:
                     'DBS Bank Tower 28th Fl, Ciputra World One, Jl. Prof. Dr. Satrio Kav. 3-5, Jakarta 12940',
-                mgmtHead: 'Management & Direct Inquiry',
-                director: 'Managing Director',
+                mgmtHead:
+                    'Management & Direct Inquiry',
+                director:
+                    'Managing Director',
             },
 
             floating: {
@@ -207,7 +228,9 @@ export default function Welcome({ auth }) {
         >
             <Head title="PT Indojar Mulia Abadi" />
 
-            {/* Lapisan 1: Navbar */}
+            {/* =====================================================
+                LAPISAN 1 — NAVBAR
+            ===================================================== */}
             <Navbar
                 auth={auth}
                 lang={lang}
@@ -217,19 +240,40 @@ export default function Welcome({ auth }) {
                 t={currentDict}
             />
 
-            {/* Lapisan 2: Hero */}
+
+            {/* =====================================================
+                LAPISAN 2 — HERO
+            ===================================================== */}
             <HeroWelcome t={currentDict} />
 
-            {/* Lapisan 3: About */}
+
+            {/* =====================================================
+                LAPISAN 3 — ABOUT
+            ===================================================== */}
             <AboutWelcome t={currentDict} />
 
-            {/* Lapisan 4: Vision & Mission */}
+
+            {/* =====================================================
+                LAPISAN 4 — VISION & MISSION
+            ===================================================== */}
             <VisionMissionWelcome lang={lang} />
 
-            {/* Lapisan 5: Services */}
-            <ServiceWelcome t={currentDict} />
 
-            {/* Lapisan 6, 7 & 8 */}
+            {/* =====================================================
+                LAPISAN 5A — SERVICE INTRO
+            ===================================================== */}
+            <ServiceWelcome />
+
+
+            {/* =====================================================
+                LAPISAN 5B — SERVICE SHOWCASE
+            ===================================================== */}
+            <ServiceShowCaseWelcome lang={lang} />
+
+
+            {/* =====================================================
+                LAPISAN 6, 7 & 8
+            ===================================================== */}
             <ProjectsCtaFooter
                 auth={auth}
                 t={currentDict}
