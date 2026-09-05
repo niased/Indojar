@@ -9,7 +9,7 @@ import img3 from '@/../images/colo.jpg';
 
 const images = [img1, img2, img3, img1];
 
-const data = {
+const services = {
     id: [
         {
             number: '01',
@@ -73,47 +73,43 @@ const data = {
 };
 
 export default function ServiceShowCaseWelcome({ lang = 'id' }) {
-    const services = data[lang] || data.id;
+    const items = services[lang] || services.id;
+
     const [active, setActive] = useState(0);
-    const [direction, setDirection] = useState('next');
     const [paused, setPaused] = useState(false);
 
-    const total = services.length;
-    const current = services[active];
-    const prev = (active - 1 + total) % total;
-    const next = (active + 1) % total;
+    const current = items[active];
 
-    const goNext = () => {
-        setDirection('next');
-        setActive((value) => (value + 1) % total);
+    const next = () => {
+        setActive((value) => (value + 1) % items.length);
     };
 
-    const goPrev = () => {
-        setDirection('prev');
-        setActive((value) => (value - 1 + total) % total);
+    const previous = () => {
+        setActive((value) => (value - 1 + items.length) % items.length);
     };
 
-    const goTo = (index) => {
-        if (index === active) return;
-        setDirection(index > active ? 'next' : 'prev');
+    const selectService = (index) => {
         setActive(index);
     };
 
     useEffect(() => {
-        if (paused) return;
+        if (paused) {
+            return;
+        }
 
-        const timer = setInterval(goNext, 7000);
+        const timer = setInterval(next, 7000);
+
         return () => clearInterval(timer);
     }, [paused]);
 
     return (
         <section
             id="service-showcase"
-            className="relative overflow-hidden bg-[#071f16]"
+            className="relative overflow-hidden bg-[#061b14]"
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
         >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(10,120,65,0.18),transparent_60%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_35%,rgba(11,122,67,0.18),transparent_52%)]" />
 
             <div className="relative z-10 mx-auto max-w-[1500px] px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
 
@@ -122,7 +118,7 @@ export default function ServiceShowCaseWelcome({ lang = 'id' }) {
                         {lang === 'id' ? 'Layanan Kami' : 'Our Services'}
                     </span>
 
-                    <h2 className="mt-4 font-heading text-4xl font-bold uppercase leading-none tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl">
+                    <h2 className="mt-4 font-heading text-4xl font-bold uppercase tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl">
                         {lang === 'id'
                             ? 'Produk & Layanan'
                             : 'Products & Services'}
@@ -131,236 +127,207 @@ export default function ServiceShowCaseWelcome({ lang = 'id' }) {
                     <div className="mx-auto mt-5 h-px w-20 bg-[#d5ad59]" />
                 </header>
 
-                <div className="relative mx-auto mt-12 max-w-[1320px] sm:mt-16">
+                <div className="mx-auto mt-14 max-w-[1320px] sm:mt-16">
 
-                    <div className="absolute left-0 top-1/2 z-0 hidden h-[68%] w-[18%] -translate-y-1/2 overflow-hidden border border-white/10 bg-[#082f20] lg:block">
-                        <img
-                            src={images[prev]}
-                            alt=""
-                            className="h-full w-full object-cover opacity-25"
-                        />
-                        <div className="absolute inset-0 bg-[#03160e]/75" />
-                    </div>
+                    <div className="grid items-start gap-7 lg:grid-cols-[180px_1fr]">
 
-                    <div className="absolute right-0 top-1/2 z-0 hidden h-[68%] w-[18%] -translate-y-1/2 overflow-hidden border border-white/10 bg-[#082f20] lg:block">
-                        <img
-                            src={images[next]}
-                            alt=""
-                            className="h-full w-full object-cover opacity-25"
-                        />
-                        <div className="absolute inset-0 bg-[#03160e]/75" />
-                    </div>
+                        {/* Thumbnail */}
+                        <div className="hidden flex-col gap-4 lg:flex">
+                            {items.map((item, index) => {
+                                const activeThumbnail = active === index;
 
-                    <div className="relative z-20 mx-auto max-w-[1050px]">
+                                return (
+                                    <button
+                                        key={item.number}
+                                        type="button"
+                                        onClick={() => selectService(index)}
+                                        aria-label={`Lihat layanan ${item.number}`}
+                                        className={
+                                            'group relative overflow-hidden border transition-all duration-500 ' +
+                                            (activeThumbnail
+                                                ? 'border-[#d5ad59] opacity-100'
+                                                : 'border-white/10 opacity-40 hover:border-white/30 hover:opacity-75')
+                                        }
+                                    >
+                                        <img
+                                            src={images[index]}
+                                            alt={item.title}
+                                            className="aspect-video w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                        />
 
+                                        <div className="flex items-center justify-between bg-[#082f20] px-3 py-2">
+                                            <span
+                                                className={
+                                                    activeThumbnail
+                                                        ? 'text-[10px] font-semibold tracking-[0.12em] text-amber-300'
+                                                        : 'text-[10px] font-semibold tracking-[0.12em] text-white/40'
+                                                }
+                                            >
+                                                {item.number}
+                                            </span>
+
+                                            <span className="truncate pl-2 text-[9px] font-medium text-white/55">
+                                                {item.title}
+                                            </span>
+                                        </div>
+
+                                        {activeThumbnail && (
+                                            <span className="absolute left-0 top-0 h-full w-[3px] bg-amber-300" />
+                                        )}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Main showcase */}
                         <div
                             key={active}
-                            className={`
-                                grid
-                                min-h-[520px]
-                                overflow-hidden
-                                border
-                                border-[#d5ad59]/50
-                                bg-[#075d35]
-                                shadow-[0_30px_80px_rgba(0,0,0,0.42)]
-                                lg:grid-cols-[1.12fr_0.88fr]
-                                ${
-                                    direction === 'next'
-                                        ? 'animate-page-next'
-                                        : 'animate-page-prev'
-                                }
-                            `}
+                            className="service-rise"
                         >
-                            <div className="relative min-h-[280px] overflow-hidden lg:min-h-[520px]">
+                            {/* Foto utama */}
+                            <div className="overflow-hidden border border-[#d5ad59]/60 bg-[#0a3524] shadow-[0_30px_90px_rgba(0,0,0,.4)]">
                                 <img
                                     src={images[active]}
                                     alt={current.title}
-                                    className="h-full w-full object-cover"
+                                    className="block h-[340px] w-full object-cover sm:h-[480px] lg:h-[610px]"
                                 />
-
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#021b11]/80 via-transparent to-transparent" />
-
-                                <span className="absolute bottom-6 left-6 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/65 sm:left-8">
-                                    {current.number} / 04
-                                </span>
                             </div>
 
-                            <div className="flex flex-col justify-between bg-[#075d35] p-7 sm:p-10 lg:p-12">
+                            {/* Informasi */}
+                            <div className="border-x border-b border-[#d5ad59]/60 bg-[#075d35] px-6 py-7 sm:px-9 sm:py-8 lg:px-10 lg:py-9">
 
-                                <div>
-                                    <div className="flex items-center gap-3">
-                                        <span className="h-px w-8 bg-amber-300" />
+                                <div className="flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
 
-                                        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-300">
-                                            {lang === 'id'
-                                                ? 'Produk & Layanan'
-                                                : 'Products & Services'}
-                                        </span>
+                                    <div className="max-w-3xl">
+                                        <div className="flex items-center gap-3">
+                                            <span className="h-px w-8 bg-amber-300" />
+
+                                            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-300">
+                                                {lang === 'id'
+                                                    ? 'Produk & Layanan'
+                                                    : 'Products & Services'}
+                                            </span>
+                                        </div>
+
+                                        <div className="mt-4 flex flex-wrap items-center gap-4">
+                                            <h3 className="font-heading text-3xl font-bold leading-none tracking-[-0.035em] text-white sm:text-4xl lg:text-5xl">
+                                                {current.title}
+                                            </h3>
+
+                                            <span className="border border-amber-300/60 bg-amber-300 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.08em] text-[#075d35]">
+                                                {current.subtitle}
+                                            </span>
+                                        </div>
+
+                                        <p className="mt-5 max-w-3xl text-sm leading-7 text-white/75 sm:text-base">
+                                            {current.description}
+                                        </p>
                                     </div>
 
-                                    <h3 className="mt-7 max-w-xl font-heading text-4xl font-bold leading-[0.95] tracking-[-0.04em] text-white sm:text-5xl">
-                                        {current.title}
-                                    </h3>
-
-                                    <div className="mt-6 inline-flex w-fit border border-amber-300/70 bg-amber-300 px-5 py-2">
-                                        <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#075d35]">
-                                            {current.subtitle}
-                                        </span>
-                                    </div>
-
-                                    <div className="mt-7 h-px w-14 bg-amber-300" />
-
-                                    <p className="mt-6 max-w-md text-sm leading-7 text-white/75 sm:text-base">
-                                        {current.description}
-                                    </p>
-                                </div>
-
-                                <div className="mt-10 border-t border-white/10 pt-5">
-
-                                    <div className="flex items-center justify-between gap-4">
+                                    {/* Navigasi */}
+                                    <div className="flex shrink-0 items-center justify-between gap-5 border-t border-white/10 pt-5 lg:min-w-[250px] lg:border-t-0 lg:pt-0">
 
                                         <div className="flex items-center">
-                                            {services.map((service, index) => (
-                                                <button
-                                                    key={service.number}
-                                                    type="button"
-                                                    onClick={() => goTo(index)}
-                                                    className={`
-                                                        relative
-                                                        flex
-                                                        h-10
-                                                        min-w-10
-                                                        items-center
-                                                        justify-center
-                                                        border-b
-                                                        px-2
-                                                        text-[10px]
-                                                        font-semibold
-                                                        tracking-[0.08em]
-                                                        transition
-                                                        ${
-                                                            active === index
+                                            {items.map((item, index) => {
+                                                const activeNumber = active === index;
+
+                                                return (
+                                                    <button
+                                                        key={item.number}
+                                                        type="button"
+                                                        onClick={() => selectService(index)}
+                                                        className={
+                                                            'flex h-10 min-w-10 items-center justify-center border-b px-2 text-[10px] font-semibold tracking-[0.08em] transition ' +
+                                                            (activeNumber
                                                                 ? 'border-amber-300 text-amber-300'
-                                                                : 'border-transparent text-white/35 hover:text-white/70'
+                                                                : 'border-transparent text-white/30 hover:text-white/70')
                                                         }
-                                                    `}
-                                                >
-                                                    {service.number}
-                                                </button>
-                                            ))}
+                                                    >
+                                                        {item.number}
+                                                    </button>
+                                                );
+                                            })}
                                         </div>
 
                                         <div className="flex items-center">
                                             <button
                                                 type="button"
-                                                onClick={goPrev}
+                                                onClick={previous}
                                                 aria-label="Layanan sebelumnya"
-                                                className="
-                                                    flex h-10 w-10
-                                                    items-center justify-center
-                                                    border border-white/20
-                                                    bg-[#082f20]
-                                                    text-white/65
-                                                    transition
-                                                    hover:border-amber-300
-                                                    hover:bg-amber-300
-                                                    hover:text-[#075d35]
-                                                "
+                                                className="flex h-10 w-10 items-center justify-center border border-white/15 bg-[#082f20] text-white/60 transition hover:border-amber-300 hover:bg-amber-300 hover:text-[#075d35]"
                                             >
                                                 <ArrowLeft className="h-4 w-4" />
                                             </button>
 
                                             <button
                                                 type="button"
-                                                onClick={goNext}
+                                                onClick={next}
                                                 aria-label="Layanan berikutnya"
-                                                className="
-                                                    flex h-10 w-10
-                                                    items-center justify-center
-                                                    border border-l-0 border-white/20
-                                                    bg-[#082f20]
-                                                    text-white/65
-                                                    transition
-                                                    hover:border-amber-300
-                                                    hover:bg-amber-300
-                                                    hover:text-[#075d35]
-                                                "
+                                                className="flex h-10 w-10 items-center justify-center border border-l-0 border-white/15 bg-[#082f20] text-white/60 transition hover:border-amber-300 hover:bg-amber-300 hover:text-[#075d35]"
                                             >
                                                 <ArrowRight className="h-4 w-4" />
                                             </button>
                                         </div>
 
                                     </div>
+                                </div>
 
-                                    <div className="mt-5 h-px overflow-hidden bg-white/10">
-                                        <div
-                                            key={active}
-                                            className="h-full origin-left bg-amber-300"
-                                            style={{
-                                                animation:
-                                                    'serviceProgress 7s linear forwards',
-                                                animationPlayState: paused
-                                                    ? 'paused'
-                                                    : 'running',
-                                            }}
-                                        />
-                                    </div>
-
+                                <div className="mt-6 h-px overflow-hidden bg-white/10">
+                                    <div
+                                        key={active}
+                                        className="service-progress h-full origin-left bg-amber-300"
+                                    />
                                 </div>
                             </div>
-                        </div>
 
+                            {/* Mobile thumbnails */}
+                            <div className="mt-4 grid grid-cols-4 gap-2 lg:hidden">
+                                {items.map((item, index) => (
+                                    <button
+                                        key={item.number}
+                                        type="button"
+                                        onClick={() => selectService(index)}
+                                        aria-label={`Lihat layanan ${item.number}`}
+                                        className={
+                                            'overflow-hidden border transition ' +
+                                            (active === index
+                                                ? 'border-amber-300'
+                                                : 'border-white/10 opacity-45')
+                                        }
+                                    >
+                                        <img
+                                            src={images[index]}
+                                            alt={item.title}
+                                            className="aspect-video w-full object-cover"
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </div>
-
             </div>
 
             <style>{`
-                .animate-page-next {
-                    animation: pageNext 850ms cubic-bezier(0.22, 0.8, 0.2, 1) both;
-                    transform-origin: left center;
-                    backface-visibility: hidden;
+                .service-rise {
+                    animation: serviceRise 600ms cubic-bezier(.22,.8,.2,1) both;
                 }
 
-                .animate-page-prev {
-                    animation: pagePrev 850ms cubic-bezier(0.22, 0.8, 0.2, 1) both;
-                    transform-origin: right center;
-                    backface-visibility: hidden;
+                .service-progress {
+                    animation: serviceProgress 7s linear forwards;
                 }
 
-                @keyframes pageNext {
+                @keyframes serviceRise {
                     from {
                         opacity: 0;
-                        transform: perspective(1400px)
-                            rotateY(-12deg)
-                            translateX(24px)
-                            scale(0.99);
+                        transform: translateY(18px) scale(.99);
+                        filter: blur(2px);
                     }
 
                     to {
                         opacity: 1;
-                        transform: perspective(1400px)
-                            rotateY(0)
-                            translateX(0)
-                            scale(1);
-                    }
-                }
-
-                @keyframes pagePrev {
-                    from {
-                        opacity: 0;
-                        transform: perspective(1400px)
-                            rotateY(12deg)
-                            translateX(-24px)
-                            scale(0.99);
-                    }
-
-                    to {
-                        opacity: 1;
-                        transform: perspective(1400px)
-                            rotateY(0)
-                            translateX(0)
-                            scale(1);
+                        transform: translateY(0) scale(1);
+                        filter: blur(0);
                     }
                 }
 

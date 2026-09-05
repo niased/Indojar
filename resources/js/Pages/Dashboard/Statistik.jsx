@@ -1,13 +1,13 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Building2, HardHat, Layers, Zap, CheckCircle2 } from 'lucide-react';
+import { Building2, HardHat, Layers, CheckCircle2, AlertTriangle } from 'lucide-react';
 
-export default function StatistikGudang({ kpi = {} }) {
-    const totalSite = kpi.totalBarang ?? kpi.totalProjects ?? 0;
-    const totalPondasi = kpi.totalBarangMasuk ?? kpi.countPondasi ?? 0;
-    const totalErection = kpi.totalTransfer ?? kpi.countErection ?? 0;
-    const totalCME = kpi.totalBarangKeluar ?? kpi.countCME ?? 0;
-    const totalRFI_ATP = kpi.totalNilaiAset ?? kpi.countRFI_ATP ?? 0;
+export default function Statistik({ kpi = {} }) {
+    const totalSite      = kpi.totalSite ?? 0;
+    const totalPlanning  = kpi.totalPlanning ?? 0;
+    const totalProgress  = kpi.totalProgress ?? 0;
+    const totalCompleted = kpi.totalCompleted ?? 0;
+    const totalIssues    = kpi.totalIssues ?? 0;
 
     const cards = [
         {
@@ -19,34 +19,34 @@ export default function StatistikGudang({ kpi = {} }) {
             valColor: 'text-slate-900 dark:text-white',
         },
         {
-            title: 'TAHAP PONDASI',
-            value: totalPondasi.toLocaleString('id-ID'),
-            desc: 'Pekerjaan sipil & cor',
+            title: 'PLANNING & PERSIAPAN',
+            value: totalPlanning.toLocaleString('id-ID'),
+            desc: 'Site tahap perencanaan',
             icon: HardHat,
-            iconBg: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-            valColor: 'text-emerald-600 dark:text-emerald-400',
+            iconBg: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+            valColor: 'text-amber-600 dark:text-amber-400',
         },
         {
-            title: 'TAHAP ERECTION',
-            value: totalErection.toLocaleString('id-ID'),
-            desc: 'Rangka struktur tower',
+            title: 'ON PROGRESS',
+            value: totalProgress.toLocaleString('id-ID'),
+            desc: 'Konstruksi fisik berjalan',
             icon: Layers,
             iconBg: 'bg-sky-500/10 text-sky-600 dark:text-sky-400',
             valColor: 'text-sky-600 dark:text-sky-400',
         },
         {
-            title: 'TAHAP CME & POWER',
-            value: totalCME.toLocaleString('id-ID'),
-            desc: 'Kelistrikan & grounding',
-            icon: Zap,
-            iconBg: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-            valColor: 'text-amber-600 dark:text-amber-400',
+            title: 'SELESAI 100% / RFI',
+            value: totalCompleted.toLocaleString('id-ID'),
+            desc: 'Siap uji terima & BAST',
+            icon: CheckCircle2,
+            iconBg: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+            valColor: 'text-emerald-600 dark:text-emerald-400',
         },
         {
-            title: 'SIAP RFI / ATP',
-            value: totalRFI_ATP.toLocaleString('id-ID'),
-            desc: 'Uji terima konsultan',
-            icon: CheckCircle2,
+            title: 'KENDALA LAPANGAN',
+            value: totalIssues.toLocaleString('id-ID'),
+            desc: 'Isu lapangan terbuka',
+            icon: AlertTriangle,
             iconBg: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
             valColor: 'text-rose-600 dark:text-rose-400',
         },

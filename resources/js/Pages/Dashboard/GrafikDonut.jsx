@@ -3,50 +3,43 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart as PieChartIcon } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
-export default function GrafikDonutDistribusi({ donutPenerimaan = {} }) {
-    const { donutData, totalAll } = useMemo(() => {
-        const raw = [
-            { 
-                name: 'Pondasi', 
-                value: Number(donutPenerimaan['Pondasi'] || donutPenerimaan['PONDASI'] || donutPenerimaan['Pembelian'] || 0), 
-                color: '#10b981', 
-                badgeClass: 'bg-emerald-500' 
-            },
-            { 
-                name: 'Erection', 
-                value: Number(donutPenerimaan['Erection'] || donutPenerimaan['ERECTION'] || donutPenerimaan['Peminjaman'] || 0), 
-                color: '#3b82f6', 
-                badgeClass: 'bg-blue-500' 
-            },
-            { 
-                name: 'CME', 
-                value: Number(donutPenerimaan['CME'] || donutPenerimaan['cme'] || donutPenerimaan['Pengembalian'] || 0), 
-                color: '#f59e0b', 
-                badgeClass: 'bg-amber-500' 
-            },
-            { 
-                name: 'RFI / ATP', 
-                value: Number(donutPenerimaan['RFI / ATP'] || donutPenerimaan['RFI'] || donutPenerimaan['ATP'] || donutPenerimaan['Proyek'] || 0), 
-                color: '#f43f5e', 
-                badgeClass: 'bg-rose-500' 
-            },
-            { 
-                name: 'Selesai 100%', 
-                value: Number(donutPenerimaan['Selesai 100%'] || donutPenerimaan['COMPLETED'] || donutPenerimaan['Non Proyek'] || 0), 
-                color: '#8b5cf6', 
-                badgeClass: 'bg-purple-500' 
-            },
-        ];
+export default function GrafikDonutDistribusi({ sowDistribution = {} }) {
+    const COLOR_PALETTE = {
+        'B2S': { color: '#10b981', badge: 'bg-emerald-500' },
+        'COLO': { color: '#3b82f6', badge: 'bg-blue-500' },
+        'CME ONLY': { color: '#f59e0b', badge: 'bg-amber-500' },
+        'STRENGTHENING': { color: '#f43f5e', badge: 'bg-rose-500' },
+    };
 
-        const total = raw.reduce((acc, curr) => acc + curr.value, 0);
+    const { donutData, totalAll } = useMemo(() => {
+        const entries = Object.keys(sowDistribution);
+        let total = 0;
+
+        const raw = entries.map((key, idx) => {
+            const val = Number(sowDistribution[key] || 0);
+            total += val;
+            const fallbackColors = ['#10b981', '#3b82f6', '#f59e0b', '#f43f5e', '#8b5cf6', '#06b6d4'];
+            const colorDef = COLOR_PALETTE[key] || { 
+                color: fallbackColors[idx % fallbackColors.length], 
+                badge: 'bg-slate-500' 
+            };
+
+            return {
+                name: key,
+                value: val,
+                color: colorDef.color,
+                badgeClass: colorDef.badge,
+            };
+        });
+
         return {
             totalAll: total,
             donutData: raw.map(item => ({
                 ...item,
-                pct: total > 0 ? ((item.value / total) * 100).toFixed(1) : '0.0'
+                pct: total > 0 ? ((item.value / total) * 100).toFixed(1) : '0.0',
             }))
         };
-    }, [donutPenerimaan]);
+    }, [sowDistribution]);
 
     return (
         <Card className="lg:col-span-1 bg-white dark:bg-slate-900/60 border-slate-200 dark:border-slate-800/80 rounded-xl shadow-xs flex flex-col justify-between">
@@ -54,14 +47,14 @@ export default function GrafikDonutDistribusi({ donutPenerimaan = {} }) {
                 <div className="flex items-center gap-2">
                     <PieChartIcon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                     <CardTitle className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                        Distribusi Tahapan Proyek
+                        Distribusi Scope of Work (SOW)
                     </CardTitle>
                 </div>
             </CardHeader>
             <CardContent className="p-4 flex-1 flex flex-col justify-center items-center">
                 <div className="relative w-full h-[180px] flex items-center justify-center">
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-                        <span className="text-2xl font-black font-mono text-slate-900 dark:text-slate-100 leading-none">
+                        <span className="text-2xl font-black font-mono text-slate-900 dark:text-white leading-none">
                             {totalAll.toLocaleString('id-ID')}
                         </span>
                         <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider mt-1">
@@ -91,25 +84,30 @@ export default function GrafikDonutDistribusi({ donutPenerimaan = {} }) {
                         </PieChart>
                     </ResponsiveContainer>
                 </div>
-
+                
+                {/* Grid Label Donut */}
                 <div className="w-full grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/60">
-                    {donutData.map((item, index) => (
-                        <div 
-                            key={item.name} 
-                            className={`flex items-center justify-between p-1.5 rounded-lg bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800/40 ${
-                                index === donutData.length - 1 && donutData.length % 2 !== 0 ? 'col-span-2' : ''
-                            }`}
-                        >
-                            <div className="flex items-center gap-1.5 min-w-0">
-                                <span className={`w-2 h-2 rounded-full shrink-0 ${item.badgeClass}`} />
-                                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 truncate">{item.name}</span>
+                    {donutData.length === 0 ? (
+                        <p className="col-span-2 text-center text-xs text-slate-400 py-2">Belum ada data SOW terdaftar.</p>
+                    ) : (
+                        donutData.map((item, index) => (
+                            <div 
+                                key={item.name}
+                                className={`flex items-center justify-between p-1.5 rounded-lg bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800/40 ${
+                                    index === donutData.length - 1 && donutData.length % 2 !== 0 ? 'col-span-2' : ''
+                                }`}
+                            >
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                    <span className={`w-2 h-2 rounded-full shrink-0 ${item.badgeClass}`} />
+                                    <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 truncate">{item.name}</span>
+                                </div>
+                                <div className="text-right shrink-0">
+                                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block leading-none">{item.value.toLocaleString('id-ID')}</span>
+                                    <span className="text-[9px] text-slate-400 font-medium">{item.pct}%</span>
+                                </div>
                             </div>
-                            <div className="text-right shrink-0">
-                                <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block leading-none">{item.value.toLocaleString('id-ID')}</span>
-                                <span className="text-[9px] text-slate-400 font-medium">{item.pct}%</span>
-                            </div>
-                        </div>
-                    ))}
+                        ))
+                    )}
                 </div>
             </CardContent>
         </Card>
