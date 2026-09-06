@@ -47,9 +47,9 @@ class PekerjaanController extends Controller
 
             DB::transaction(function () use ($validated, $request, &$affectedProjectIds) {
                 foreach ($validated['items'] as $idx => $item) {
-                    $prog      = isset($item['progress_percent']) ? (float) $item['progress_percent'] : 0.0;
-                    $status    = $prog >= 100 ? 'COMPLETED' : ($prog > 0 ? 'IN_PROGRESS' : 'PLANNING');
-                    $tipeFoto  = $item['tipe_foto'] ?? 'DOKUMENTASI';
+                    $prog     = isset($item['progress_percent']) ? (float) $item['progress_percent'] : 0.0;
+                    $status   = $prog >= 100 ? 'COMPLETED' : ($prog > 0 ? 'IN_PROGRESS' : 'PLANNING');
+                    $tipeFoto = $item['tipe_foto'] ?? 'DOKUMENTASI';
 
                     $fotoUrl = !empty($item['foto']) ? trim($item['foto']) : null;
                     if ($request->hasFile("items.{$idx}.foto_file")) {
@@ -88,7 +88,7 @@ class PekerjaanController extends Controller
             return redirect()->back()->with('success', count($validated['items']) . ' item pekerjaan WBS berhasil ditambahkan.');
         }
 
-        // 2. Penanganan Form Tunggal
+        // 2. Penanganan Form Tunggal (1 Baris)
         $validated = $request->validate([
             'project_id'        => 'required|exists:projects,id',
             'stage_id'          => 'nullable|exists:master_stages,id',
@@ -259,7 +259,7 @@ class PekerjaanController extends Controller
         }
 
         Pekerjaan::query()->delete();
-        Project::query()->update(['progress_percent' => 0]);
+        Project::query()->update(['progress_percent' => 0, 'status' => 'PLANNING']);
 
         return redirect()->back()->with('success', 'Seluruh data pekerjaan berhasil dikosongkan.');
     }
@@ -335,9 +335,9 @@ class PekerjaanController extends Controller
 
             Configuration::instance([
                 'cloud' => [
-                    'cloud_name' => env('CLOUDINARY_CLOUD_NAME', 'lhpssdkn'),
-                    'api_key'    => env('CLOUDINARY_API_KEY', '877577979266694'),
-                    'api_secret' => env('CLOUDINARY_API_SECRET', 'acaIw-MqgMF4TsLQ2TfrZIx2GDI'),
+                    'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+                    'api_key'    => env('CLOUDINARY_API_KEY'),
+                    'api_secret' => env('CLOUDINARY_API_SECRET'),
                 ],
                 'url' => ['secure' => true],
             ]);
@@ -362,9 +362,9 @@ class PekerjaanController extends Controller
         try {
             Configuration::instance([
                 'cloud' => [
-                    'cloud_name' => env('CLOUDINARY_CLOUD_NAME', 'lhpssdkn'),
-                    'api_key'    => env('CLOUDINARY_API_KEY', '877577979266694'),
-                    'api_secret' => env('CLOUDINARY_API_SECRET', 'acaIw-MqgMF4TsLQ2TfrZIx2GDI'),
+                    'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+                    'api_key'    => env('CLOUDINARY_API_KEY'),
+                    'api_secret' => env('CLOUDINARY_API_SECRET'),
                 ],
                 'url' => ['secure' => true],
             ]);
@@ -385,7 +385,10 @@ class PekerjaanController extends Controller
 
         $items = Pekerjaan::where('project_id', $projectId)->get();
         if ($items->isEmpty()) {
-            $project->update(['progress_percent' => 0.00]);
+            $project->update([
+                'progress_percent' => 0.00,
+                'status'           => 'PLANNING',
+            ]);
             return;
         }
 
@@ -395,10 +398,11 @@ class PekerjaanController extends Controller
         }
 
         $calcProgress = min(100.0, round($weightedTotal, 2));
+        $status       = $calcProgress >= 100.0 ? 'COMPLETED' : ($calcProgress > 0 ? 'ON_PROGRESS' : 'PLANNING');
 
         $project->update([
             'progress_percent' => $calcProgress,
-            'status'           => $calcProgress >= 100.0 ? 'COMPLETED' : 'ON_PROGRESS',
+            'status'           => $status,
         ]);
     }
 }

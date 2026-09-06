@@ -48,18 +48,27 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}', 'destroy')->name('destroy');
     });
 
-    // 5. Master Data Kamus (Area, SOW, Tahapan, & Template WBS)
+  // 5. Master Data Kamus (Area, SOW, Tahapan, & Template WBS)
+    // 5. Master Data Kamus (Area, SOW, & Tahapan Konstruksi)
     Route::prefix('master-data')->name('master-data.')->controller(MasterDataController::class)->group(function () {
         Route::get('/', 'index')->name('index');
+        
+        // Area
         Route::post('/area', 'storeArea')->name('area.store');
+        Route::post('/area/bulk-delete', 'bulkDeleteArea')->name('area.bulk-delete');
         Route::delete('/area/{id}', 'destroyArea')->name('area.destroy');
+        
+        // SOW
         Route::post('/sow', 'storeSow')->name('sow.store');
         Route::put('/sow/{id}', 'updateSow')->name('sow.update');
+        Route::post('/sow/bulk-delete', 'bulkDeleteSow')->name('sow.bulk-delete');
         Route::delete('/sow/{id}', 'destroySow')->name('sow.destroy');
+        
+        // Tahapan (Stage)
         Route::post('/stage', 'storeStage')->name('stage.store');
+        Route::put('/stage/{id}', 'updateStage')->name('stage.update');
+        Route::post('/stage/bulk-delete', 'bulkDeleteStage')->name('stage.bulk-delete');
         Route::delete('/stage/{id}', 'destroyStage')->name('stage.destroy');
-        Route::post('/task', 'storeTask')->name('task.store');
-        Route::delete('/task/{id}', 'destroyTask')->name('task.destroy');
     });
 
     // 6. Laporan Rekapitulasi Proyek & Site

@@ -23,7 +23,6 @@ export default function ProjectSidebar({
 
     const progressTotal = Number(project?.progress_percent || 0);
 
-    // Master seluruh kemungkinan milestone
     const allMilestones = [
         { key: 'tgl_po', label: 'Surat Pesanan (PO)', date: project?.tgl_po },
         { key: 'tgl_mos', label: 'Material on Site (MoS)', date: project?.tgl_mos },
@@ -36,7 +35,6 @@ export default function ProjectSidebar({
         { key: 'tgl_invoice', label: 'Pengajuan Invoice', date: project?.tgl_invoice },
     ];
 
-    // Filter dinamis: jika SOW memiliki konfigurasi milestones, gunakan konfigurasi SOW tersebut
     const activeMilestoneKeys = Array.isArray(project?.sow?.milestones) && project.sow.milestones.length > 0
         ? project.sow.milestones
         : allMilestones.map(m => m.key);
@@ -44,31 +42,21 @@ export default function ProjectSidebar({
     const filteredMilestones = allMilestones.filter(m => activeMilestoneKeys.includes(m.key));
 
     const getAreaName = () => {
-        if (project?.area && typeof project.area === 'object') {
-            return project.area.nama_area || '-';
-        }
-        if (project?.regional && typeof project.regional === 'object') {
-            return project.regional.nama_regional || '-';
-        }
+        if (project?.area && typeof project.area === 'object') return project.area.nama_area || '-';
+        if (project?.regional && typeof project.regional === 'object') return project.regional.nama_regional || '-';
         if (typeof project?.area === 'string' && project.area) return project.area;
         if (typeof project?.regional === 'string' && project.regional) return project.regional;
         return '-';
     };
 
     const getOperatorName = () => {
-        if (project?.operator && typeof project.operator === 'object') {
-            return project.operator.nama_operator || '-';
-        }
+        if (project?.operator && typeof project.operator === 'object') return project.operator.nama_operator || '-';
         return project?.client_name || project?.customer || 'Telkomsel / Mitratel';
     };
 
     const getPicName = () => {
-        if (project?.picUser && typeof project.picUser === 'object') {
-            return project.picUser.name || 'Waslap Lapangan';
-        }
-        if (typeof project?.pic_waslap === 'string' && project.pic_waslap) {
-            return project.pic_waslap;
-        }
+        if (project?.picUser && typeof project.picUser === 'object') return project.picUser.name || 'Waslap Lapangan';
+        if (typeof project?.pic_waslap === 'string' && project.pic_waslap) return project.pic_waslap;
         return 'Waslap Lapangan';
     };
 
@@ -116,7 +104,6 @@ export default function ProjectSidebar({
                             {progressTotal.toFixed(1)}%
                         </span>
                     </div>
-
                     <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <div
                             className={`h-full rounded-full transition-all duration-500 ${
@@ -129,23 +116,27 @@ export default function ProjectSidebar({
                     </div>
                 </div>
 
+                {/* Progres Per Tahapan Lengkap dengan Bobotnya */}
                 {stageBreakdown.length > 0 && (
                     <div className="space-y-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/80">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
                             Progres per Tahapan Konstruksi
                         </span>
-                        <div className="space-y-2">
+                        <div className="space-y-2.5">
                             {stageBreakdown.map((stage) => (
                                 <div key={stage.id || stage.name} className="space-y-1">
                                     <div className="flex items-center justify-between text-xs">
                                         <span className="font-semibold text-slate-700 dark:text-slate-300">
-                                            {stage.name}
+                                            {stage.name}{' '}
+                                            <span className="text-[10px] text-slate-400 font-mono font-normal">
+                                                (Bobot: {stage.totalBobot}%)
+                                            </span>
                                         </span>
-                                        <span className="font-mono text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                                        <span className="font-mono text-[11px] font-bold text-blue-600 dark:text-blue-400">
                                             {stage.progressPercent}%
                                         </span>
                                     </div>
-                                    <div className="w-full bg-slate-100 dark:bg-slate-800 h-1 rounded-full overflow-hidden">
+                                    <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
                                         <div
                                             className="h-full bg-blue-600 dark:bg-amber-400 rounded-full transition-all duration-300"
                                             style={{ width: `${stage.progressPercent}%` }}
@@ -162,7 +153,7 @@ export default function ProjectSidebar({
                         <div key={spec.label} className="flex items-center justify-between py-1">
                             <span className="text-slate-400 font-medium">{spec.label}</span>
                             <span 
-                                className="font-semibold text-slate-800 dark:text-slate-200 text-right truncate max-w-[180px]" 
+                                className="font-semibold text-slate-800 dark:text-slate-200 text-right truncate max-w-[180px]"
                                 title={String(spec.value)}
                             >
                                 {spec.value}
@@ -172,7 +163,7 @@ export default function ProjectSidebar({
                 </div>
             </div>
 
-            {/* KARTU 2: TIMELINE MILESTONE (HANYA MEMUAT MILESTONE SESUAI SOW) */}
+            {/* KARTU 2: TIMELINE MILESTONE */}
             <div className="bg-white dark:bg-slate-900/70 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
                     <div className="flex items-center gap-2">
@@ -181,7 +172,6 @@ export default function ProjectSidebar({
                             Timeline Milestone ({project?.sow?.nama_sow || 'SOW'})
                         </span>
                     </div>
-
                     <button
                         type="button"
                         onClick={onOpenTimeline}

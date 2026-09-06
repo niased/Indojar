@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import AuthenticatedLayout, { useConfirm } from '@/Layouts/AuthenticatedLayout';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ProjectSidebar from './ShowPartials/ProjectSidebar';
 import TabWbs from './ShowPartials/TabWbs';
 import TabPhotos from './ShowPartials/TabPhotos';
@@ -8,18 +8,16 @@ import TabIssues from './ShowPartials/TabIssues';
 import ModalTimeline from './ShowPartials/ModalTimeline';
 import { Badge } from '@/components/ui/badge';
 import { 
-    ArrowLeft, 
-    Wrench, 
-    Camera, 
-    AlertTriangle, 
-    ExternalLink, 
+    ArrowLeft,
+    Wrench,
+    Camera,
+    AlertTriangle,
+    ExternalLink,
     X 
 } from 'lucide-react';
 
 export default function ProjectShow({ project, stages = [] }) {
-    const confirm = useConfirm();
     const [activeSecondaryTab, setActiveSecondaryTab] = useState('photos');
-
     const [isTimelineModalOpen, setIsTimelineModalOpen] = useState(false);
     const [isProcessingTimeline, setIsProcessingTimeline] = useState(false);
     const [previewPhoto, setPreviewPhoto] = useState(null);
@@ -70,6 +68,7 @@ export default function ProjectShow({ project, stages = [] }) {
         items.forEach((item) => {
             const stageName = item.stage?.nama_stage || item.kategori_tahap || 'UMUM';
             const stageKey = item.stage_id || stageName;
+
             if (!grouped[stageKey]) {
                 grouped[stageKey] = {
                     id: item.stage_id,
@@ -79,14 +78,16 @@ export default function ProjectShow({ project, stages = [] }) {
                     weightedProgress: 0,
                 };
             }
+
             const bobot = parseFloat(item.bobot) || 0;
-            const prog = parseFloat(item.progress_percent) || 0;
+            const prog  = parseFloat(item.progress_percent) || 0;
             grouped[stageKey].totalBobot += bobot;
             grouped[stageKey].weightedProgress += (bobot * (prog / 100));
         });
 
         return Object.values(grouped).sort((a, b) => a.urutan - b.urutan).map((st) => ({
             ...st,
+            totalBobot: Number(st.totalBobot.toFixed(2)),
             progressPercent: st.totalBobot > 0 ? Math.min(100, Math.round((st.weightedProgress / st.totalBobot) * 100)) : 0,
         }));
     }, [project.pekerjaans]);
@@ -94,6 +95,7 @@ export default function ProjectShow({ project, stages = [] }) {
     const handleTimelineSubmit = (e) => {
         e.preventDefault();
         setIsProcessingTimeline(true);
+
         router.put(route('project.update', project.id), {
             ...project,
             ...timelineData,
@@ -105,22 +107,6 @@ export default function ProjectShow({ project, stages = [] }) {
             },
             onError: () => setIsProcessingTimeline(false),
             onFinish: () => setIsProcessingTimeline(false),
-        });
-    };
-
-    const handleApplyTemplate = () => {
-        confirm({
-            title: 'Terapkan Template WBS',
-            message: `Apakah kamu ingin menyalin template WBS acuan untuk SOW “${project.sow?.nama_sow || 'B2S'}” ke site ini?`,
-            variant: 'primary',
-            confirmText: 'Ya, Salin',
-            cancelText: 'Batal',
-            onConfirm: () => {
-                router.post(route('pekerjaan.store'), {
-                    apply_template: 1,
-                    project_id: project.id,
-                }, { preserveScroll: true });
-            },
         });
     };
 
@@ -139,35 +125,38 @@ export default function ProjectShow({ project, stages = [] }) {
             <Head title={`Site ${project.site_id} — ${project.site_name}`} />
 
             <div className="space-y-6 max-w-7xl mx-auto">
-                {/* 1. HEADER ATAS (NAVIGASI & STATUS TEKS MINIMALIS) */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900/70 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
-                    <div className="flex items-center gap-3">
+                {/* 1. HEADER ATAS (CAPTION MENYATU DENGAN LATAR & BACK BUTTON IKON MURNI) */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 pb-1 px-1">
+                    <div className="flex items-start sm:items-center gap-3.5">
                         <Link 
                             href={route('project.index')} 
-                            className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                            className="text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors cursor-pointer pt-1 sm:pt-0"
+                            title="Kembali ke Master Proyek"
                         >
-                            <ArrowLeft className="w-4 h-4" />
+                            <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
                         </Link>
                         <div>
                             <div className="flex flex-wrap items-center gap-2">
                                 <span className="font-mono text-xs font-bold text-blue-600 dark:text-blue-400">
                                     {project.project_code}
                                 </span>
-                                <span className="text-slate-300 dark:text-slate-600">•</span>
-                                <span className="text-xs text-slate-500 font-mono">PID: {project.pid || '-'}</span>
+                                <span className="text-slate-300 dark:text-slate-700">•</span>
+                                <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                                    PID: {project.pid || '-'}
+                                </span>
                                 {project.sow && (
                                     <Badge variant="outline" className="text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
                                         {project.sow.nama_sow}
                                     </Badge>
                                 )}
                             </div>
-                            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white mt-0.5">
-                                {project.site_id} — {project.site_name}
+                            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white mt-1">
+                                {project.site_id} <span className="text-slate-400 dark:text-slate-600 font-light">—</span> {project.site_name}
                             </h1>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2 self-start sm:self-center">
+                    <div className="flex items-center gap-2 self-start sm:self-center pl-8 sm:pl-0">
                         <span className={`w-2 h-2 rounded-full ring-4 ${statusStyle.dot}`} />
                         <span className={`text-xs font-mono font-bold uppercase tracking-wider ${statusStyle.text}`}>
                             {(project.status || 'PLANNING').replace('_', ' ')}
@@ -248,13 +237,11 @@ export default function ProjectShow({ project, stages = [] }) {
                         project={project}
                         pekerjaans={project.pekerjaans || []}
                         stages={stages}
-                        sowName={project.sow?.nama_sow || 'B2S'}
-                        onApplyTemplate={handleApplyTemplate}
                     />
                 </div>
             </div>
 
-            {/* Modal Update Milestone Siklus Proyek (Terkoneksi ke SOW Dinamis) */}
+            {/* Modal Update Milestone Siklus Proyek */}
             <ModalTimeline 
                 isOpen={isTimelineModalOpen}
                 onClose={() => setIsTimelineModalOpen(false)}
@@ -299,6 +286,7 @@ export default function ProjectShow({ project, stages = [] }) {
                                 </button>
                             </div>
                         </div>
+
                         <div className="p-2 flex justify-center bg-slate-950 rounded-xl overflow-hidden">
                             <img 
                                 src={previewPhoto.url} 

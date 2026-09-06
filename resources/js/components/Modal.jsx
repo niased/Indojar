@@ -5,7 +5,6 @@ import {
     DialogHeader,
     DialogTitle,
     DialogDescription,
-    DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from 'lucide-react';
@@ -34,10 +33,10 @@ export default function Modal({
                     e.preventDefault();
                 }}
             >
-                {/* FIXED HEADER */}
+                {/* 1. FIXED HEADER (dengan pr-10 agar aman dari tombol 'X') */}
                 {(title || description || headerExtra) && (
-                    <DialogHeader className="shrink-0 px-6 py-4 border-b border-slate-100 dark:border-slate-800 select-none bg-slate-50/50 dark:bg-slate-900/50">
-                        <DialogTitle className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center justify-between pr-6">
+                    <DialogHeader className="shrink-0 px-6 py-4 sm:px-7 border-b border-slate-100 dark:border-slate-800/80 select-none bg-slate-50/60 dark:bg-slate-900/60">
+                        <DialogTitle className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center justify-between gap-3 pr-8">
                             <span className="truncate">{title}</span>
                             {headerExtra && <div className="shrink-0">{headerExtra}</div>}
                         </DialogTitle>
@@ -53,20 +52,20 @@ export default function Modal({
                     </DialogHeader>
                 )}
 
-                {/* SCROLLABLE BODY / ISI FORM */}
-                <div className="flex-1 overflow-y-auto px-6 py-4 select-text space-y-4">
+                {/* 2. SCROLLABLE BODY */}
+                <div className="flex-1 overflow-y-auto px-6 py-5 sm:px-7 select-text space-y-4">
                     {children}
                 </div>
 
-                {/* FIXED FOOTER */}
+                {/* 3. FIXED FOOTER (Menggunakan container pasti dengan padding aman dari sudut lengkungan) */}
                 {showFooter && (
-                    <DialogFooter className="shrink-0 px-6 py-3.5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2.5 bg-slate-50/50 dark:bg-slate-900/50 select-none">
+                    <div className="shrink-0 px-6 py-4 sm:px-7 sm:py-4.5 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 flex items-center justify-end gap-3 select-none rounded-b-2xl">
                         <Button
                             type="button"
                             variant="outline"
                             onClick={onClose}
                             disabled={isProcessing}
-                            className="h-9 px-4 text-xs font-semibold cursor-pointer rounded-xl border-slate-300 dark:border-slate-700"
+                            className="h-9 px-4 text-xs font-semibold cursor-pointer rounded-xl border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors"
                         >
                             {cancelLabel}
                         </Button>
@@ -76,13 +75,13 @@ export default function Modal({
                                 type="button"
                                 onClick={onSubmit}
                                 disabled={isProcessing}
-                                className="h-9 px-5 text-xs font-bold gap-1.5 bg-blue-600 hover:bg-blue-700 text-white shadow-md transition-colors cursor-pointer rounded-xl"
+                                className="h-9 px-5 text-xs font-bold gap-1.5 bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-600/30 transition-all cursor-pointer rounded-xl shrink-0"
                             >
                                 {isProcessing && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                                 <span>{submitLabel}</span>
                             </Button>
                         )}
-                    </DialogFooter>
+                    </div>
                 )}
             </DialogContent>
         </Dialog>

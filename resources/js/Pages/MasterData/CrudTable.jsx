@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import Tabel from '@/components/Tabel';
-import { Badge } from '@/components/ui/badge';
-import { MASTER_MILESTONES_LIST } from './ModalMasterKamusControl';
+import { MASTER_MILESTONES_LIST } from './ModalSow';
 
 export default function CrudTable({
     dataList = [],
@@ -41,10 +40,10 @@ export default function CrudTable({
                     key: 'milestones',
                     label: 'MILESTONE TIMELINE AKTIF',
                     render: (item) => {
-                        const activeKeys = Array.isArray(item.milestones) && item.milestones.length > 0
-                            ? item.milestones
-                            : MASTER_MILESTONES_LIST.map((m) => m.key);
-
+                        const activeKeys = Array.isArray(item.milestones) ? item.milestones : [];
+                        if (activeKeys.length === 0) {
+                            return <span className="text-[11px] text-slate-400 italic">Tidak ada milestone khusus</span>;
+                        }
                         return (
                             <div className="flex flex-wrap items-center gap-1 max-w-xl py-1">
                                 {activeKeys.map((key) => {
@@ -88,73 +87,23 @@ export default function CrudTable({
             ];
         }
 
-        if (mainTab === 'TASK') {
-            return [
-                {
-                    key: 'stage_nama',
-                    label: 'TAHAPAN KONSTRUKSI',
-                    render: (item) => (
-                        <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-wide bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20">
-                            {item.stage_nama}
-                        </Badge>
-                    ),
-                },
-                {
-                    key: 'nama_task',
-                    label: 'URAIAN ITEM TUGAS WBS',
-                    render: (item) => (
-                        <span className="font-semibold text-xs text-slate-900 dark:text-white">
-                            {item.nama_task}
-                        </span>
-                    ),
-                },
-                {
-                    key: 'sow',
-                    label: 'LINGKUP SOW',
-                    render: (item) => (
-                        <span className="text-xs font-medium font-mono text-slate-600 dark:text-slate-300">
-                            {item.sow?.nama_sow || 'Semua SOW'}
-                        </span>
-                    ),
-                },
-                {
-                    key: 'satuan',
-                    label: 'SATUAN',
-                    render: (item) => (
-                        <span className="text-xs text-slate-500 font-medium">
-                            {item.satuan || 'Lot'}
-                        </span>
-                    ),
-                },
-                {
-                    key: 'default_bobot',
-                    label: 'BOBOT ACUAN (%)',
-                    render: (item) => (
-                        <span className="font-mono font-bold text-xs text-blue-600 dark:text-blue-400">
-                            {Number(item.default_bobot || 0).toFixed(2)}%
-                        </span>
-                    ),
-                },
-            ];
-        }
-
-        // STAGE Tab
+        // mainTab === 'STAGE'
         return [
             {
                 key: 'urutan',
                 label: 'URUTAN FASE',
                 render: (item) => (
-                    <span className="w-6 h-6 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 font-mono font-bold text-xs flex items-center justify-center border border-blue-500/20">
-                        {item.urutan}
+                    <span className="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 font-mono font-bold text-xs flex items-center justify-center border border-blue-500/20">
+                        {String(item.urutan).padStart(2, '0')}
                     </span>
                 ),
             },
             {
                 key: 'kode_stage',
-                label: 'KODE STAGE',
+                label: 'KODE TAHAPAN',
                 render: (item) => (
                     <span className="font-mono font-bold text-xs text-slate-800 dark:text-slate-200">
-                        {item.kode_stage}
+                        [{item.kode_stage}]
                     </span>
                 ),
             },
@@ -165,15 +114,6 @@ export default function CrudTable({
                     <span className="font-bold text-xs text-slate-900 dark:text-white">
                         {item.nama_stage}
                     </span>
-                ),
-            },
-            {
-                key: 'tasks_count',
-                label: 'JUMLAH TUGAS ACUAN',
-                render: (item) => (
-                    <Badge variant="outline" className="font-mono font-bold text-[11px] bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
-                        {item.tasks?.length || 0} Tugas Terdaftar
-                    </Badge>
                 ),
             },
         ];
