@@ -1,33 +1,25 @@
 import React, { useState, useMemo } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout, { useConfirm } from '@/Layouts/AuthenticatedLayout';
-import ModalPekerjaan from '@/Pages/Pekerjaan/MasterData/ModalPekerjaan';
 import ProjectSidebar from './ShowPartials/ProjectSidebar';
 import TabWbs from './ShowPartials/TabWbs';
 import TabPhotos from './ShowPartials/TabPhotos';
 import TabIssues from './ShowPartials/TabIssues';
 import ModalTimeline from './ShowPartials/ModalTimeline';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { 
     ArrowLeft, 
-    MapPin, 
     Wrench, 
     Camera, 
     AlertTriangle, 
-    Calendar, 
     ExternalLink, 
     X 
 } from 'lucide-react';
 
 export default function ProjectShow({ project, stages = [] }) {
     const confirm = useConfirm();
-    const [activeSecondaryTab, setActiveSecondaryTab] = useState('photos'); // 'photos' | 'issues'
+    const [activeSecondaryTab, setActiveSecondaryTab] = useState('photos');
 
-    // State Modal
-    const [isPekerjaanModalOpen, setIsPekerjaanModalOpen] = useState(false);
-    const [isEditPekerjaanMode, setIsEditPekerjaanMode] = useState(false);
-    const [selectedPekerjaan, setSelectedPekerjaan] = useState(null);
     const [isTimelineModalOpen, setIsTimelineModalOpen] = useState(false);
     const [isProcessingTimeline, setIsProcessingTimeline] = useState(false);
     const [previewPhoto, setPreviewPhoto] = useState(null);
@@ -46,8 +38,29 @@ export default function ProjectShow({ project, stages = [] }) {
     });
 
     const documentationPhotos = useMemo(() => {
-        return (project.pekerjaans || []).filter((p) => Boolean(p.foto));
+        return (project.pekerjaans || []).filter(
+            (p) => Boolean(p.foto) && String(p.tipe_foto || '').toUpperCase() !== 'ISSUE'
+        );
     }, [project.pekerjaans]);
+
+    const issueList = useMemo(() => {
+        const wbsIssues = (project.pekerjaans || [])
+            .filter((p) => String(p.tipe_foto || '').toUpperCase() === 'ISSUE')
+            .map((p) => ({
+                id: `wbs-issue-${p.id}`,
+                judul_isu: `Kendala [${p.kode_pekerjaan}] ${p.nama_pekerjaan}`,
+                deskripsi: p.catatan || `Ditemukan kendala pada pekerjaan ${p.nama_pekerjaan}.`,
+                severity: 'MEDIUM',
+                kategori: p.stage?.nama_stage || p.kategori_tahap || 'TEKNIS',
+                status: p.progress_percent >= 100 ? 'RESOLVED' : 'OPEN',
+                tanggal_terjadi: p.tanggal_pekerjaan ? String(p.tanggal_pekerjaan).split(' ')[0] : null,
+                foto: p.foto,
+                pic_user: p.pic_user,
+            }));
+
+        const existingDirectIssues = project.issues || [];
+        return [...wbsIssues, ...existingDirectIssues];
+    }, [project.pekerjaans, project.issues]);
 
     const stageBreakdown = useMemo(() => {
         const items = project.pekerjaans || [];
@@ -78,19 +91,6 @@ export default function ProjectShow({ project, stages = [] }) {
         }));
     }, [project.pekerjaans]);
 
-    const handleDeletePekerjaan = (item) => {
-        confirm({
-            title: 'Hapus Item Pekerjaan',
-            message: `Hapus pekerjaan [${item.kode_pekerjaan}] ${item.nama_pekerjaan}? Foto Cloudinary terkait akan ikut terhapus.`,
-            variant: 'danger',
-            confirmText: 'Ya, Hapus',
-            cancelText: 'Batal',
-            onConfirm: () => {
-                router.delete(route('pekerjaan.destroy', item.id), { preserveScroll: true });
-            },
-        });
-    };
-
     const handleTimelineSubmit = (e) => {
         e.preventDefault();
         setIsProcessingTimeline(true);
@@ -111,7 +111,7 @@ export default function ProjectShow({ project, stages = [] }) {
     const handleApplyTemplate = () => {
         confirm({
             title: 'Terapkan Template WBS',
-            message: `Apakah kamu ingin menyalin template WBS acuan untuk SOW '${project.sow?.nama_sow || 'B2S'}' ke site ini?`,
+            message: `Apakah kamu ingin menyalin template WBS acuan untuk SOW “${project.sow?.nama_sow || 'B2S'}” ke site ini?`,
             variant: 'primary',
             confirmText: 'Ya, Salin',
             cancelText: 'Batal',
@@ -124,25 +124,22 @@ export default function ProjectShow({ project, stages = [] }) {
         });
     };
 
-    const getStatusBadge = (status) => {
-        switch (status) {
-            case 'COMPLETED':
-                return 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30';
-            case 'ON_PROGRESS':
-                return 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30';
-            case 'ISSUE':
-                return 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30';
-            default:
-                return 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30';
-        }
+    const getStatusStyle = (status) => {
+        const s = String(status || '').toUpperCase();
+        if (s === 'COMPLETED') return { dot: 'bg-emerald-500 ring-emerald-500/20', text: 'text-emerald-600 dark:text-emerald-400' };
+        if (s === 'ON_PROGRESS' || s === 'IN_PROGRESS') return { dot: 'bg-blue-500 ring-blue-500/20', text: 'text-blue-600 dark:text-blue-400' };
+        if (s === 'ISSUE') return { dot: 'bg-rose-500 ring-rose-500/20', text: 'text-rose-600 dark:text-rose-400' };
+        return { dot: 'bg-amber-500 ring-amber-500/20', text: 'text-amber-600 dark:text-amber-400' };
     };
+
+    const statusStyle = getStatusStyle(project.status);
 
     return (
         <AuthenticatedLayout header={`Site Detail: ${project.site_id}`}>
-            <Head title={`Site ${project.site_id} - ${project.site_name}`} />
+            <Head title={`Site ${project.site_id} — ${project.site_name}`} />
 
             <div className="space-y-6 max-w-7xl mx-auto">
-                {/* 1. HEADER ATAS (NAVIGASI & IDENTITAS) */}
+                {/* 1. HEADER ATAS (NAVIGASI & STATUS TEKS MINIMALIS) */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900/70 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
                     <div className="flex items-center gap-3">
                         <Link 
@@ -170,26 +167,16 @@ export default function ProjectShow({ project, stages = [] }) {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2.5 self-start sm:self-center">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setIsTimelineModalOpen(true)}
-                            className="h-9 text-xs gap-1.5 border-slate-300 dark:border-slate-700 cursor-pointer"
-                        >
-                            <Calendar className="w-3.5 h-3.5 text-emerald-600 dark:text-amber-400" />
-                            <span>Milestone Tanggal</span>
-                        </Button>
-                        <Badge className={`text-xs font-extrabold px-3 py-1 border uppercase ${getStatusBadge(project.status)}`}>
-                            {project.status}
-                        </Badge>
+                    <div className="flex items-center gap-2 self-start sm:self-center">
+                        <span className={`w-2 h-2 rounded-full ring-4 ${statusStyle.dot}`} />
+                        <span className={`text-xs font-mono font-bold uppercase tracking-wider ${statusStyle.text}`}>
+                            {(project.status || 'PLANNING').replace('_', ' ')}
+                        </span>
                     </div>
                 </div>
 
-                {/* 2. LAYOUT UTAMA: SIDEBAR KIRI (4/12) & WORKSPACE SEKUNDER KANAN (8/12) */}
+                {/* 2. AREA TENGAH: SIDEBAR PROYEK & TAB FOTO/KENDALA */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-                    {/* Kolom Kiri: Sidebar (Spesifikasi Site + Timeline Milestone) */}
                     <div className="lg:col-span-4">
                         <ProjectSidebar 
                             project={project}
@@ -198,8 +185,7 @@ export default function ProjectShow({ project, stages = [] }) {
                         />
                     </div>
 
-                    {/* Kolom Kanan: Seksion Foto Cloudinary & Kendala */}
-                    <div className="lg:col-span-8 space-y-4">
+                    <div className="lg:col-span-8">
                         <div className="bg-white dark:bg-slate-900/70 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
                             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                                 <div className="flex items-center gap-1.5 p-1 bg-slate-200/60 dark:bg-slate-950 rounded-xl border border-slate-300 dark:border-slate-800 text-xs">
@@ -225,7 +211,7 @@ export default function ProjectShow({ project, stages = [] }) {
                                         }`}
                                     >
                                         <AlertTriangle className="w-3.5 h-3.5" />
-                                        <span>Kendala Lapangan ({project.issues?.length || 0})</span>
+                                        <span>Kendala Lapangan ({issueList.length})</span>
                                     </button>
                                 </div>
                             </div>
@@ -238,61 +224,42 @@ export default function ProjectShow({ project, stages = [] }) {
                             )}
 
                             {activeSecondaryTab === 'issues' && (
-                                <TabIssues issues={project.issues || []} />
+                                <TabIssues 
+                                    issues={issueList} 
+                                    onPreviewPhoto={setPreviewPhoto}
+                                />
                             )}
                         </div>
                     </div>
                 </div>
 
-                {/* 3. WORKSPACE BAWAH: TABEL MASTER PEKERJAAN WBS (LEBAR PENUH DI BAWAH SIDEBAR) */}
+                {/* 3. AREA BAWAH: TABEL MASTER WBS LENGKAP */}
                 <div className="space-y-3 pt-2">
                     <div className="flex items-center justify-between px-1">
                         <div className="flex items-center gap-2">
                             <Wrench className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                             <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                                Rincian Pekerjaan WBS & Progres Lapangan ({project.pekerjaans?.length || 0})
+                                Rincian Pekerjaan WBS & Progres Lapangan
                             </h3>
                         </div>
                     </div>
 
                     <TabWbs 
+                        project={project}
                         pekerjaans={project.pekerjaans || []}
                         stages={stages}
                         sowName={project.sow?.nama_sow || 'B2S'}
-                        onOpenAdd={() => {
-                            setSelectedPekerjaan(null);
-                            setIsEditPekerjaanMode(false);
-                            setIsPekerjaanModalOpen(true);
-                        }}
-                        onOpenEdit={(item) => {
-                            setSelectedPekerjaan(item);
-                            setIsEditPekerjaanMode(true);
-                            setIsPekerjaanModalOpen(true);
-                        }}
-                        onDelete={handleDeletePekerjaan}
                         onApplyTemplate={handleApplyTemplate}
                     />
                 </div>
             </div>
 
-            {/* Modal Tambah/Edit Pekerjaan WBS */}
-            <ModalPekerjaan 
-                isOpen={isPekerjaanModalOpen}
-                onClose={() => {
-                    setIsPekerjaanModalOpen(false);
-                    setSelectedPekerjaan(null);
-                }}
-                isEditMode={isEditPekerjaanMode}
-                selectedItem={selectedPekerjaan}
-                projects={[project]}
-                stages={stages}
-            />
-
-            {/* Modal Update Milestone Siklus Proyek */}
+            {/* Modal Update Milestone Siklus Proyek (Terkoneksi ke SOW Dinamis) */}
             <ModalTimeline 
                 isOpen={isTimelineModalOpen}
                 onClose={() => setIsTimelineModalOpen(false)}
                 siteId={project.site_id}
+                sow={project.sow}
                 timelineData={timelineData}
                 setTimelineData={setTimelineData}
                 onSubmit={handleTimelineSubmit}

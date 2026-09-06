@@ -10,7 +10,7 @@ use App\Http\Controllers\ProjectController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// 1. HALAMAN PROFIL RESMI PERUSAHAAN (LANDING PAGE)
+// 1. Halaman Profil Resmi Perusahaan (Landing Page)
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
@@ -18,11 +18,11 @@ Route::get('/', function () {
 })->name('welcome');
 
 Route::middleware(['auth'])->group(function () {
-    // 2. DASHBOARD UTAMA PT INDOJAR MULIA ABADI
+    // 2. Dashboard Utama PT Indojar Mulia Abadi
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/home', fn() => redirect()->route('dashboard'))->name('home');
+    Route::get('/home', fn () => redirect()->route('dashboard'))->name('home');
 
-    // 3. MASTER PROYEK, PROGRESS LAPANGAN & DOKUMENTASI
+    // 3. Master Proyek, Progress Lapangan & Dokumentasi
     Route::prefix('project')->name('project.')->controller(ProjectController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/', 'store')->name('store');
@@ -37,7 +37,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/photo/{photoId}', 'destroyPhoto')->name('photo.destroy');
     });
 
-    // 4. MASTER PEKERJAAN (WBS & BOQ LAPANGAN)
+    // 4. Pengelolaan Pekerjaan WBS (Melekat pada Detail Site)
     Route::prefix('pekerjaan')->name('pekerjaan.')->controller(PekerjaanController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/', 'store')->name('store');
@@ -48,12 +48,13 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}', 'destroy')->name('destroy');
     });
 
-    // 5. MASTER DATA KAMUS (AREA, SOW, TAHAPAN, & TEMPLATE WBS)
+    // 5. Master Data Kamus (Area, SOW, Tahapan, & Template WBS)
     Route::prefix('master-data')->name('master-data.')->controller(MasterDataController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/area', 'storeArea')->name('area.store');
         Route::delete('/area/{id}', 'destroyArea')->name('area.destroy');
         Route::post('/sow', 'storeSow')->name('sow.store');
+        Route::put('/sow/{id}', 'updateSow')->name('sow.update');
         Route::delete('/sow/{id}', 'destroySow')->name('sow.destroy');
         Route::post('/stage', 'storeStage')->name('stage.store');
         Route::delete('/stage/{id}', 'destroyStage')->name('stage.destroy');
@@ -61,20 +62,20 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/task/{id}', 'destroyTask')->name('task.destroy');
     });
 
-    // 6. LAPORAN REKAPITULASI PROYEK & SITE
+    // 6. Laporan Rekapitulasi Proyek & Site
     Route::prefix('laporan')->name('laporan.')->controller(LaporanController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/export', 'export')->name('export');
     });
 
-    // 7. PROFIL PENGGUNA
+    // 7. Profil Pengguna
     Route::prefix('profile')->name('profile.')->controller(ProfileController::class)->group(function () {
         Route::get('/', 'edit')->name('edit');
         Route::patch('/', 'update')->name('update');
         Route::delete('/', 'destroy')->name('destroy');
     });
 
-    // 8. KELOLA PENGGUNA (ADMIN PANEL)
+    // 8. Kelola Pengguna (Admin Panel)
     Route::prefix('admin/users')->name('admin.users.')->controller(UserController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/', 'store')->name('store');

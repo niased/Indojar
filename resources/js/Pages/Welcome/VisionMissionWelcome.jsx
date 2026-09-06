@@ -1,22 +1,29 @@
 // resources/js/Pages/Welcome/VisionMissionWelcome.jsx
 
 import React from 'react';
-
-import visionMissionBackground from '@/../images/visimisi.png';
 import visionImage from '@/../images/ptindojar3.jpg';
 
 export default function VisionMissionWelcome({ lang = 'id' }) {
     const isIndonesia = lang === 'id';
 
     const content = {
-        title: {
-            vision: isIndonesia ? 'Visi' : 'Vision',
-            mission: isIndonesia ? 'Misi' : 'Mission',
-        },
+        eyebrow: isIndonesia ? 'ARAH & KOMITMEN' : 'DIRECTION & COMMITMENT',
+
+        title: isIndonesia
+            ? 'Visi & Misi'
+            : 'Vision & Mission',
+
+        intro: isIndonesia
+            ? 'Menjadi bagian dari pembangunan infrastruktur telekomunikasi yang andal melalui kualitas, pelayanan, dan pengembangan tim yang berkelanjutan.'
+            : 'Contributing to reliable telecommunication infrastructure through quality, service excellence, and continuous team development.',
+
+        visionLabel: isIndonesia ? 'Visi' : 'Vision',
 
         vision: isIndonesia
             ? 'Kami berkomitmen untuk menjadi perusahaan terkemuka dalam bidang pembangunan infrastruktur telekomunikasi dengan pelayanan yang cepat, berkualitas, dan memberikan kepuasan kepada pelanggan.'
             : 'We are committed to becoming a leading company in telecommunication infrastructure construction by providing fast, high-quality service and delivering customer satisfaction.',
+
+        missionLabel: isIndonesia ? 'Misi' : 'Mission',
 
         missions: isIndonesia
             ? [
@@ -34,212 +41,132 @@ export default function VisionMissionWelcome({ lang = 'id' }) {
     return (
         <section
             id="visi-misi"
-            className="w-full overflow-hidden bg-[#f4f6f1]"
+            className="relative w-full overflow-hidden"
         >
-            <div className="relative aspect-[16/9] w-full">
-
+            <div className="mx-auto max-w-7xl px-6 py-20 sm:px-10 lg:py-28">
                 {/* =====================================================
-                    BACKGROUND
+                    HEADER
                 ===================================================== */}
-                <img
-                    src={visionMissionBackground}
-                    alt=""
-                    className="
-                        absolute
-                        inset-0
-                        h-full
-                        w-full
-                        object-cover
-                    "
-                />
+                <div className="grid gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16">
+                    <div>
+                        <div className="mb-5 flex items-center gap-3">
+                            <span className="h-px w-10 bg-amber-400" />
 
+                            <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-amber-300">
+                                {content.eyebrow}
+                            </span>
+                        </div>
 
-                {/* =====================================================
-                    VISION TITLE
-                    EDIT POSISI DI SINI
-                ===================================================== */}
-                <div className="
-                    absolute
-                    left-[6.2%]
-                    top-[10%]
-                    z-20
-                    flex
-                    h-[6.5%]
-                    w-[17.5%]
-                    items-center
-                    justify-center
-                ">
-                    <span className="
-                        font-heading
-                        text-[clamp(20px,2vw,34px)]
-                        font-semibold
-                        uppercase
-                        leading-none
-                        tracking-[-0.02em]
-                        text-white
-                    ">
-                        {content.title.vision}
-                    </span>
+                        <h2 className="font-heading max-w-lg text-4xl font-semibold leading-[0.95] tracking-[-0.045em] text-white sm:text-5xl lg:text-6xl">
+                            {content.title}
+                        </h2>
+                    </div>
+
+                    <div className="flex items-end">
+                        <p className="max-w-2xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                            {content.intro}
+                        </p>
+                    </div>
                 </div>
 
-
                 {/* =====================================================
-                    VISION TEXT
-                    EDIT POSISI DI SINI
+                    MAIN CONTENT
                 ===================================================== */}
-                <div className="
-                    absolute
-                    left-[11.8%]
-                    top-[19.8%]
-                    z-10
-                    w-[42%]
-                    max-w-[690px]
-                ">
-                    <p className="
-                        text-[clamp(10px,1.3vw,24px)]
-                        font-normal
-                        leading-[1.42]
-                        tracking-[-0.008em]
-                        text-white
-                    ">
-                        {content.vision}
-                    </p>
+                <div className="mt-16 grid gap-0 border-t border-white/10 lg:mt-20 lg:grid-cols-[1fr_0.92fr]">
+                    {/* =================================================
+                        VISION + MISSION
+                    ================================================= */}
+                    <div className="border-b border-white/10 lg:border-b-0 lg:border-r lg:pr-14">
+                        {/* Vision */}
+                        <div className="py-10 sm:py-12">
+                            <div className="mb-6 flex items-center gap-4">
+                                <span className="font-heading text-xs font-semibold tracking-[0.2em] text-amber-300">
+                                    01
+                                </span>
+
+                                <span className="h-px w-8 bg-emerald-400/70" />
+
+                                <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/50">
+                                    {content.visionLabel}
+                                </span>
+                            </div>
+
+                            <p className="max-w-2xl text-xl font-medium leading-[1.5] tracking-[-0.02em] text-white sm:text-2xl lg:text-[27px] lg:leading-[1.45]">
+                                {content.vision}
+                            </p>
+                        </div>
+
+                        {/* Mission */}
+                        <div className="border-t border-white/10 py-10 sm:py-12">
+                            <div className="mb-8 flex items-center gap-4">
+                                <span className="font-heading text-xs font-semibold tracking-[0.2em] text-amber-300">
+                                    02
+                                </span>
+
+                                <span className="h-px w-8 bg-emerald-400/70" />
+
+                                <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/50">
+                                    {content.missionLabel}
+                                </span>
+                            </div>
+
+                            <div className="divide-y divide-white/10">
+                                {content.missions.map((mission, index) => (
+                                    <div
+                                        key={mission}
+                                        className="grid grid-cols-[42px_1fr] gap-5 py-5 first:pt-0 last:pb-0 sm:grid-cols-[52px_1fr] sm:gap-6"
+                                    >
+                                        <span className="pt-1 font-heading text-xs font-semibold tracking-[0.15em] text-white/30">
+                                            {String(index + 1).padStart(2, '0')}
+                                        </span>
+
+                                        <p className="max-w-xl text-sm leading-7 text-white/65 sm:text-[15px] sm:leading-7">
+                                            {mission}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* =================================================
+                        IMAGE
+                    ================================================= */}
+                    <div className="relative min-h-[420px] overflow-hidden lg:min-h-[620px] lg:pl-14">
+                        <div className="relative h-full min-h-[420px] overflow-hidden sm:min-h-[500px] lg:min-h-[620px]">
+                            <img
+                                src={visionImage}
+                                alt={
+                                    isIndonesia
+                                        ? 'Infrastruktur telekomunikasi PT Indojar Mulia Abadi'
+                                        : 'Telecommunication infrastructure PT Indojar Mulia Abadi'
+                                }
+                                className="
+                                    h-full
+                                    w-full
+                                    object-cover
+                                    object-center
+                                    transition-transform
+                                    duration-700
+                                    hover:scale-[1.025]
+                                "
+                            />
+
+                            {/* Image edge / editorial accent */}
+                            <div className="absolute inset-y-0 left-0 w-px bg-amber-300/70" />
+
+                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#061b14]/80 via-[#061b14]/20 to-transparent px-6 pb-6 pt-20 sm:px-8 sm:pb-8">
+                                <div className="flex items-center gap-3">
+                                    <span className="h-px w-8 bg-amber-300" />
+
+                                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70">
+                                        PT Indojar Mulia Abadi
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-
-                {/* =====================================================
-                    MISSION TITLE
-                    EDIT POSISI DI SINI
-                ===================================================== */}
-                <div className="
-                    absolute
-                    left-[6.2%]
-                    top-[43.2%]
-                    z-30
-                    flex
-                    h-[7.5%]
-                    w-[17.5%]
-                    items-center
-                    justify-center
-                ">
-                    <span className="
-                        font-heading
-                        text-[clamp(20px,2vw,34px)]
-                        font-semibold
-                        uppercase
-                        leading-none
-                        tracking-[-0.02em]
-                        text-white
-                    ">
-                        {content.title.mission}
-                    </span>
-                </div>
-
-
-                {/* =====================================================
-                    MISSION 01
-                    EDIT POSISI DI SINI
-                ===================================================== */}
-                <div className="
-                    absolute
-                    left-[17.8%]
-                    top-[55.9%]
-                    z-10
-                    w-[34%]
-                    max-w-[590px]
-                ">
-                    <p className="
-                        text-[clamp(8px,0.95vw,17px)]
-                        font-normal
-                        leading-[1.4]
-                        text-slate-800
-                    ">
-                        {content.missions[0]}
-                    </p>
-                </div>
-
-
-                {/* =====================================================
-                    MISSION 02
-                    EDIT POSISI DI SINI
-                ===================================================== */}
-                <div className="
-                    absolute
-                    left-[17.8%]
-                    top-[70.8%]
-                    z-10
-                    w-[34%]
-                    max-w-[590px]
-                ">
-                    <p className="
-                        text-[clamp(8px,0.95vw,17px)]
-                        font-normal
-                        leading-[1.4]
-                        text-slate-800
-                    ">
-                        {content.missions[1]}
-                    </p>
-                </div>
-
-
-                {/* =====================================================
-                    MISSION 03
-                    EDIT POSISI DI SINI
-                ===================================================== */}
-                <div className="
-                    absolute
-                    left-[17.8%]
-                    top-[82.2%]
-                    z-10
-                    w-[34%]
-                    max-w-[590px]
-                ">
-                    <p className="
-                        text-[clamp(8px,0.95vw,17px)]
-                        font-normal
-                        leading-[1.35]
-                        text-slate-800
-                    ">
-                        {content.missions[2]}
-                    </p>
-                </div>
-
-
-                {/* =====================================================
-                    TOWER PHOTO
-                    EDIT POSISI DI SINI
-                ===================================================== */}
-                <div className="
-                    absolute
-                    right-[0%]
-                    top-[16%]
-                    z-30
-                    h-[76%]
-                    w-[41.5%]
-                    overflow-hidden
-                    rounded-tl-[7vw]
-                    rounded-bl-[7vw]
-                ">
-                    <img
-                        src={visionImage}
-                        alt={
-                            isIndonesia
-                                ? 'Infrastruktur telekomunikasi PT Indojar Mulia Abadi'
-                                : 'Telecommunication infrastructure PT Indojar Mulia Abadi'
-                        }
-                        className="
-                            h-full
-                            w-[125%]
-                            max-w-none
-                            object-cover
-                            object-left
-                            transition-transform
-                            duration-700
-                            hover:scale-[1.02]
-                        "
-                    />
-                </div>
-
             </div>
         </section>
     );

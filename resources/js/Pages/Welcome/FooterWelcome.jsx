@@ -1,134 +1,159 @@
 // resources/js/Pages/Welcome/FooterWelcome.jsx
 
 import React from 'react';
-import { Link } from '@inertiajs/react';
-import { MapPin, Phone, Mail, Lock, ArrowRight } from 'lucide-react';
+import { ArrowUpRight, Mail, MapPin, Phone } from 'lucide-react';
 
-export default function FooterWelcome({ auth, t }) {
+export default function FooterWelcome({ t }) {
+    const year = new Date().getFullYear();
+
     return (
-        <>
-            {/* CLIENTS */}
-            <section
-                id="klien"
-                className="mx-auto max-w-7xl border-b border-slate-200 px-6 py-16 text-center dark:border-slate-800/80 sm:px-10"
-            >
-                <span className="mb-6 block text-xs font-bold uppercase tracking-widest text-slate-400">
-                    {t.clients.tag} &bull; {t.clients.title}
-                </span>
-
-                <div className="flex flex-wrap items-center justify-center gap-10 text-xs font-bold opacity-75 transition-all duration-300 hover:opacity-100 sm:gap-16">
-                    <span className="text-sm text-slate-700 dark:text-slate-300 sm:text-base">
-                        MITRATEL
-                    </span>
-
-                    <span className="text-sm text-slate-700 dark:text-slate-300 sm:text-base">
-                        TELKOMSEL
-                    </span>
-
-                    <span className="text-sm text-slate-700 dark:text-slate-300 sm:text-base">
-                        XL AXIATA
-                    </span>
-
-                    <span className="text-sm text-slate-700 dark:text-slate-300 sm:text-base">
-                        INDOSAT OOREDOO
-                    </span>
-                </div>
-            </section>
-
-            {/* FOOTER */}
-            <footer
-                id="kontak"
-                className="border-t border-slate-800 bg-slate-950 px-6 py-12 text-xs text-slate-400 sm:px-10"
-            >
-                <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 md:grid-cols-3">
-
-                    <div>
-                        <div className="mb-3 flex items-center gap-2.5">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 text-sm font-bold text-white">
+        <footer id="kontak" className="border-t border-white/10 bg-[#06100c] text-white">
+            <div className="mx-auto max-w-7xl px-6 py-16 sm:px-10 lg:py-20">
+                <div className="grid gap-12 lg:grid-cols-[1.5fr_1fr_1fr_1fr] lg:gap-10">
+                    <div className="max-w-sm">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center border border-amber-300/60 bg-[#075d35] text-xs font-bold text-amber-300">
                                 IMA
                             </div>
 
-                            <span className="text-sm font-bold text-white">
-                                PT INDOJAR MULIA ABADI
-                            </span>
+                            <div>
+                                <p className="text-sm font-bold tracking-wide">
+                                    PT INDOJAR
+                                </p>
+                                <p className="text-[10px] uppercase tracking-[0.15em] text-white/40">
+                                    Mulia Abadi
+                                </p>
+                            </div>
                         </div>
 
-                        <p className="leading-relaxed">
-                            General Contractor, Telecommunication & Civil Engineering Infrastructure.
+                        <p className="mt-6 text-sm leading-7 text-white/50">
+                            General Contractor, Telecommunication & Civil
+                            Engineering Infrastructure.
                         </p>
+
+                        <a
+                            href="#kontak"
+                            className="mt-6 inline-flex items-center gap-2 text-xs font-semibold text-amber-300 transition-colors hover:text-white"
+                        >
+                            Hubungi Kami
+                            <ArrowUpRight className="h-3.5 w-3.5" />
+                        </a>
                     </div>
 
                     <div>
-                        <h4 className="mb-3 text-sm font-bold text-white">
-                            {t.contact.officeHead}
-                        </h4>
+                        <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-300">
+                            Perusahaan
+                        </h3>
 
-                        <p className="flex items-start gap-2">
-                            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
-
-                            <span>{t.contact.officeAddr}</span>
-                        </p>
+                        <nav className="mt-5 flex flex-col gap-3 text-sm text-white/50">
+                            <a href="#about" className="transition hover:text-white">
+                                Tentang Kami
+                            </a>
+                            <a href="#services" className="transition hover:text-white">
+                                Layanan
+                            </a>
+                            <a href="#portofolio" className="transition hover:text-white">
+                                Proyek
+                            </a>
+                            <a href="#kontak" className="transition hover:text-white">
+                                Kontak
+                            </a>
+                        </nav>
                     </div>
 
                     <div>
-                        <h4 className="mb-3 text-sm font-bold text-white">
-                            {t.contact.mgmtHead}
-                        </h4>
+                        <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-300">
+                            Layanan
+                        </h3>
 
-                        <p>
-                            <strong>{t.contact.director}:</strong> Edy Julianto
-                        </p>
+                        <nav className="mt-5 flex flex-col gap-3 text-sm text-white/50">
+                            <span>Tower Construction</span>
+                            <span>Tower Strengthening</span>
+                            <span>Colocation</span>
+                            <span>Civil & CME Works</span>
+                        </nav>
+                    </div>
 
-                        <p className="mt-1 flex items-center gap-2">
-                            <Mail className="h-4 w-4 shrink-0 text-emerald-400" />
-                            <span>
-                                edy_juls@yahoo.co.id &bull; info@indojar.com
-                            </span>
-                        </p>
+                    <div>
+                        <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-300">
+                            Kontak
+                        </h3>
 
-                        <p className="mt-1 flex items-center gap-2">
-                            <Phone className="h-4 w-4 shrink-0 text-emerald-400" />
-                            <span>
-                                021-29888318 &bull; +62 816-896-973
-                            </span>
-                        </p>
+                        <div className="mt-5 space-y-4 text-sm text-white/50">
+                            <p className="flex items-start gap-3">
+                                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
+                                <span>
+                                    DBS Bank Tower Lt. 28,
+                                    <br />
+                                    Ciputra World One,
+                                    <br />
+                                    Jakarta 12940
+                                </span>
+                            </p>
+
+                            <p className="flex items-center gap-3">
+                                <Mail className="h-4 w-4 shrink-0 text-amber-300" />
+                                <span>info@indojar.com</span>
+                            </p>
+
+                            <p className="flex items-center gap-3">
+                                <Phone className="h-4 w-4 shrink-0 text-amber-300" />
+                                <span>021-29888318</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
 
-                <div className="mx-auto mt-10 flex max-w-7xl flex-col items-center justify-between gap-3 border-t border-slate-800 pt-6 text-slate-500 sm:flex-row">
+                <div className="mt-14 border-t border-white/10 pt-8">
+                    <div className="grid gap-8 md:grid-cols-3">
+                        <div>
+                            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">
+                                Kantor Pusat
+                            </h3>
+
+                            <p className="mt-3 text-sm leading-6 text-white/50">
+                                Jl. Prof. Dr. Satrio Kav. 3-5,
+                                <br />
+                                Jakarta Selatan, DKI Jakarta
+                            </p>
+                        </div>
+
+                        <div>
+                            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">
+                                Manajemen
+                            </h3>
+
+                            <p className="mt-3 text-sm text-white/50">
+                                {t?.contact?.director || 'Direktur Utama'}
+                                <span className="mx-2 text-white/20">/</span>
+                                Edy Julianto
+                            </p>
+                        </div>
+
+                        <div>
+                            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">
+                                Fokus Infrastruktur
+                            </h3>
+
+                            <p className="mt-3 text-sm leading-6 text-white/50">
+                                Telecommunication Tower,
+                                <br />
+                                Civil Engineering & CME
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="mt-10 flex flex-col gap-4 border-t border-white/10 pt-6 text-[11px] text-white/30 sm:flex-row sm:items-center sm:justify-between">
                     <span>
-                        &copy; {new Date().getFullYear()} PT Indojar Mulia Abadi. All rights reserved.
+                        © {year} PT Indojar Mulia Abadi. All rights reserved.
                     </span>
 
                     <span>
-                        DBS Bank Tower 28/F, Ciputra World One, Jakarta
+                        Jakarta, Indonesia
                     </span>
                 </div>
-            </footer>
-
-            {/* FLOATING PORTAL */}
-            <div className="fixed bottom-6 right-6 z-50">
-                <Link
-                    href={auth?.user ? '/dashboard' : '/login'}
-                    className="group flex items-center gap-3 rounded-2xl border border-emerald-400/30 bg-gradient-to-r from-[#064e3b] to-emerald-600 px-5 py-3.5 text-white shadow-2xl shadow-emerald-950/60 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:from-[#08634c] hover:to-emerald-500 active:scale-95"
-                >
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white transition-transform group-hover:rotate-12">
-                        <Lock className="h-4 w-4 text-amber-300" />
-                    </div>
-
-                    <div className="flex flex-col pr-1 text-left">
-                        <span className="text-xs font-bold leading-none tracking-tight">
-                            {auth?.user ? 'Ke Dashboard' : t.floating.text}
-                        </span>
-
-                        <span className="mt-0.5 text-[10px] font-medium text-emerald-200">
-                            {auth?.user ? 'Sistem Aktif' : t.floating.sub}
-                        </span>
-                    </div>
-
-                    <ArrowRight className="h-4 w-4 text-white/80 transition-transform group-hover:translate-x-1" />
-                </Link>
             </div>
-        </>
+        </footer>
     );
 }

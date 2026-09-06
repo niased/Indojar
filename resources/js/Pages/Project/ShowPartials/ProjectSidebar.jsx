@@ -1,154 +1,214 @@
 import React from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Milestone, MapPin, Calendar } from 'lucide-react';
+import { Edit3, Clock } from 'lucide-react';
 
-export default function ProjectSidebar({ project, stageBreakdown = [], onOpenTimeline }) {
+export default function ProjectSidebar({
+    project,
+    stageBreakdown = [],
+    onOpenTimeline,
+}) {
     const formatDate = (dateStr) => {
         if (!dateStr) return '-';
         try {
             const d = new Date(dateStr);
             if (isNaN(d.getTime())) return '-';
-            return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+            return d.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+            });
         } catch {
             return '-';
         }
     };
 
-    const timelineMilestones = [
-        { key: 'tgl_po', label: 'Surat Pesanan (PO)', date: project.tgl_po },
-        { key: 'tgl_mos', label: 'Material on Site (MoS)', date: project.tgl_mos },
-        { key: 'tgl_start', label: 'Start Konstruksi', date: project.tgl_start },
-        { key: 'tgl_done', label: 'Fisik Selesai (Done)', date: project.tgl_done },
-        { key: 'target_rfi_date', label: 'Target RFI', date: project.target_rfi_date },
-        { key: 'tgl_atp', label: 'ATP Bersama', date: project.tgl_atp },
-        { key: 'tgl_bast', label: 'BAST Resmi', date: project.tgl_bast },
+    const progressTotal = Number(project?.progress_percent || 0);
+
+    // Master seluruh kemungkinan milestone
+    const allMilestones = [
+        { key: 'tgl_po', label: 'Surat Pesanan (PO)', date: project?.tgl_po },
+        { key: 'tgl_mos', label: 'Material on Site (MoS)', date: project?.tgl_mos },
+        { key: 'tgl_start', label: 'Start Konstruksi', date: project?.tgl_start },
+        { key: 'tgl_done', label: 'Fisik Selesai (Done)', date: project?.tgl_done },
+        { key: 'target_rfi_date', label: 'Target RFI', date: project?.target_rfi_date, isHighlight: true },
+        { key: 'tgl_atp', label: 'ATP Bersama', date: project?.tgl_atp },
+        { key: 'tgl_bast', label: 'BAST Resmi', date: project?.tgl_bast },
+        { key: 'tgl_baut', label: 'BAUT', date: project?.tgl_baut },
+        { key: 'tgl_invoice', label: 'Pengajuan Invoice', date: project?.tgl_invoice },
+    ];
+
+    // Filter dinamis: jika SOW memiliki konfigurasi milestones, gunakan konfigurasi SOW tersebut
+    const activeMilestoneKeys = Array.isArray(project?.sow?.milestones) && project.sow.milestones.length > 0
+        ? project.sow.milestones
+        : allMilestones.map(m => m.key);
+
+    const filteredMilestones = allMilestones.filter(m => activeMilestoneKeys.includes(m.key));
+
+    const getAreaName = () => {
+        if (project?.area && typeof project.area === 'object') {
+            return project.area.nama_area || '-';
+        }
+        if (project?.regional && typeof project.regional === 'object') {
+            return project.regional.nama_regional || '-';
+        }
+        if (typeof project?.area === 'string' && project.area) return project.area;
+        if (typeof project?.regional === 'string' && project.regional) return project.regional;
+        return '-';
+    };
+
+    const getOperatorName = () => {
+        if (project?.operator && typeof project.operator === 'object') {
+            return project.operator.nama_operator || '-';
+        }
+        return project?.client_name || project?.customer || 'Telkomsel / Mitratel';
+    };
+
+    const getPicName = () => {
+        if (project?.picUser && typeof project.picUser === 'object') {
+            return project.picUser.name || 'Waslap Lapangan';
+        }
+        if (typeof project?.pic_waslap === 'string' && project.pic_waslap) {
+            return project.pic_waslap;
+        }
+        return 'Waslap Lapangan';
+    };
+
+    const specItems = [
+        { 
+            label: 'Tinggi Menara', 
+            value: project?.tinggi_tower ? `${project.tinggi_tower} M` : (project?.tower_height ? `${project.tower_height} M` : '-') 
+        },
+        { 
+            label: 'Tipe Menara', 
+            value: typeof project?.tipe_menara === 'string' ? project.tipe_menara : (project?.tower_type || 'SST 4 LEGS') 
+        },
+        { 
+            label: 'Nomor PO / SPK', 
+            value: typeof project?.nomor_po === 'string' ? project.nomor_po : (project?.po_number || '-') 
+        },
+        { 
+            label: 'Klien / Operator', 
+            value: getOperatorName() 
+        },
+        { 
+            label: 'Area Operasional', 
+            value: getAreaName() 
+        },
+        { 
+            label: 'PIC Waslap', 
+            value: getPicName() 
+        },
     ];
 
     return (
         <div className="space-y-4">
-            {/* Card 1: Spesifikasi & Progres Site */}
-            <div className="bg-white dark:bg-slate-900/70 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
-                <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                        Akumulasi Capaian Proyek
-                    </span>
-                    <div className="flex items-baseline justify-between mt-1">
-                        <span className="text-3xl font-black font-mono text-slate-900 dark:text-white">
-                            {project.progress_percent || 0}%
-                        </span>
-                        <span className="text-xs font-mono text-slate-400">
-                            Target RFI: {formatDate(project.target_rfi_date)}
+            {/* KARTU 1: OVERVIEW CAPAIAN PROYEK & SPESIFIKASI */}
+            <div className="bg-white dark:bg-slate-900/70 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-5">
+                <div className="space-y-2">
+                    <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-slate-400">
+                        <span>Akumulasi Capaian Proyek</span>
+                        {project?.target_rfi_date && (
+                            <span>Target RFI: {formatDate(project.target_rfi_date)}</span>
+                        )}
+                    </div>
+                    
+                    <div className="flex items-baseline gap-2">
+                        <span className="text-3xl font-black font-mono tracking-tight text-slate-900 dark:text-white">
+                            {progressTotal.toFixed(1)}%
                         </span>
                     </div>
-                    <div className="w-full bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden mt-2">
-                        <div 
-                            className={`h-full rounded-full transition-all duration-700 ${
-                                (project.progress_percent || 0) >= 100 ? 'bg-emerald-500' : 'bg-emerald-600 dark:bg-amber-400'
+
+                    <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                        <div
+                            className={`h-full rounded-full transition-all duration-500 ${
+                                progressTotal >= 100
+                                    ? 'bg-emerald-500'
+                                    : 'bg-gradient-to-r from-blue-600 to-amber-400'
                             }`}
-                            style={{ width: `${Math.min(100, project.progress_percent || 0)}%` }}
+                            style={{ width: `${Math.min(100, progressTotal)}%` }}
                         />
                     </div>
                 </div>
 
-                {/* Progres per Tahapan Mini Bars */}
                 {stageBreakdown.length > 0 && (
-                    <div className="space-y-2 pt-3 border-t border-slate-100 dark:border-slate-800/80">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                    <div className="space-y-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
                             Progres per Tahapan Konstruksi
                         </span>
-                        {stageBreakdown.map((st) => (
-                            <div key={st.name} className="space-y-1">
-                                <div className="flex items-center justify-between text-xs">
-                                    <span className="text-slate-700 dark:text-slate-300 font-medium truncate max-w-[170px]">{st.name}</span>
-                                    <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-[11px]">{st.progressPercent}%</span>
+                        <div className="space-y-2">
+                            {stageBreakdown.map((stage) => (
+                                <div key={stage.id || stage.name} className="space-y-1">
+                                    <div className="flex items-center justify-between text-xs">
+                                        <span className="font-semibold text-slate-700 dark:text-slate-300">
+                                            {stage.name}
+                                        </span>
+                                        <span className="font-mono text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                                            {stage.progressPercent}%
+                                        </span>
+                                    </div>
+                                    <div className="w-full bg-slate-100 dark:bg-slate-800 h-1 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-blue-600 dark:bg-amber-400 rounded-full transition-all duration-300"
+                                            style={{ width: `${stage.progressPercent}%` }}
+                                        />
+                                    </div>
                                 </div>
-                                <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                                    <div 
-                                        className="bg-emerald-600 dark:bg-amber-400 h-full rounded-full" 
-                                        style={{ width: `${st.progressPercent}%` }}
-                                    />
-                                </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
                 )}
 
-                {/* Spesifikasi Teknis */}
-                <div className="space-y-2.5 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs">
-                    <div className="flex items-center justify-between">
-                        <span className="text-slate-400">Tinggi Menara</span>
-                        <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono">{project.tinggi_tower}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                        <span className="text-slate-400">Tipe Menara</span>
-                        <span className="font-semibold text-slate-800 dark:text-slate-200">{project.tipe_tower}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                        <span className="text-slate-400">Nomor PO / SPK</span>
-                        <span className="font-mono font-bold text-slate-700 dark:text-slate-300">{project.no_po || '-'}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                        <span className="text-slate-400">Klien / Operator</span>
-                        <span className="font-medium text-slate-700 dark:text-slate-300">{project.client_name}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                        <span className="text-slate-400">Area Operasional</span>
-                        <span className="font-medium text-slate-700 dark:text-slate-300">
-                            {project.area?.nama_area || '-'} ({project.area?.regional || '-'})
-                        </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                        <span className="text-slate-400">PIC Waslap</span>
-                        <span className="font-bold text-slate-800 dark:text-slate-200">{project.pic_user?.name || 'Belum ditugaskan'}</span>
-                    </div>
+                <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80 text-xs">
+                    {specItems.map((spec) => (
+                        <div key={spec.label} className="flex items-center justify-between py-1">
+                            <span className="text-slate-400 font-medium">{spec.label}</span>
+                            <span 
+                                className="font-semibold text-slate-800 dark:text-slate-200 text-right truncate max-w-[180px]" 
+                                title={String(spec.value)}
+                            >
+                                {spec.value}
+                            </span>
+                        </div>
+                    ))}
                 </div>
-
-                {project.latitude && project.longitude && (
-                    <div className="pt-2">
-                        <a
-                            href={`https://www.google.com/maps?q=${project.latitude},${project.longitude}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900/50 text-xs font-bold hover:bg-blue-100 transition-colors"
-                        >
-                            <MapPin className="w-3.5 h-3.5" />
-                            <span>Buka Google Maps</span>
-                        </a>
-                    </div>
-                )}
             </div>
 
-            {/* Card 2: Timeline Milestone (Di bawah sidebar utama) */}
-            <div className="bg-white dark:bg-slate-900/70 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-2.5">
+            {/* KARTU 2: TIMELINE MILESTONE (HANYA MEMUAT MILESTONE SESUAI SOW) */}
+            <div className="bg-white dark:bg-slate-900/70 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
                     <div className="flex items-center gap-2">
-                        <Milestone className="w-4 h-4 text-emerald-600 dark:text-amber-400" />
-                        <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                            Timeline Milestone
+                        <Clock className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                            Timeline Milestone ({project?.sow?.nama_sow || 'SOW'})
                         </span>
                     </div>
+
                     <button
                         type="button"
                         onClick={onOpenTimeline}
-                        className="text-[11px] font-bold text-emerald-600 dark:text-amber-400 hover:underline cursor-pointer"
+                        className="flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 cursor-pointer transition-colors"
                     >
-                        Edit
+                        <Edit3 className="w-3 h-3" />
+                        <span>Edit</span>
                     </button>
                 </div>
 
                 <div className="space-y-2.5 text-xs">
-                    {timelineMilestones.map((m) => {
-                        const isPassed = Boolean(m.date);
+                    {filteredMilestones.map((item) => {
+                        const hasDate = Boolean(item.date);
                         return (
-                            <div key={m.key} className="flex items-center justify-between">
-                                <div className="flex items-center gap-2 min-w-0">
-                                    <div className={`w-2 h-2 rounded-full shrink-0 ${isPassed ? 'bg-emerald-500 ring-2 ring-emerald-500/20' : 'bg-slate-300 dark:bg-slate-700'}`} />
-                                    <span className={`truncate text-xs ${isPassed ? 'text-slate-800 dark:text-slate-200 font-medium' : 'text-slate-400'}`}>
-                                        {m.label}
+                            <div key={item.key} className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <span
+                                        className={`w-1.5 h-1.5 rounded-full ${
+                                            hasDate ? 'bg-emerald-500 ring-2 ring-emerald-500/20' : 'bg-slate-300 dark:bg-slate-700'
+                                        }`}
+                                    />
+                                    <span className={item.isHighlight ? 'font-bold text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'}>
+                                        {item.label}
                                     </span>
                                 </div>
-                                <span className={`font-mono text-[11px] ${isPassed ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-slate-400'}`}>
-                                    {formatDate(m.date)}
+                                <span className={`font-mono text-[11px] ${hasDate ? 'font-semibold text-slate-800 dark:text-slate-200' : 'text-slate-400'}`}>
+                                    {formatDate(item.date)}
                                 </span>
                             </div>
                         );

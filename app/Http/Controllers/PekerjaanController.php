@@ -2,108 +2,65 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MasterStage;
 use App\Models\Pekerjaan;
 use App\Models\Project;
 use Cloudinary\Api\Upload\UploadApi;
 use Cloudinary\Configuration\Configuration;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
-use Inertia\Inertia;
-use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PekerjaanController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(): RedirectResponse
     {
-        $search    = $request->input('search');
-        $projectId = $request->input('project_id');
-        $stageId   = $request->input('stage_id');
-        $perPage   = (int) $request->input('per_page', 10);
-        $rawOrder  = strtolower((string) $request->input('order', 'asc'));
-        $order     = in_array($rawOrder, ['asc', 'desc'], true) ? $rawOrder : 'asc';
-
-        $query = Pekerjaan::with([
-            'project:id,project_code,site_id,site_name,area_id,sow_id',
-            'project.area:id,nama_area,regional',
-            'project.sow:id,nama_sow',
-            'stage:id,kode_stage,nama_stage',
-            'picUser:id,name',
-        ]);
-
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('kode_pekerjaan', 'like', "%{$search}%")
-                  ->orWhere('nama_pekerjaan', 'like', "%{$search}%")
-                  ->orWhere('catatan', 'like', "%{$search}%")
-                  ->orWhereHas('project', function ($qp) use ($search) {
-                      $qp->where('site_id', 'like', "%{$search}%")
-                         ->orWhere('site_name', 'like', "%{$search}%");
-                  });
-            });
-        }
-
-        if ($projectId && $projectId !== 'ALL') {
-            $query->where('project_id', $projectId);
-        }
-
-        if ($stageId && $stageId !== 'ALL') {
-            $query->where('stage_id', $stageId);
-        }
-
-        $pekerjaans = $query->orderBy('project_id', 'asc')
-            ->orderBy('kode_pekerjaan', $order)
-            ->paginate($perPage)
-            ->withQueryString();
-
-        $projects = Project::select('id', 'project_code', 'site_id', 'site_name')
-            ->orderBy('site_id', 'asc')
-            ->get();
-
-        $stages = MasterStage::orderBy('urutan', 'asc')->get();
-
-        return Inertia::render('Pekerjaan/Index', [
-            'pekerjaans' => $pekerjaans,
-            'projects'   => $projects,
-            'stages'     => $stages,
-            'filters'    => [
-                'search'     => $search ?? '',
-                'project_id' => $projectId ?? 'ALL',
-                'stage_id'   => $stageId ?? 'ALL',
-                'order'      => $order,
-                'per_page'   => $perPage,
-            ],
-        ]);
+        return redirect()->route('project.index');
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        // 1. Batch Insert (Multi baris / Paste Excel)
+        $this->ensureColumnsExist();
+
+        // 1. Penanganan Batch Insert (Multi-Baris / Paste Excel)
         if ($request->has('items') && is_array($request->items)) {
             $validated = $request->validate([
-                'items'                    => 'required|array|min:1',
-                'items.*.project_id'       => 'required|exists:projects,id',
-                'items.*.stage_id'         => 'nullable|exists:master_stages,id',
-                'items.*.kode_pekerjaan'   => 'required|string|max:50',
-                'items.*.nama_pekerjaan'   => 'required|string|max:255',
-                'items.*.satuan'           => 'nullable|string|max:30',
-                'items.*.bobot'            => 'required|numeric|between:0,100',
-                'items.*.progress_percent' => 'nullable|numeric|between:0,100',
-                'items.*.status'           => 'nullable|string|max:30',
-                'items.*.foto'             => 'nullable|string|max:500',
-                'items.*.catatan'          => 'nullable|string|max:1000',
+                'items'                     => 'required|array|min:1',
+                'items.*.project_id'        => 'required|exists:projects,id',
+                'items.*.stage_id'          => 'nullable|exists:master_stages,id',
+                'items.*.kode_pekerjaan'    => 'required|string|max:50',
+                'items.*.nama_pekerjaan'    => 'required|string|max:255',
+                'items.*.satuan'            => 'nullable|string|max:30',
+                'items.*.bobot'             => 'required|numeric|between:0,100',
+                'items.*.progress_percent'  => 'nullable|numeric|between:0,100',
+                'items.*.tanggal_pekerjaan' => 'nullable|date',
+                'items.*.tipe_foto'         => 'nullable|string|in:DOKUMENTASI,ISSUE',
+                'items.*.foto_file'         => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+                'items.*.foto'              => 'nullable|string|max:500',
+                'items.*.catatan'           => 'nullable|string|max:1000',
             ]);
 
             $affectedProjectIds = [];
 
             DB::transaction(function () use ($validated, $request, &$affectedProjectIds) {
-                foreach ($validated['items'] as $item) {
-                    $prog   = isset($item['progress_percent']) ? (float) $item['progress_percent'] : 0.0;
-                    $status = $item['status'] ?? ($prog >= 100 ? 'COMPLETED' : ($prog > 0 ? 'IN_PROGRESS' : 'PLANNING'));
+                foreach ($validated['items'] as $idx => $item) {
+                    $prog      = isset($item['progress_percent']) ? (float) $item['progress_percent'] : 0.0;
+                    $status    = $prog >= 100 ? 'COMPLETED' : ($prog > 0 ? 'IN_PROGRESS' : 'PLANNING');
+                    $tipeFoto  = $item['tipe_foto'] ?? 'DOKUMENTASI';
 
-                    Pekerjaan::create([
+                    $fotoUrl = !empty($item['foto']) ? trim($item['foto']) : null;
+                    if ($request->hasFile("items.{$idx}.foto_file")) {
+                        $fotoUrl = $this->uploadToCloudinary($request->file("items.{$idx}.foto_file"));
+                    }
+
+                    $rawDate = !empty($item['tanggal_pekerjaan']) ? $item['tanggal_pekerjaan'] : now()->toDateString();
+                    $dateTimeWithCurrentTime = $rawDate . ' ' . now()->format('H:i:s');
+
+                    $pekerjaan = new Pekerjaan();
+                    $pekerjaan->forceFill([
                         'project_id'        => $item['project_id'],
                         'stage_id'          => $item['stage_id'] ?? null,
                         'kode_pekerjaan'    => strtoupper(trim($item['kode_pekerjaan'])),
@@ -112,11 +69,13 @@ class PekerjaanController extends Controller
                         'bobot'             => (float) $item['bobot'],
                         'progress_percent'  => $prog,
                         'status'            => $status,
-                        'tanggal_pekerjaan' => now()->toDateString(),
-                        'foto'              => !empty($item['foto']) ? trim($item['foto']) : null,
+                        'tanggal_pekerjaan' => $dateTimeWithCurrentTime,
+                        'foto'              => $fotoUrl,
+                        'tipe_foto'         => $tipeFoto,
                         'user_id'           => $request->user()->id,
                         'catatan'           => !empty($item['catatan']) ? trim($item['catatan']) : null,
                     ]);
+                    $pekerjaan->save();
 
                     $affectedProjectIds[] = $item['project_id'];
                 }
@@ -126,10 +85,10 @@ class PekerjaanController extends Controller
                 $this->syncProjectProgress($pId);
             }
 
-            return redirect()->back()->with('success', count($validated['items']) . ' item pekerjaan berhasil ditambahkan.');
+            return redirect()->back()->with('success', count($validated['items']) . ' item pekerjaan WBS berhasil ditambahkan.');
         }
 
-        // 2. Single Insert (Upload Cloudinary)
+        // 2. Penanganan Form Tunggal
         $validated = $request->validate([
             'project_id'        => 'required|exists:projects,id',
             'stage_id'          => 'nullable|exists:master_stages,id',
@@ -138,32 +97,54 @@ class PekerjaanController extends Controller
             'satuan'            => 'nullable|string|max:30',
             'bobot'             => 'required|numeric|between:0,100',
             'progress_percent'  => 'nullable|numeric|between:0,100',
-            'status'            => 'nullable|string|max:30',
             'tanggal_pekerjaan' => 'nullable|date',
+            'tipe_foto'         => 'nullable|string|in:DOKUMENTASI,ISSUE',
             'foto_file'         => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'foto'              => 'nullable|string|max:500',
             'catatan'           => 'nullable|string|max:1000',
         ]);
 
+        $tipeFoto = $validated['tipe_foto'] ?? 'DOKUMENTASI';
+        $uploadedFotoUrl = null;
+
         if ($request->hasFile('foto_file')) {
-            $validated['foto'] = $this->uploadToCloudinary($request->file('foto_file'));
+            $uploadedFotoUrl = $this->uploadToCloudinary($request->file('foto_file'));
         }
 
-        $prog = isset($validated['progress_percent']) ? (float) $validated['progress_percent'] : 0.0;
-        $validated['status']            = $validated['status'] ?? ($prog >= 100 ? 'COMPLETED' : ($prog > 0 ? 'IN_PROGRESS' : 'PLANNING'));
-        $validated['kode_pekerjaan']    = strtoupper(trim($validated['kode_pekerjaan']));
-        $validated['tanggal_pekerjaan'] = $validated['tanggal_pekerjaan'] ?? now()->toDateString();
-        $validated['user_id']           = $request->user()->id; // Kunci otomatis akun login
+        $fotoFinal = $uploadedFotoUrl ?? $validated['foto'] ?? null;
+        $prog      = isset($validated['progress_percent']) ? (float) $validated['progress_percent'] : 0.0;
+        $status    = $prog >= 100 ? 'COMPLETED' : ($prog > 0 ? 'IN_PROGRESS' : 'PLANNING');
 
-        unset($validated['foto_file']);
-        Pekerjaan::create($validated);
+        $rawDate = !empty($validated['tanggal_pekerjaan']) ? $validated['tanggal_pekerjaan'] : now()->toDateString();
+        $dateTimeWithCurrentTime = $rawDate . ' ' . now()->format('H:i:s');
+
+        $pekerjaan = new Pekerjaan();
+        $pekerjaan->forceFill([
+            'project_id'        => $validated['project_id'],
+            'stage_id'          => $validated['stage_id'] ?? null,
+            'kode_pekerjaan'    => strtoupper(trim($validated['kode_pekerjaan'])),
+            'nama_pekerjaan'    => trim($validated['nama_pekerjaan']),
+            'satuan'            => !empty($validated['satuan']) ? trim($validated['satuan']) : 'Lot',
+            'bobot'             => (float) $validated['bobot'],
+            'progress_percent'  => $prog,
+            'status'            => $status,
+            'tanggal_pekerjaan' => $dateTimeWithCurrentTime,
+            'foto'              => $fotoFinal,
+            'tipe_foto'         => $tipeFoto,
+            'user_id'           => $request->user()->id,
+            'catatan'           => !empty($validated['catatan']) ? trim($validated['catatan']) : null,
+        ]);
+        $pekerjaan->save();
+
         $this->syncProjectProgress($validated['project_id']);
 
-        return redirect()->back()->with('success', 'Pekerjaan dan foto Cloudinary berhasil disimpan.');
+        return redirect()->back()->with('success', 'Rincian pekerjaan fisik berhasil disimpan.');
     }
 
-    public function update(Request $request, int $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
+        $this->ensureColumnsExist();
+
         $pekerjaan    = Pekerjaan::findOrFail($id);
         $oldProjectId = $pekerjaan->project_id;
 
@@ -175,34 +156,68 @@ class PekerjaanController extends Controller
             'satuan'            => 'nullable|string|max:30',
             'bobot'             => 'required|numeric|between:0,100',
             'progress_percent'  => 'nullable|numeric|between:0,100',
-            'status'            => 'nullable|string|max:30',
             'tanggal_pekerjaan' => 'nullable|date',
+            'tipe_foto'         => 'nullable|string|in:DOKUMENTASI,ISSUE',
             'foto_file'         => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'foto'              => 'nullable|string|max:500',
             'catatan'           => 'nullable|string|max:1000',
         ]);
 
+        $tipeFoto = $validated['tipe_foto'] ?? ($pekerjaan->tipe_foto ?? 'DOKUMENTASI');
+        $uploadedFotoUrl = null;
+
         if ($request->hasFile('foto_file')) {
-            $validated['foto'] = $this->uploadToCloudinary($request->file('foto_file'));
+            if ($pekerjaan->foto && str_contains($pekerjaan->foto, 'res.cloudinary.com')) {
+                $this->deleteFromCloudinary($pekerjaan->foto);
+            }
+            $uploadedFotoUrl = $this->uploadToCloudinary($request->file('foto_file'));
         }
 
-        $prog = isset($validated['progress_percent']) ? (float) $validated['progress_percent'] : 0.0;
-        $validated['status']         = $validated['status'] ?? ($prog >= 100 ? 'COMPLETED' : ($prog > 0 ? 'IN_PROGRESS' : 'PLANNING'));
-        $validated['kode_pekerjaan'] = strtoupper(trim($validated['kode_pekerjaan']));
-        $validated['user_id']        = $request->user()->id;
+        $prog   = isset($validated['progress_percent']) ? (float) $validated['progress_percent'] : 0.0;
+        $status = $prog >= 100 ? 'COMPLETED' : ($prog > 0 ? 'IN_PROGRESS' : 'PLANNING');
 
-        unset($validated['foto_file']);
-        $pekerjaan->update($validated);
+        $rawDate = !empty($validated['tanggal_pekerjaan']) ? $validated['tanggal_pekerjaan'] : now()->toDateString();
+        $dateTimeWithCurrentTime = $rawDate . ' ' . now()->format('H:i:s');
+
+        $fotoTarget = $uploadedFotoUrl ?? $pekerjaan->foto;
+
+        $pekerjaan->forceFill([
+            'project_id'        => $validated['project_id'],
+            'stage_id'          => $validated['stage_id'] ?? null,
+            'kode_pekerjaan'    => strtoupper(trim($validated['kode_pekerjaan'])),
+            'nama_pekerjaan'    => trim($validated['nama_pekerjaan']),
+            'satuan'            => !empty($validated['satuan']) ? trim($validated['satuan']) : 'Lot',
+            'bobot'             => (float) $validated['bobot'],
+            'progress_percent'  => $prog,
+            'status'            => $status,
+            'tanggal_pekerjaan' => $dateTimeWithCurrentTime,
+            'foto'              => $fotoTarget,
+            'tipe_foto'         => $tipeFoto,
+            'user_id'           => $request->user()->id,
+            'catatan'           => !empty($validated['catatan']) ? trim($validated['catatan']) : null,
+        ]);
+        $pekerjaan->save();
 
         $this->syncProjectProgress($pekerjaan->project_id);
         if ($oldProjectId !== $pekerjaan->project_id) {
             $this->syncProjectProgress($oldProjectId);
         }
 
-        return redirect()->back()->with('success', 'Item pekerjaan berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Rincian pekerjaan WBS berhasil diperbarui.');
     }
 
-    public function destroy(int $id)
+    private function ensureColumnsExist(): void
+    {
+        try {
+            if (Schema::hasTable('pekerjaans') && !Schema::hasColumn('pekerjaans', 'tipe_foto')) {
+                DB::statement("ALTER TABLE pekerjaans ADD COLUMN tipe_foto VARCHAR(30) DEFAULT 'DOKUMENTASI' NULL");
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Column check info: ' . $e->getMessage());
+        }
+    }
+
+    public function destroy(int $id): RedirectResponse
     {
         $pekerjaan = Pekerjaan::findOrFail($id);
         $projectId = $pekerjaan->project_id;
@@ -217,7 +232,7 @@ class PekerjaanController extends Controller
         return redirect()->back()->with('success', 'Item pekerjaan berhasil dihapus.');
     }
 
-    public function bulkDelete(Request $request)
+    public function bulkDelete(Request $request): RedirectResponse
     {
         $request->validate(['ids' => 'required|array']);
         $pekerjaans = Pekerjaan::whereIn('id', $request->ids)->get();
@@ -237,7 +252,7 @@ class PekerjaanController extends Controller
         return redirect()->back()->with('success', count($request->ids) . ' item pekerjaan berhasil dihapus.');
     }
 
-    public function reset(Request $request)
+    public function reset(Request $request): RedirectResponse
     {
         if ($request->user()->role !== 'admin') {
             abort(403, 'Hanya Admin yang memiliki akses.');
@@ -249,18 +264,25 @@ class PekerjaanController extends Controller
         return redirect()->back()->with('success', 'Seluruh data pekerjaan berhasil dikosongkan.');
     }
 
-    public function export(Request $request)
+    public function export(Request $request): StreamedResponse
     {
-        $pekerjaans = Pekerjaan::with(['project', 'stage', 'picUser'])->orderBy('project_id', 'asc')->get();
-        $filename   = 'Master_Pekerjaan_WBS_Indojar_' . date('Ymd_His') . '.csv';
+        $projectId = $request->input('project_id');
+        $query     = Pekerjaan::with(['project', 'stage', 'picUser'])->orderBy('project_id', 'asc');
 
-        $headers = [
-            'Content-Type'        => 'text/csv',
+        if ($projectId && $projectId !== 'ALL') {
+            $query->where('project_id', $projectId);
+        }
+
+        $pekerjaans = $query->get();
+        $filename   = 'WBS_Pekerjaan_Indojar_' . date('Ymd_His') . '.csv';
+        $headers    = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
 
         $callback = function () use ($pekerjaans) {
             $file = fopen('php://output', 'w');
+            fputs($file, "\xEF\xBB\xBF");
             fputcsv($file, [
                 'Site ID',
                 'Nama Site',
@@ -272,10 +294,11 @@ class PekerjaanController extends Controller
                 'Progress Riil (%)',
                 'Status',
                 'Tanggal Pengerjaan',
+                'Tipe Foto',
                 'PIC',
                 'URL Foto Cloudinary',
                 'Catatan',
-            ]);
+            ], ';');
 
             foreach ($pekerjaans as $p) {
                 fputcsv($file, [
@@ -288,11 +311,12 @@ class PekerjaanController extends Controller
                     $p->bobot,
                     $p->progress_percent,
                     $p->status,
-                    $p->tanggal_pekerjaan ? date('Y-m-d', strtotime($p->tanggal_pekerjaan)) : '-',
+                    $p->tanggal_pekerjaan ? date('Y-m-d H:i:s', strtotime($p->tanggal_pekerjaan)) : '-',
+                    $p->tipe_foto ?? 'DOKUMENTASI',
                     $p->picUser->name ?? '-',
                     $p->foto ?? '-',
                     $p->catatan ?? '-',
-                ]);
+                ], ';');
             }
             fclose($file);
         };
@@ -354,9 +378,6 @@ class PekerjaanController extends Controller
         }
     }
 
-    /**
-     * Hitung total capaian progres tertimbang untuk proyek induk
-     */
     private function syncProjectProgress(int $projectId): void
     {
         $project = Project::find($projectId);

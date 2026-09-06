@@ -12,6 +12,10 @@ class MasterSow extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'milestones' => 'array',
+    ];
+
     public function projects(): HasMany
     {
         return $this->hasMany(Project::class, 'sow_id');

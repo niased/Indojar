@@ -15,7 +15,6 @@ import {
 import {
     LayoutDashboard,
     Briefcase,
-    Wrench,
     Layers,
     FileSpreadsheet,
     User as UserIcon,
@@ -36,7 +35,6 @@ const ROUTE_FALLBACKS = {
     'dashboard': '/dashboard',
     'home': '/dashboard',
     'project.index': '/project',
-    'pekerjaan.index': '/pekerjaan',
     'master-data.index': '/master-data',
     'laporan.index': '/laporan',
     'admin.users.index': '/admin/users',
@@ -76,7 +74,7 @@ export default function AuthenticatedLayout({ header, children }) {
         type: 'success',
         title: '',
         message: '',
-        key: Date.now()
+        key: Date.now(),
     });
 
     const [confirmState, setConfirmState] = useState({
@@ -95,7 +93,7 @@ export default function AuthenticatedLayout({ header, children }) {
         variant = 'danger', 
         confirmText = 'Ya, Lanjutkan', 
         cancelText = 'Batal', 
-        onConfirm 
+        onConfirm, 
     }) => {
         setConfirmState({
             isOpen: true,
@@ -106,8 +104,8 @@ export default function AuthenticatedLayout({ header, children }) {
             cancelText,
             onConfirm: () => {
                 onConfirm?.();
-                setConfirmState(prev => ({ ...prev, isOpen: false }));
-            }
+                setConfirmState((prev) => ({ ...prev, isOpen: false }));
+            },
         });
     };
 
@@ -169,7 +167,7 @@ export default function AuthenticatedLayout({ header, children }) {
 
     return (
         <ConfirmContext.Provider value={confirm}>
-            {/* Latar Belakang Biru Elegan */}
+            {/* Latar Belakang Gradien Elegan */}
             <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50/40 to-amber-50/20 dark:from-[#080d24] dark:via-[#0c1538] dark:to-[#060a1c] text-slate-900 dark:text-slate-100 font-sans selection:bg-emerald-500 selection:text-slate-950 transition-colors duration-300 relative overflow-x-hidden">
                 
                 {/* Backdrop Garis & Grid Animasi */}
@@ -204,7 +202,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 {/* NAVBAR & HEADER */}
                 <header className="sticky top-0 z-50 w-full flex flex-col shadow-lg transition-all duration-300 relative group print:hidden">
                     
-                    {/* TIER 1: Bar Putih / Dark Glass */}
+                    {/* TIER 1: Header Putih / Dark Glass */}
                     <div className="relative z-50 h-16 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-white/10 flex justify-center w-full">
                         <div className="w-full max-w-screen-2xl px-6 sm:px-12 flex items-center justify-between h-full">
                             
@@ -237,7 +235,11 @@ export default function AuthenticatedLayout({ header, children }) {
                                     className="p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800/80 transition-all focus:outline-none active:scale-95 border border-transparent hover:border-slate-300/50 dark:hover:border-white/10 cursor-pointer"
                                     title="Ganti Tema"
                                 >
-                                    {isDark ? <Sun className="w-5 h-5 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" /> : <Moon className="w-5 h-5 text-blue-600" />}
+                                    {isDark ? (
+                                        <Sun className="w-5 h-5 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
+                                    ) : (
+                                        <Moon className="w-5 h-5 text-blue-600" />
+                                    )}
                                 </button>
 
                                 {user?.role === 'admin' && (
@@ -340,20 +342,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <span>Master Proyek & Site</span>
                             </Link>
 
-                            {/* 3. Master Pekerjaan */}
-                            <Link
-                                href={getRoute('pekerjaan.index')}
-                                className={`flex items-center gap-2 px-1 h-full font-medium text-sm transition-all duration-200 outline-none border-b-[3px] ${
-                                    checkActive('pekerjaan.index')
-                                        ? 'border-amber-400 text-amber-300 font-bold'
-                                        : 'border-transparent text-white/80 hover:text-white hover:border-white/50'
-                                }`}
-                            >
-                                <Wrench className="w-4 h-4" />
-                                <span>Master Pekerjaan</span>
-                            </Link>
-
-                            {/* 4. Master Data Kamus (Area, SOW, Stage, Template Task) */}
+                            {/* 3. Master Data Kamus (Area, SOW, Stage, Template Task) */}
                             <Link
                                 href={getRoute('master-data.index')}
                                 className={`flex items-center gap-2 px-1 h-full font-medium text-sm transition-all duration-200 outline-none border-b-[3px] ${
@@ -366,7 +355,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <span>Master Data Kamus</span>
                             </Link>
 
-                            {/* 5. Laporan Rekapitulasi */}
+                            {/* 4. Laporan Rekapitulasi */}
                             <Link
                                 href={getRoute('laporan.index')}
                                 className={`flex items-center gap-2 px-1 h-full font-medium text-sm transition-all duration-200 outline-none border-b-[3px] ${
@@ -382,7 +371,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         </nav>
                     </div>
 
-                    {/* Toggle Button */}
+                    {/* Toggle Sembunyikan / Tampilkan Bar Hijau */}
                     <button
                         type="button"
                         onClick={() => setIsNavOpen(!isNavOpen)}
@@ -410,14 +399,6 @@ export default function AuthenticatedLayout({ header, children }) {
                                 }`}
                             >
                                 <Briefcase className="w-4 h-4" /> Master Proyek & Site
-                            </Link>
-                            <Link 
-                                href={getRoute('pekerjaan.index')} 
-                                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                                    checkActive('pekerjaan.index') ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                                }`}
-                            >
-                                <Wrench className="w-4 h-4" /> Master Pekerjaan
                             </Link>
                             <Link 
                                 href={getRoute('master-data.index')} 
@@ -464,7 +445,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         title={toastState.title} 
                         message={toastState.message} 
                         duration={4000} 
-                        onClose={() => setToastState(prev => ({ ...prev, isOpen: false }))} 
+                        onClose={() => setToastState((prev) => ({ ...prev, isOpen: false }))} 
                     />
                     <ConfirmModal 
                         isOpen={confirmState.isOpen} 
@@ -474,7 +455,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         confirmText={confirmState.confirmText} 
                         cancelText={confirmState.cancelText} 
                         onConfirm={confirmState.onConfirm} 
-                        onCancel={() => setConfirmState(prev => ({ ...prev, isOpen: false }))} 
+                        onCancel={() => setConfirmState((prev) => ({ ...prev, isOpen: false }))} 
                     />
                 </div>
             </div>

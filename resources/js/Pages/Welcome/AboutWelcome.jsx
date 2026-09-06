@@ -1,305 +1,434 @@
 // resources/js/Pages/Welcome/AboutWelcome.jsx
 
 import React from 'react';
-import aboutBackground from '@/../images/tentang.png';
 
 export default function AboutWelcome({ t }) {
     return (
         <section
             id="tentang"
-            className="w-full overflow-hidden bg-[#05652f]"
+            className="
+                relative
+                w-full
+                overflow-hidden
+                border-b
+                border-white/[0.07]
+                bg-transparent
+            "
         >
-            {/* =========================================================
+
+            {/* =====================================================
                 DESKTOP
-            ========================================================= */}
+            ===================================================== */}
             <div className="relative hidden lg:block">
-                <div className="relative aspect-[16/9] w-full">
 
-                    <img
-                        src={aboutBackground}
-                        alt="Tentang PT Indojar Mulia Abadi"
-                        className="
-                            absolute
-                            inset-0
-                            h-full
-                            w-full
-                            object-cover
-                        "
-                    />
+                <div
+                    className="
+                        mx-auto
+                        max-w-7xl
+                        px-10
+                        py-28
+                    "
+                >
 
-                    {/* COMPANY TITLE */}
+                    {/* =================================================
+                        TOP INTRO
+                    ================================================= */}
                     <div
                         className="
-                            absolute
-                            left-[59.5%]
-                            top-[27.5%]
-                            w-[35%]
-                            max-w-[560px]
+                            grid
+                            grid-cols-[0.9fr_1.1fr]
+                            items-end
+                            gap-20
                         "
                     >
-                        <span
+
+                        {/* Label + Company */}
+                        <div>
+
+                            <div className="flex items-center gap-3">
+                                <span className="h-px w-9 bg-amber-300" />
+
+                                <span
+                                    className="
+                                        text-[10px]
+                                        font-bold
+                                        uppercase
+                                        tracking-[0.22em]
+                                        text-amber-300
+                                    "
+                                >
+                                    {t.about.tag}
+                                </span>
+                            </div>
+
+
+                            <h2
+                                className="
+                                    mt-7
+                                    max-w-xl
+                                    font-heading
+                                    text-5xl
+                                    font-bold
+                                    uppercase
+                                    leading-[0.92]
+                                    tracking-[-0.045em]
+                                    text-white
+                                    xl:text-6xl
+                                "
+                            >
+                                PT INDOJAR
+                                <br />
+                                <span className="text-white/35">
+                                    MULIA ABADI
+                                </span>
+                            </h2>
+
+                        </div>
+
+
+                        {/* Intro description */}
+                        <div
                             className="
-                                block
-                                text-[clamp(7px,0.58vw,11px)]
-                                font-semibold
-                                uppercase
-                                tracking-[0.12em]
-                                text-[#075d35]
+                                max-w-2xl
+                                border-l
+                                border-[#d5ad59]/30
+                                pl-8
                             "
                         >
-                            {t.about.tag}
-                        </span>
+                            <p
+                                className="
+                                    text-base
+                                    leading-8
+                                    text-white/70
+                                    xl:text-lg
+                                "
+                            >
+                                {t.about.title}
+                            </p>
+                        </div>
 
-                        <div className="mt-2 h-[2px] w-10 bg-[#c79b3b]" />
-
-                        <h2
-                            className="
-                                mt-4
-                                font-heading
-                                text-[clamp(18px,2.65vw,46px)]
-                                font-semibold
-                                leading-[0.98]
-                                tracking-[-0.035em]
-                                text-[#075d35]
-                            "
-                        >
-                            PT INDOJAR
-                            <br />
-                            MULIA ABADI
-                        </h2>
-
-                        <p
-                            className="
-                                mt-4
-                                max-w-full
-                                text-[clamp(8px,0.72vw,13px)]
-                                leading-[1.5]
-                                text-slate-600
-                            "
-                        >
-                            {t.about.title}
-                        </p>
                     </div>
 
 
-                    {/* HISTORY */}
-                    <div
-                        className="
-                            absolute
-                            left-[5.4%]
-                            top-[71%]
-                            w-[41.5%]
-                            max-w-[700px]
-                        "
-                    >
+                    {/* =================================================
+                        GOLD DIVIDER
+                    ================================================= */}
+                    <div className="my-20 flex items-center gap-5">
+
+                        <span className="h-px flex-1 bg-white/[0.07]" />
+
                         <span
                             className="
-                                block
-                                text-[clamp(7px,0.58vw,11px)]
-                                font-bold
-                                uppercase
-                                tracking-[0.1em]
-                                text-amber-300
-                            "
-                        >
-                            Sejarah Perusahaan
-                        </span>
-
-                        <p
-                            className="
-                                mt-3
-                                max-w-full
-                                text-[clamp(10px,1.05vw,18px)]
-                                font-normal
-                                leading-[1.6]
-                                text-white
-                            "
-                        >
-                            PT. Indojar Mulia Abadi didirikan pada tahun
-                            2014 dan menjalankan kegiatan usaha yang
-                            mendukung industri pertambangan. Pada tahun
-                            2021, perusahaan mulai mendukung industri
-                            telekomunikasi.
-                        </p>
-                    </div>
-
-
-                    {/* CENTER DIVIDER */}
-                    <div
-                        className="
-                            pointer-events-none
-                            absolute
-                            left-1/2
-                            top-[67%]
-                            bottom-[7%]
-                            w-px
-                            -translate-x-1/2
-                            bg-gradient-to-b
-                            from-transparent
-                            via-[#d5ad59]/75
-                            to-transparent
-                        "
-                    >
-                        <span
-                            className="
-                                absolute
-                                left-1/2
-                                top-0
                                 h-2
                                 w-2
-                                -translate-x-1/2
-                                -translate-y-1/2
                                 rounded-full
                                 border
                                 border-[#d5ad59]
-                                bg-[#05652f]
+                                bg-[#061b14]
                             "
                         />
 
-                        <span
-                            className="
-                                absolute
-                                bottom-0
-                                left-1/2
-                                h-2
-                                w-2
-                                -translate-x-1/2
-                                translate-y-1/2
-                                rounded-full
-                                border
-                                border-[#d5ad59]
-                                bg-[#05652f]
-                            "
-                        />
+                        <span className="h-px w-20 bg-[#d5ad59]/40" />
+
                     </div>
 
 
-                    {/* EXPERIENCE */}
+                    {/* =================================================
+                        COMPANY STORY
+                    ================================================= */}
                     <div
                         className="
-                            absolute
-                            left-[54.5%]
-                            top-[71%]
-                            w-[40.5%]
-                            max-w-[700px]
+                            grid
+                            grid-cols-2
+                            gap-16
                         "
                     >
+
+                        {/* HISTORY */}
+                        <article className="relative">
+
+                            <div
+                                className="
+                                    absolute
+                                    -left-5
+                                    top-0
+                                    h-full
+                                    w-px
+                                    bg-gradient-to-b
+                                    from-[#d5ad59]/50
+                                    via-[#d5ad59]/10
+                                    to-transparent
+                                "
+                            />
+
+                            <span
+                                className="
+                                    block
+                                    text-[10px]
+                                    font-bold
+                                    uppercase
+                                    tracking-[0.2em]
+                                    text-amber-300
+                                "
+                            >
+                                Sejarah Perusahaan
+                            </span>
+
+                            <h3
+                                className="
+                                    mt-5
+                                    font-heading
+                                    text-2xl
+                                    font-semibold
+                                    tracking-[-0.025em]
+                                    text-white
+                                "
+                            >
+                                Berawal dari Pengalaman
+                            </h3>
+
+                            <p
+                                className="
+                                    mt-5
+                                    max-w-xl
+                                    text-sm
+                                    leading-7
+                                    text-white/60
+                                "
+                            >
+                                PT. Indojar Mulia Abadi didirikan pada tahun
+                                2014 dan menjalankan kegiatan usaha yang
+                                mendukung industri pertambangan. Pada tahun
+                                2021, perusahaan mulai mendukung industri
+                                telekomunikasi.
+                            </p>
+
+                        </article>
+
+
+                        {/* EXPERIENCE */}
+                        <article className="relative">
+
+                            <div
+                                className="
+                                    absolute
+                                    -left-5
+                                    top-0
+                                    h-full
+                                    w-px
+                                    bg-gradient-to-b
+                                    from-[#d5ad59]/50
+                                    via-[#d5ad59]/10
+                                    to-transparent
+                                "
+                            />
+
+                            <span
+                                className="
+                                    block
+                                    text-[10px]
+                                    font-bold
+                                    uppercase
+                                    tracking-[0.2em]
+                                    text-amber-300
+                                "
+                            >
+                                Pengalaman
+                            </span>
+
+                            <h3
+                                className="
+                                    mt-5
+                                    font-heading
+                                    text-2xl
+                                    font-semibold
+                                    tracking-[-0.025em]
+                                    text-white
+                                "
+                            >
+                                Kompetensi & Keandalan
+                            </h3>
+
+                            <p
+                                className="
+                                    mt-5
+                                    max-w-xl
+                                    text-sm
+                                    leading-7
+                                    text-white/60
+                                "
+                            >
+                                Didukung oleh tim yang andal dan
+                                berpengalaman, PT Indojar Mulia Abadi telah
+                                membantu berbagai perusahaan dalam
+                                pembangunan, pemeliharaan, dan perbaikan
+                                menara telekomunikasi serta peralatan
+                                pendukung lainnya.
+                            </p>
+
+                        </article>
+
+                    </div>
+
+
+                    {/* =================================================
+                        BOTTOM META
+                    ================================================= */}
+                    <div
+                        className="
+                            mt-20
+                            flex
+                            items-center
+                            justify-between
+                            border-t
+                            border-white/[0.07]
+                            pt-6
+                        "
+                    >
+
                         <span
                             className="
-                                block
-                                text-[clamp(7px,0.58vw,11px)]
-                                font-bold
+                                text-[9px]
+                                font-semibold
                                 uppercase
-                                tracking-[0.1em]
-                                text-amber-300
+                                tracking-[0.22em]
+                                text-white/25
                             "
                         >
-                            Pengalaman
+                            PT Indojar Mulia Abadi
                         </span>
 
-                        <p
+                        <span
                             className="
-                                mt-3
-                                max-w-full
-                                text-[clamp(10px,1.05vw,18px)]
-                                font-normal
-                                leading-[1.6]
-                                text-white
+                                text-[9px]
+                                font-semibold
+                                uppercase
+                                tracking-[0.22em]
+                                text-white/25
                             "
                         >
-                            Didukung oleh tim yang andal dan berpengalaman,
-                            PT Indojar Mulia Abadi telah membantu berbagai
-                            perusahaan dalam pembangunan, pemeliharaan,
-                            dan perbaikan menara telekomunikasi serta
-                            peralatan pendukung lainnya.
-                        </p>
+                            Established 2014
+                        </span>
+
                     </div>
 
                 </div>
             </div>
 
 
-            {/* =========================================================
+            {/* =====================================================
                 MOBILE / TABLET
-                Background tentang.png TIDAK dipakai
-            ========================================================= */}
+            ===================================================== */}
             <div className="block lg:hidden">
 
-                {/* COMPANY INTRO */}
-                <div className="bg-[#f4f6f1] px-6 py-14 sm:px-10 sm:py-16">
+                <div className="px-6 py-16 sm:px-10 sm:py-20">
 
-                    <span
-                        className="
-                            block
-                            text-[10px]
-                            font-semibold
-                            uppercase
-                            tracking-[0.14em]
-                            text-[#075d35]
-                        "
-                    >
-                        {t.about.tag}
-                    </span>
+                    {/* INTRO */}
+                    <div>
 
-                    <div className="mt-3 h-[2px] w-10 bg-[#c79b3b]" />
+                        <div className="flex items-center gap-3">
 
-                    <h2
-                        className="
-                            mt-6
-                            font-heading
-                            text-3xl
-                            font-semibold
-                            leading-none
-                            tracking-[-0.03em]
-                            text-[#075d35]
-                            sm:text-4xl
-                        "
-                    >
-                        PT INDOJAR
-                        <br />
-                        MULIA ABADI
-                    </h2>
+                            <span className="h-px w-8 bg-amber-300" />
 
-                    <p
-                        className="
-                            mt-5
-                            max-w-2xl
-                            text-sm
-                            leading-7
-                            text-slate-600
-                            sm:text-[15px]
-                        "
-                    >
-                        {t.about.title}
-                    </p>
-                </div>
+                            <span
+                                className="
+                                    text-[9px]
+                                    font-bold
+                                    uppercase
+                                    tracking-[0.2em]
+                                    text-amber-300
+                                "
+                            >
+                                {t.about.tag}
+                            </span>
+
+                        </div>
 
 
-                {/* COMPANY STORY */}
-                <div className="bg-[#05652f] px-6 py-14 text-white sm:px-10 sm:py-16">
+                        <h2
+                            className="
+                                mt-6
+                                font-heading
+                                text-4xl
+                                font-bold
+                                uppercase
+                                leading-[0.92]
+                                tracking-[-0.04em]
+                                text-white
+                                sm:text-5xl
+                            "
+                        >
+                            PT INDOJAR
+                            <br />
+
+                            <span className="text-white/35">
+                                MULIA ABADI
+                            </span>
+                        </h2>
+
+
+                        <p
+                            className="
+                                mt-6
+                                max-w-2xl
+                                text-sm
+                                leading-7
+                                text-white/65
+                                sm:text-base
+                            "
+                        >
+                            {t.about.title}
+                        </p>
+
+                    </div>
+
+
+                    {/* DIVIDER */}
+                    <div className="my-14 flex items-center gap-4">
+
+                        <span className="h-px flex-1 bg-white/[0.08]" />
+
+                        <span className="h-2 w-2 rounded-full bg-[#d5ad59]" />
+
+                        <span className="h-px w-10 bg-[#d5ad59]/40" />
+
+                    </div>
+
 
                     {/* HISTORY */}
-                    <div className="max-w-3xl">
+                    <article>
 
                         <span
                             className="
-                                block
                                 text-[9px]
                                 font-bold
                                 uppercase
-                                tracking-[0.12em]
+                                tracking-[0.18em]
                                 text-amber-300
                             "
                         >
                             Sejarah Perusahaan
                         </span>
 
+                        <h3
+                            className="
+                                mt-4
+                                font-heading
+                                text-2xl
+                                font-semibold
+                                tracking-[-0.025em]
+                                text-white
+                            "
+                        >
+                            Berawal dari Pengalaman
+                        </h3>
+
                         <p
                             className="
                                 mt-4
-                                text-[15px]
+                                text-sm
                                 leading-7
-                                text-white/90
+                                text-white/65
                             "
                         >
                             PT. Indojar Mulia Abadi didirikan pada tahun
@@ -308,51 +437,94 @@ export default function AboutWelcome({ t }) {
                             2021, perusahaan mulai mendukung industri
                             telekomunikasi.
                         </p>
-                    </div>
 
-
-                    {/* MOBILE DIVIDER */}
-                    <div className="my-12 flex items-center gap-4">
-
-                        <span className="h-px flex-1 bg-[#d5ad59]/50" />
-
-                        <span className="h-2 w-2 shrink-0 rounded-full bg-[#d5ad59]" />
-
-                        <span className="h-px flex-1 bg-[#d5ad59]/50" />
-
-                    </div>
+                    </article>
 
 
                     {/* EXPERIENCE */}
-                    <div className="max-w-3xl">
+                    <article className="mt-12">
 
                         <span
                             className="
-                                block
                                 text-[9px]
                                 font-bold
                                 uppercase
-                                tracking-[0.12em]
+                                tracking-[0.18em]
                                 text-amber-300
                             "
                         >
                             Pengalaman
                         </span>
 
+                        <h3
+                            className="
+                                mt-4
+                                font-heading
+                                text-2xl
+                                font-semibold
+                                tracking-[-0.025em]
+                                text-white
+                            "
+                        >
+                            Kompetensi & Keandalan
+                        </h3>
+
                         <p
                             className="
                                 mt-4
-                                text-[15px]
+                                text-sm
                                 leading-7
-                                text-white/90
+                                text-white/65
                             "
                         >
-                            Didukung oleh tim yang andal dan berpengalaman,
-                            PT Indojar Mulia Abadi telah membantu berbagai
-                            perusahaan dalam pembangunan, pemeliharaan,
-                            dan perbaikan menara telekomunikasi serta
-                            peralatan pendukung lainnya.
+                            Didukung oleh tim yang andal dan
+                            berpengalaman, PT Indojar Mulia Abadi telah
+                            membantu berbagai perusahaan dalam
+                            pembangunan, pemeliharaan, dan perbaikan
+                            menara telekomunikasi serta peralatan
+                            pendukung lainnya.
                         </p>
+
+                    </article>
+
+
+                    {/* BOTTOM META */}
+                    <div
+                        className="
+                            mt-14
+                            flex
+                            items-center
+                            justify-between
+                            border-t
+                            border-white/[0.07]
+                            pt-5
+                        "
+                    >
+
+                        <span
+                            className="
+                                text-[8px]
+                                font-semibold
+                                uppercase
+                                tracking-[0.18em]
+                                text-white/25
+                            "
+                        >
+                            PT Indojar Mulia Abadi
+                        </span>
+
+                        <span
+                            className="
+                                text-[8px]
+                                font-semibold
+                                uppercase
+                                tracking-[0.18em]
+                                text-white/25
+                            "
+                        >
+                            2014
+                        </span>
+
                     </div>
 
                 </div>

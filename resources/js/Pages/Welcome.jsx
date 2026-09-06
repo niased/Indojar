@@ -7,9 +7,11 @@ import Navbar from './Welcome/Navbar';
 import HeroWelcome from './Welcome/HeroWelcome';
 import AboutWelcome from './Welcome/AboutWelcome';
 import VisionMissionWelcome from './Welcome/VisionMissionWelcome';
-import ServiceWelcome from './Welcome/ServiceWelcome';
 import ServiceShowCaseWelcome from './Welcome/ServiceShowCaseWelcome';
-import ProjectsCtaFooter from './Welcome/ProjectsCtaFooter';
+import ProjectWelcome from './Welcome/ProjectWelcome';
+import ClientWelcome from './Welcome/ClientWelcome';
+import CtaWelcome from './Welcome/CtaWelcome';
+import FooterWelcome from './Welcome/FooterWelcome';
 
 export default function Welcome({ auth }) {
     const [isDark, setIsDark] = useState(() => {
@@ -29,11 +31,14 @@ export default function Welcome({ auth }) {
 
         localStorage.setItem(
             'theme',
-            isDark ? 'dark' : 'light'
+            isDark ? 'dark' : 'light',
         );
     }, [isDark]);
 
     const t = {
+        /* =========================================================
+           INDONESIA
+        ========================================================= */
         id: {
             nav: {
                 about: 'Tentang Kami',
@@ -57,7 +62,8 @@ export default function Welcome({ auth }) {
                 yearTelco: 'Fokus Infrastruktur Menara',
                 sitesCompleted: 'Proyek Site Selesai',
                 coverage: 'Cakupan Wilayah Proyek',
-                coverageVal: 'Banten, Jabar, Riau & Sumbar',
+                coverageVal:
+                    'Banten, Jabar, Riau & Sumbar',
             },
 
             about: {
@@ -72,7 +78,8 @@ export default function Welcome({ auth }) {
 
             services: {
                 tag: 'PRODUK & LAYANAN',
-                title: 'Layanan Konstruksi Telekomunikasi Terpadu',
+                title:
+                    'Layanan Konstruksi Telekomunikasi Terpadu',
                 s1Desc:
                     'Penyediaan layanan pembangunan menara telekomunikasi baru berdasarkan lokasi dan spesifikasi permintaan pelanggan.',
                 s2Desc:
@@ -84,21 +91,34 @@ export default function Welcome({ auth }) {
             projects: {
                 tag: 'OUR PROJECTS',
                 title:
-                    'Portofolio Pekerjaan yang Telah Selesai',
+                    'Portofolio Proyek Telekomunikasi',
                 subtitle:
-                    'Rangkaian proyek menara dan CME yang berhasil diserahterimakan dengan standar uji terima konsultan pengawas.',
-                b2sTab: 'Proyek B2S SACME (Menara Baru)',
-                strTab: 'Proyek Tower Strengthening',
-                thSite: 'Nama Lokasi / Site',
+                    'Rekam jejak pekerjaan pembangunan menara baru dan penguatan struktur yang telah dilaksanakan PT Indojar Mulia Abadi di berbagai wilayah Indonesia.',
+                b2sTab: 'B2S SACME',
+                strTab: 'Tower Strengthening',
+                thSite: 'Nama Site',
                 thCity: 'Kota / Kabupaten',
                 thProvince: 'Provinsi',
                 thScope: 'Lingkup Kerja',
+                featured: 'Featured Projects',
+                directory: 'Project Directory',
+                completed: 'Completed Projects',
+                location: 'Lokasi',
+                category: 'Kategori',
             },
 
             clients: {
-                tag: 'OUR CLIENTS',
+                tag: 'KLIEN KAMI',
                 title:
                     'Dipercaya Operator & Penyedia Menara Nasional',
+            },
+
+            cta: {
+                eyebrow:
+                    'MARI BANGUN INDONESIA YANG TERHUBUNG',
+                title:
+                    'Bersama Membangun Infrastruktur Telekomunikasi yang Andal.',
+                button: 'Hubungi Kami',
             },
 
             contact: {
@@ -118,6 +138,9 @@ export default function Welcome({ auth }) {
             },
         },
 
+        /* =========================================================
+           ENGLISH
+        ========================================================= */
         en: {
             nav: {
                 about: 'About Us',
@@ -169,27 +192,35 @@ export default function Welcome({ auth }) {
 
             projects: {
                 tag: 'OUR PROJECTS',
-                title: 'Selected Executed Projects',
+                title:
+                    'Telecommunication Project Portfolio',
                 subtitle:
-                    'Demonstrated execution capability across multiple provinces, fully verified by partner supervisory consultants.',
-                b2sTab:
-                    'B2S SACME Projects (New Towers)',
-                strTab:
-                    'Tower Strengthening Projects',
-                thSite:
-                    'Site Identifier / Name',
-                thCity:
-                    'City / Regency',
-                thProvince:
-                    'Province',
-                thScope:
-                    'Scope of Work',
+                    'A selection of new tower construction and structural strengthening projects delivered by PT Indojar Mulia Abadi across multiple regions in Indonesia.',
+                b2sTab: 'B2S SACME',
+                strTab: 'Tower Strengthening',
+                thSite: 'Site Name',
+                thCity: 'City / Regency',
+                thProvince: 'Province',
+                thScope: 'Scope of Work',
+                featured: 'Featured Projects',
+                directory: 'Project Directory',
+                completed: 'Completed Projects',
+                location: 'Location',
+                category: 'Category',
             },
 
             clients: {
                 tag: 'OUR CLIENTS',
                 title:
                     'Trusted by Partner Operators & Providers',
+            },
+
+            cta: {
+                eyebrow:
+                    "LET'S BUILD A BETTER CONNECTED INDONESIA",
+                title:
+                    'Partner with Us for Reliable Telecommunication Solutions.',
+                button: 'Contact Us',
             },
 
             contact: {
@@ -201,8 +232,7 @@ export default function Welcome({ auth }) {
                     'DBS Bank Tower 28th Fl, Ciputra World One, Jl. Prof. Dr. Satrio Kav. 3-5, Jakarta 12940',
                 mgmtHead:
                     'Management & Direct Inquiry',
-                director:
-                    'Managing Director',
+                director: 'Managing Director',
             },
 
             floating: {
@@ -215,21 +245,11 @@ export default function Welcome({ auth }) {
     const currentDict = t[lang];
 
     return (
-        <div
-            className="
-                min-h-screen
-                bg-slate-50
-                text-slate-900
-                transition-colors
-                duration-300
-                dark:bg-[#070c18]
-                dark:text-slate-100
-            "
-        >
+        <div className="min-h-screen bg-[#061b14] text-white">
             <Head title="PT Indojar Mulia Abadi" />
 
             {/* =====================================================
-                LAPISAN 1 — NAVBAR
+                NAVBAR
             ===================================================== */}
             <Navbar
                 auth={auth}
@@ -240,41 +260,109 @@ export default function Welcome({ auth }) {
                 t={currentDict}
             />
 
+            {/* =====================================================
+                MAIN CONTENT
+            ===================================================== */}
+            <main className="relative overflow-hidden bg-[#061b14]">
+
+                {/* =================================================
+                    GLOBAL BACKGROUND
+                ================================================= */}
+                <div
+                    className="pointer-events-none absolute inset-0 overflow-hidden"
+                    aria-hidden="true"
+                >
+                    {/* Engineering grid */}
+                    <div
+                        className="
+                            absolute
+                            inset-0
+                            opacity-[0.025]
+                            bg-[linear-gradient(rgba(255,255,255,.8)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.8)_1px,transparent_1px)]
+                            bg-[size:72px_72px]
+                        "
+                    />
+
+                    {/* Subtle green atmosphere */}
+                    <div
+                        className="
+                            absolute
+                            -left-56
+                            top-[8%]
+                            h-[520px]
+                            w-[520px]
+                            rounded-full
+                            bg-emerald-500/10
+                            blur-[130px]
+                        "
+                    />
+
+                    <div
+                        className="
+                            absolute
+                            -right-56
+                            top-[38%]
+                            h-[560px]
+                            w-[560px]
+                            rounded-full
+                            bg-emerald-400/[0.07]
+                            blur-[140px]
+                        "
+                    />
+
+                    <div
+                        className="
+                            absolute
+                            left-[45%]
+                            top-[70%]
+                            h-[420px]
+                            w-[420px]
+                            rounded-full
+                            bg-amber-400/[0.035]
+                            blur-[120px]
+                        "
+                    />
+                </div>
+
+                {/* =================================================
+                    PAGE SECTIONS
+                ================================================= */}
+                <div className="relative z-10">
+
+                    {/* HERO */}
+                    <HeroWelcome t={currentDict} />
+
+                    {/* ABOUT */}
+                    <AboutWelcome t={currentDict} />
+
+                    {/* VISION & MISSION */}
+                    <VisionMissionWelcome lang={lang} />
+
+                    {/* =================================================
+                        SERVICES
+                        HANYA SATU COMPONENT SERVICES
+                    ================================================= */}
+                    <ServiceShowCaseWelcome lang={lang} />
+
+                    {/* =================================================
+                        PROJECT PORTFOLIO
+                        LANGSUNG SETELAH SERVICES
+                    ================================================= */}
+                    <ProjectWelcome t={currentDict} />
+
+                    {/* CLIENTS */}
+                    <ClientWelcome t={currentDict} />
+
+                    {/* CTA */}
+                    <CtaWelcome t={currentDict} />
+
+                </div>
+            </main>
 
             {/* =====================================================
-                LAPISAN 2 — HERO
+                FOOTER
             ===================================================== */}
-            <HeroWelcome t={currentDict} />
-
-
-            {/* =====================================================
-                LAPISAN 3 — ABOUT
-            ===================================================== */}
-            <AboutWelcome t={currentDict} />
-
-
-            {/* =====================================================
-                LAPISAN 4 — VISION & MISSION
-            ===================================================== */}
-            <VisionMissionWelcome lang={lang} />
-
-
-            {/* =====================================================
-                LAPISAN 5A — SERVICE INTRO
-            ===================================================== */}
-            <ServiceWelcome />
-
-
-            {/* =====================================================
-                LAPISAN 5B — SERVICE SHOWCASE
-            ===================================================== */}
-            <ServiceShowCaseWelcome lang={lang} />
-
-
-            {/* =====================================================
-                LAPISAN 6, 7 & 8
-            ===================================================== */}
-            <ProjectsCtaFooter
+            <FooterWelcome
                 auth={auth}
                 t={currentDict}
             />

@@ -23,7 +23,7 @@ const highlights = [
     {
         label: 'Pengalaman',
         text: 'Tim Andal & Berpengalaman',
-        color: 'text-white/45',
+        color: 'text-white/55',
     },
 ];
 
@@ -42,345 +42,417 @@ export default function HeroWelcome() {
     }, [paused]);
 
     return (
-        <section
-            id="home"
-            onMouseEnter={() => setPaused(true)}
-            onMouseLeave={() => setPaused(false)}
-            className="relative min-h-screen overflow-hidden bg-[#031a14]"
-        >
-            {/* Background */}
-            <div className="absolute inset-0">
-                {heroImages.map((image, index) => (
-                    <img
-                        key={image}
-                        src={image}
-                        alt="Menara telekomunikasi PT Indojar Mulia Abadi"
-                        className={`
-                            absolute inset-0 h-full w-full object-cover
-                            transition-all duration-[2200ms] ease-out
-                            ${
-                                index === current
-                                    ? 'scale-100 opacity-100'
-                                    : 'scale-[1.02] opacity-0'
-                            }
-                        `}
-                    />
-                ))}
-
-                <div className="absolute inset-0 bg-[#031a14]/10" />
-
-                <div
-                    className="
-                        absolute inset-0
-                        bg-gradient-to-r
-                        from-[#02140f]/92
-                        via-[#03271c]/48
-                        to-transparent
-                    "
-                />
-
-                <div
-                    className="
-                        absolute inset-0
-                        bg-gradient-to-t
-                        from-[#031a14]/70
-                        via-transparent
-                        to-[#031a14]/10
-                    "
-                />
-            </div>
-
-            {/* Main Content */}
-            <div className="relative z-10 flex min-h-screen items-center px-6 sm:px-10 lg:px-[8vw]">
-                <div className="max-w-[660px]">
-
-                    {/* Section Label */}
-                    <div className="mb-7 flex items-center gap-3 animate-[heroFade_.8s_ease-out_both]">
-                        <span className="h-px w-10 bg-amber-400" />
-
-                        <span
-                            className="
-                                text-[10px]
-                                font-semibold
-                                uppercase
-                                tracking-[0.12em]
-                                text-amber-300
-                                sm:text-[11px]
-                            "
-                        >
-                            Infrastruktur Telekomunikasi
-                        </span>
-                    </div>
-
-                    {/* Company Name */}
-                    <h1 className="font-heading animate-[heroFade_1s_.08s_ease-out_both]">
-                        <span
-                            className="
-                                block
-                                text-[3.2rem]
-                                font-semibold
-                                leading-[0.94]
-                                tracking-[-0.035em]
-                                text-white
-                                sm:text-[4.3rem]
-                                lg:text-[5.1rem]
-                            "
-                        >
-                            PT INDOJAR
-                        </span>
-
-                        <span
-                            className="
-                                mt-1
-                                block
-                                text-[3.2rem]
-                                font-semibold
-                                leading-[0.94]
-                                tracking-[-0.035em]
-                                text-emerald-300
-                                sm:text-[4.3rem]
-                                lg:text-[5.1rem]
-                            "
-                        >
-                            MULIA ABADI
-                        </span>
-                    </h1>
-
-                    {/* Description */}
-                    <p
-                        className="
-                            mt-8
-                            max-w-[560px]
-                            text-[14px]
-                            leading-7
-                            text-white/68
-                            animate-[heroFade_1s_.2s_ease-out_both]
-                            sm:text-[15px]
-                        "
-                    >
-                        Berdiri sejak 2014, PT Indojar Mulia Abadi
-                        memperluas dukungannya ke industri telekomunikasi
-                        pada tahun 2021.
-                    </p>
-
-                    {/* CTA */}
-                    <div
-                        className="
-                            mt-8
-                            flex flex-wrap gap-3
-                            animate-[heroFade_1s_.32s_ease-out_both]
-                        "
-                    >
-                        <a
-                            href="#portofolio"
-                            className="
-                                group
-                                inline-flex
-                                items-center
-                                gap-4
-                                bg-emerald-500
-                                px-6
-                                py-3.5
-                                text-xs
-                                font-semibold
-                                text-white
-                                transition-all
-                                duration-300
-                                hover:-translate-y-0.5
-                                hover:bg-emerald-400
-                                sm:text-sm
-                            "
-                        >
-                            Jelajahi Proyek
-
-                            <ArrowRight
-                                className="
-                                    h-4
-                                    w-4
-                                    transition-transform
-                                    group-hover:translate-x-1
-                                "
-                            />
-                        </a>
-
-                        <a
-                            href="#layanan"
-                            className="
-                                group
-                                inline-flex
-                                items-center
-                                gap-3
-                                border
-                                border-white/25
-                                bg-white/[0.03]
-                                px-6
-                                py-3.5
-                                text-xs
-                                font-semibold
-                                text-white
-                                transition-all
-                                duration-300
-                                hover:border-amber-300/50
-                                hover:bg-white/[0.06]
-                                sm:text-sm
-                            "
-                        >
-                            Layanan Kami
-
-                            <ArrowRight
-                                className="
-                                    h-4
-                                    w-4
-                                    text-amber-300
-                                    transition-transform
-                                    group-hover:translate-x-1
-                                "
-                            />
-                        </a>
-                    </div>
-
-                    {/* Highlights */}
-                    <div
-                        className="
-                            mt-11
-                            max-w-[700px]
-                            border-y
-                            border-white/[0.12]
-                            py-4
-                            animate-[heroFade_1s_.45s_ease-out_both]
-                        "
-                    >
-                        <div className="grid grid-cols-1 sm:grid-cols-3">
-                            {highlights.map((item, index) => (
-                                <div
-                                    key={item.label}
-                                    className={`
-                                        py-2
-                                        ${
-                                            index < highlights.length - 1
-                                                ? 'border-b border-white/10 sm:border-b-0 sm:border-r'
-                                                : ''
-                                        }
-                                        ${index === 0 ? 'sm:pr-5' : 'sm:px-5'}
-                                        ${
-                                            index === highlights.length - 1
-                                                ? 'sm:pl-5'
-                                                : ''
-                                        }
-                                    `}
-                                >
-                                    <span
-                                        className={`
-                                            block
-                                            text-[8px]
-                                            font-semibold
-                                            uppercase
-                                            tracking-[0.12em]
-                                            ${item.color}
-                                        `}
-                                    >
-                                        {item.label}
-                                    </span>
-
-                                    <span className="mt-1 block text-[13px] font-medium text-white/90 sm:text-sm">
-                                        {item.text}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            {/* Slide Navigation */}
-            <div
+        <div id="home">
+            {/* =========================================================
+                HERO IMAGE
+            ========================================================= */}
+            <section
+                onMouseEnter={() => setPaused(true)}
+                onMouseLeave={() => setPaused(false)}
                 className="
-                    absolute
-                    right-7
-                    top-1/2
-                    z-20
-                    hidden
-                    -translate-y-1/2
-                    flex-col
-                    gap-6
-                    lg:flex
+                    relative
+                    min-h-screen
+                    overflow-hidden
+                    bg-[#031a14]
                 "
             >
-                {heroImages.map((_, index) => (
-                    <button
-                        key={index}
-                        type="button"
-                        onClick={() => setCurrent(index)}
-                        aria-label={`Slide ${index + 1}`}
-                        className="group flex items-center gap-3"
-                    >
-                        <span
+                {/* =====================================================
+                    BACKGROUND SLIDES
+                ===================================================== */}
+                <div className="absolute inset-0">
+                    {heroImages.map((image, index) => (
+                        <img
+                            key={image}
+                            src={image}
+                            alt="Menara telekomunikasi PT Indojar Mulia Abadi"
                             className={`
-                                text-[9px]
-                                font-semibold
-                                tracking-widest
-                                transition-colors
-                                ${
-                                    current === index
-                                        ? 'text-white'
-                                        : 'text-white/25 group-hover:text-white/60'
-                                }
-                            `}
-                        >
-                            0{index + 1}
-                        </span>
-
-                        <span
-                            className={`
-                                block
+                                absolute
+                                inset-0
+                                h-full
+                                w-full
+                                object-cover
                                 transition-all
-                                duration-500
+                                duration-[2200ms]
+                                ease-out
                                 ${
-                                    current === index
-                                        ? 'h-9 w-[2px] bg-amber-400'
-                                        : 'h-4 w-px bg-white/20'
+                                    index === current
+                                        ? 'scale-100 opacity-100'
+                                        : 'scale-[1.02] opacity-0'
                                 }
                             `}
                         />
-                    </button>
-                ))}
-            </div>
+                    ))}
 
-            {/* Progress */}
-            <div className="absolute bottom-0 left-0 h-[2px] w-full bg-white/[0.08]">
+                    {/* Overall overlay */}
+                    <div className="absolute inset-0 bg-[#031a14]/10" />
+
+                    {/* Left readability */}
+                    <div
+                        className="
+                            absolute
+                            inset-0
+                            bg-gradient-to-r
+                            from-[#02140f]/92
+                            via-[#03271c]/48
+                            to-transparent
+                        "
+                    />
+
+                    {/* Bottom readability */}
+                    <div
+                        className="
+                            absolute
+                            inset-0
+                            bg-gradient-to-t
+                            from-[#031a14]/70
+                            via-transparent
+                            to-[#031a14]/10
+                        "
+                    />
+                </div>
+
+                {/* =====================================================
+                    MAIN HERO CONTENT
+                ===================================================== */}
                 <div
-                    key={current}
-                    className="h-full bg-amber-400"
-                    style={{
-                        animation: 'heroProgress 7s linear forwards',
-                    }}
-                />
-            </div>
+                    className="
+                        relative
+                        z-10
+                        flex
+                        min-h-screen
+                        items-center
+                        px-6
+                        sm:px-10
+                        lg:px-[8vw]
+                    "
+                >
+                    <div className="max-w-[660px]">
+                        {/* =================================================
+                            COMPANY NAME
+                        ================================================= */}
+                        <h1 className="font-heading animate-[heroFade_1s_.08s_ease-out_both]">
+                            <span
+                                className="
+                                    block
+                                    text-[3.2rem]
+                                    font-semibold
+                                    leading-[0.94]
+                                    tracking-[-0.035em]
+                                    text-white
+                                    sm:text-[4.3rem]
+                                    lg:text-[5.1rem]
+                                "
+                            >
+                                PT INDOJAR
+                            </span>
 
-            <style>{`
-                @keyframes heroProgress {
-                    from {
-                        width: 0%;
+                            <span
+                                className="
+                                    mt-1
+                                    block
+                                    text-[3.2rem]
+                                    font-semibold
+                                    leading-[0.94]
+                                    tracking-[-0.035em]
+                                    text-emerald-300
+                                    sm:text-[4.3rem]
+                                    lg:text-[5.1rem]
+                                "
+                            >
+                                MULIA ABADI
+                            </span>
+                        </h1>
+
+                        {/* =================================================
+                            DESCRIPTION
+                        ================================================= */}
+                        <p
+                            className="
+                                mt-8
+                                max-w-[560px]
+                                text-[14px]
+                                leading-7
+                                text-white/70
+                                animate-[heroFade_1s_.2s_ease-out_both]
+                                sm:text-[15px]
+                            "
+                        >
+                            Berdiri sejak 2014, PT Indojar Mulia Abadi
+                            memperluas dukungannya ke industri telekomunikasi
+                            pada tahun 2021.
+                        </p>
+
+                        {/* =================================================
+                            CTA
+                        ================================================= */}
+                        <div
+                            className="
+                                mt-8
+                                flex
+                                flex-wrap
+                                gap-3
+                                animate-[heroFade_1s_.32s_ease-out_both]
+                            "
+                        >
+                            {/* Explore Projects */}
+                            <a
+                                href="#portofolio"
+                                className="
+                                    group
+                                    inline-flex
+                                    items-center
+                                    gap-4
+                                    bg-emerald-500
+                                    px-6
+                                    py-3.5
+                                    text-xs
+                                    font-semibold
+                                    text-white
+                                    transition-all
+                                    duration-300
+                                    hover:-translate-y-0.5
+                                    hover:bg-emerald-400
+                                    sm:text-sm
+                                "
+                            >
+                                Jelajahi Proyek
+
+                                <ArrowRight
+                                    className="
+                                        h-4
+                                        w-4
+                                        transition-transform
+                                        group-hover:translate-x-1
+                                    "
+                                />
+                            </a>
+
+                            {/* Services */}
+                            <a
+                                href="#layanan"
+                                className="
+                                    group
+                                    inline-flex
+                                    items-center
+                                    gap-3
+                                    border
+                                    border-white/25
+                                    bg-white/[0.03]
+                                    px-6
+                                    py-3.5
+                                    text-xs
+                                    font-semibold
+                                    text-white
+                                    transition-all
+                                    duration-300
+                                    hover:border-amber-300/50
+                                    hover:bg-white/[0.06]
+                                    sm:text-sm
+                                "
+                            >
+                                Layanan Kami
+
+                                <ArrowRight
+                                    className="
+                                        h-4
+                                        w-4
+                                        text-amber-300
+                                        transition-transform
+                                        group-hover:translate-x-1
+                                    "
+                                />
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                {/* =====================================================
+                    SLIDE NAVIGATION
+                ===================================================== */}
+                <div
+                    className="
+                        absolute
+                        right-7
+                        top-1/2
+                        z-20
+                        hidden
+                        -translate-y-1/2
+                        flex-col
+                        gap-6
+                        lg:flex
+                    "
+                >
+                    {heroImages.map((_, index) => (
+                        <button
+                            key={index}
+                            type="button"
+                            onClick={() => setCurrent(index)}
+                            aria-label={`Slide ${index + 1}`}
+                            className="group flex items-center gap-3"
+                        >
+                            <span
+                                className={`
+                                    text-[9px]
+                                    font-semibold
+                                    tracking-widest
+                                    transition-colors
+                                    ${
+                                        current === index
+                                            ? 'text-white'
+                                            : 'text-white/25 group-hover:text-white/60'
+                                    }
+                                `}
+                            >
+                                0{index + 1}
+                            </span>
+
+                            <span
+                                className={`
+                                    block
+                                    transition-all
+                                    duration-500
+                                    ${
+                                        current === index
+                                            ? 'h-9 w-[2px] bg-amber-400'
+                                            : 'h-4 w-px bg-white/20'
+                                    }
+                                `}
+                            />
+                        </button>
+                    ))}
+                </div>
+
+                {/* =====================================================
+                    PROGRESS BAR
+                ===================================================== */}
+                <div className="absolute bottom-0 left-0 h-[2px] w-full bg-white/[0.08]">
+                    <div
+                        key={current}
+                        className="h-full bg-amber-400"
+                        style={{
+                            animation: 'heroProgress 7s linear forwards',
+                        }}
+                    />
+                </div>
+
+                {/* =====================================================
+                    HERO ANIMATIONS
+                ===================================================== */}
+                <style>{`
+                    @keyframes heroProgress {
+                        from {
+                            width: 0%;
+                        }
+
+                        to {
+                            width: 100%;
+                        }
                     }
 
-                    to {
-                        width: 100%;
-                    }
-                }
+                    @keyframes heroFade {
+                        from {
+                            opacity: 0;
+                            transform: translateY(14px);
+                        }
 
-                @keyframes heroFade {
-                    from {
-                        opacity: 0;
-                        transform: translateY(14px);
+                        to {
+                            opacity: 1;
+                            transform: translateY(0);
+                        }
                     }
+                `}</style>
+            </section>
 
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-            `}</style>
-        </section>
+            {/* =========================================================
+                HERO HIGHLIGHTS
+                DIPINDAHKAN KE BAWAH HERO
+            ========================================================= */}
+            <section
+                className="
+                    relative
+                    z-20
+                    border-b
+                    border-white/[0.10]
+                    bg-[#031a14]
+                "
+            >
+                <div className="mx-auto max-w-[1400px] px-6 sm:px-10 lg:px-[8vw]">
+                    <div
+                        className="
+                            grid
+                            grid-cols-1
+                            divide-y
+                            divide-white/[0.10]
+                            sm:grid-cols-3
+                            sm:divide-x
+                            sm:divide-y-0
+                        "
+                    >
+                        {highlights.map((item, index) => (
+                            <div
+                                key={item.label}
+                                className={`
+                                    relative
+                                    py-6
+                                    sm:py-7
+                                    ${
+                                        index === 0
+                                            ? 'sm:pr-8'
+                                            : index === highlights.length - 1
+                                              ? 'sm:pl-8'
+                                              : 'sm:px-8'
+                                    }
+                                `}
+                            >
+                                {/* Small top accent */}
+                                <span
+                                    className={`
+                                        absolute
+                                        left-0
+                                        top-0
+                                        h-[2px]
+                                        w-8
+                                        ${
+                                            index === 0
+                                                ? 'bg-amber-400'
+                                                : index === 1
+                                                  ? 'bg-emerald-400'
+                                                  : 'bg-white/30'
+                                        }
+                                    `}
+                                />
+
+                                <span
+                                    className={`
+                                        block
+                                        text-[9px]
+                                        font-semibold
+                                        uppercase
+                                        tracking-[0.18em]
+                                        ${item.color}
+                                    `}
+                                >
+                                    {item.label}
+                                </span>
+
+                                <span
+                                    className="
+                                        mt-1.5
+                                        block
+                                        text-sm
+                                        font-medium
+                                        tracking-[-0.01em]
+                                        text-white/85
+                                        sm:text-[15px]
+                                    "
+                                >
+                                    {item.text}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+        </div>
     );
 }
