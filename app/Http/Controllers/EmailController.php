@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\EmailLog;
+use App\Models\InboundEmail;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +13,7 @@ use Resend\Laravel\Facades\Resend;
 class EmailController extends Controller
 {
     /**
-     * Tampilkan halaman kirim email & riwayat pengiriman.
+     * Tampilkan halaman riwayat email terkirim (Outbox/Logs).
      */
     public function index(Request $request)
     {
@@ -28,6 +29,27 @@ class EmailController extends Controller
         return Inertia::render('Email/Index', [
             'emailLogs' => $emailLogs,
             'filters'   => $request->only(['search']),
+        ]);
+    }
+
+    /**
+     * Tampilkan halaman kotak masuk email (Inbox).
+     */
+    public function inbox(Request $request)
+    {
+        $inboundEmails = InboundEmail::query()
+            ->when($request->search, function ($query, $search) {
+                $query->where('from_email', 'like', "%{$search}%")
+                      ->orWhere('sender_name', 'like', "%{$search}%")
+                      ->orWhere('subject', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return Inertia::render('Email/Inbox', [
+            'inboundEmails' => $inboundEmails,
+            'filters'       => $request->only(['search']),
         ]);
     }
 
@@ -85,9 +107,18 @@ class EmailController extends Controller
     }
 
     /**
-     * Hapus catatan riwayat email.
-     *
-     * @param int|string $id
+     * Tandai email masuk sebagai sudah dibaca (Read).
+     */
+    public function markAsRead(int|string $id)
+    {
+        $email = InboundEmail::findOrFail($id);
+        $email->update(['is_read' => true]);
+
+        return back();
+    }
+
+    /**
+     * Hapus catatan riwayat email terkirim.
      */
     public function destroy(int|string $id)
     {
@@ -95,5 +126,16 @@ class EmailController extends Controller
         $log->delete();
 
         return back()->with('success', 'Riwayat email berhasil dihapus.');
+    }
+
+    /**
+     * Hapus email masuk dari kotak masuk.
+     */
+    public function destroyInbound(int|string $id)
+    {
+        $email = InboundEmail::findOrFail($id);
+        $email->delete();
+
+        return back()->with('success', 'Email masuk berhasil dihapus.');
     }
 }
