@@ -5,11 +5,11 @@ import CrudTablePekerjaan from '@/Pages/Project/Pekerjaan/CrudTable';
 import ModalPekerjaan from '@/Pages/Project/Pekerjaan/ModalPekerjaan';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-    Plus,
-    Search,
-    X,
-    ChevronLeft,
+import { 
+    Plus, 
+    Search, 
+    X, 
+    ChevronLeft, 
     ChevronRight,
     RotateCcw,
 } from 'lucide-react';
@@ -28,10 +28,9 @@ export default function TabWbs({
     const isAdmin = userRole === 'admin';
     const confirm = useConfirm();
 
-    // 2. Filter & Sort State
+    // 2. Filter & Sort State (Tanpa Status karena laporan harian murni log aktivitas)
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedStage, setSelectedStage] = useState('ALL');
-    const [selectedStatus, setSelectedStatus] = useState('ALL');
     const [sortOrder, setSortOrder] = useState('asc');
     const [isProcessing, setIsProcessing] = useState(false);
 
@@ -59,7 +58,7 @@ export default function TabWbs({
         setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
     };
 
-    // Filter & Sort Data Pekerjaan Site Ini
+    // Filter & Sort Data Laporan Pekerjaan Site Ini
     const filteredList = useMemo(() => {
         let list = (pekerjaans || []).filter((p) => {
             const s = searchTerm.trim().toLowerCase();
@@ -71,11 +70,8 @@ export default function TabWbs({
                 (p.stage?.nama_stage && p.stage.nama_stage.toLowerCase().includes(s));
 
             const matchesStage = selectedStage === 'ALL' || String(p.stage_id) === String(selectedStage);
-            const matchesStatus =
-                selectedStatus === 'ALL' ||
-                String(p.status).toUpperCase() === String(selectedStatus).toUpperCase();
 
-            return matchesSearch && matchesStage && matchesStatus;
+            return matchesSearch && matchesStage;
         });
 
         list.sort((a, b) => {
@@ -87,12 +83,12 @@ export default function TabWbs({
         });
 
         return list;
-    }, [pekerjaans, searchTerm, selectedStage, selectedStatus, sortOrder]);
+    }, [pekerjaans, searchTerm, selectedStage, sortOrder]);
 
     useEffect(() => {
         setCurrentPage(1);
         setSelectedIds([]);
-    }, [searchTerm, selectedStage, selectedStatus, sortOrder]);
+    }, [searchTerm, selectedStage, sortOrder]);
 
     // Data Paginasi
     const totalData = filteredList.length;
@@ -132,18 +128,15 @@ export default function TabWbs({
         );
     };
 
-    // Ekspor CSV
+    // Ekspor CSV Laporan Lapangan
     const handleExportCSV = () => {
         const columns = [
             'Site ID',
             'Nama Site',
             'Kode WBS',
             'Tahapan',
-            'Nama Pekerjaan',
+            'Uraian Pekerjaan',
             'Satuan',
-            'Bobot (%)',
-            'Progress Riil (%)',
-            'Status',
             'Tanggal Pengerjaan',
             'PIC Waslap',
             'Catatan',
@@ -156,9 +149,6 @@ export default function TabWbs({
             `"${p.stage?.nama_stage || p.kategori_tahap || '-'}"`,
             `"${(p.nama_pekerjaan || '').replace(/"/g, '""')}"`,
             `"${p.satuan || 'Lot'}"`,
-            p.bobot ?? 0,
-            p.progress_percent ?? 0,
-            `"${p.status || '-'}"`,
             `"${p.tanggal_pekerjaan ? String(p.tanggal_pekerjaan).split('T')[0] : '-'}"`,
             `"${p.pic_user?.name || '-'}"`,
             `"${(p.catatan || '').replace(/"/g, '""')}"`,
@@ -169,7 +159,7 @@ export default function TabWbs({
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', `WBS_${project?.site_id || 'PROYEK'}_${new Date().toISOString().slice(0, 10)}.csv`);
+        link.setAttribute('download', `Laporan_Pekerjaan_${project?.site_id || 'PROYEK'}_${new Date().toISOString().slice(0, 10)}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -179,8 +169,8 @@ export default function TabWbs({
     const handleDeleteSelected = () => {
         if (!isAdmin || selectedIds.length === 0) return;
         confirm({
-            title: 'Hapus Item Pekerjaan Terpilih',
-            message: `Apakah Anda yakin ingin menghapus ${selectedIds.length} item pekerjaan WBS terpilih? Foto Cloudinary terkait juga akan dihapus dan akumulasi progres site akan disinkronkan kembali.`,
+            title: 'Hapus Laporan Pekerjaan Terpilih',
+            message: `Apakah Anda yakin ingin menghapus ${selectedIds.length} laporan pekerjaan terpilih? Foto Cloudinary terkait juga akan dihapus dari penyimpanan.`,
             variant: 'danger',
             confirmText: 'Ya, Hapus Terpilih',
             cancelText: 'Batal',
@@ -199,17 +189,17 @@ export default function TabWbs({
         });
     };
 
-    // Kosongkan Seluruh WBS Site Ini
+    // Kosongkan Seluruh Laporan Site Ini
     const handleReset = () => {
         if (!isAdmin) return;
         const allItemIds = (pekerjaans || []).map((p) => p.id).filter(Boolean);
         if (allItemIds.length === 0) return;
 
         confirm({
-            title: 'Kosongkan Seluruh WBS Site Ini',
-            message: `Apakah Anda yakin ingin MENGOSONGKAN SELURUH (${allItemIds.length}) rincian pekerjaan WBS untuk site ${project?.site_id || ''}? Tindakan ini tidak dapat dibatalkan.`,
+            title: 'Kosongkan Seluruh Laporan Site Ini',
+            message: `Apakah Anda yakin ingin MENGOSONGKAN SELURUH (${allItemIds.length}) laporan pekerjaan untuk site ${project?.site_id || ''}? Tindakan ini tidak dapat dibatalkan.`,
             variant: 'danger',
-            confirmText: 'Ya, Kosongkan WBS',
+            confirmText: 'Ya, Kosongkan',
             cancelText: 'Batal',
             onConfirm: () => {
                 setIsProcessing(true);
@@ -238,11 +228,10 @@ export default function TabWbs({
         setIsModalOpen(true);
     };
 
-    const isFiltered = searchTerm.trim() !== '' || selectedStage !== 'ALL' || selectedStatus !== 'ALL';
+    const isFiltered = searchTerm.trim() !== '' || selectedStage !== 'ALL';
     const handleResetFilters = () => {
         setSearchTerm('');
         setSelectedStage('ALL');
-        setSelectedStatus('ALL');
     };
 
     return (
@@ -277,24 +266,7 @@ export default function TabWbs({
                             placeholder="Semua Tahapan"
                             searchPlaceholder="Cari tahapan..."
                             allowCustom={false}
-                            className="!w-44 shrink-0"
-                            inputClassName="h-8 text-xs font-semibold bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
-                        />
-
-                        {/* Filter Status */}
-                        <HybridDropdown
-                            value={selectedStatus}
-                            options={[
-                                { value: 'ALL', label: 'Semua Status' },
-                                { value: 'PLANNING', label: 'PLANNING' },
-                                { value: 'IN_PROGRESS', label: 'IN_PROGRESS' },
-                                { value: 'COMPLETED', label: 'COMPLETED' },
-                            ]}
-                            onChange={setSelectedStatus}
-                            placeholder="Semua Status"
-                            searchPlaceholder="Cari status..."
-                            allowCustom={false}
-                            className="!w-36 shrink-0"
+                            className="!w-48 shrink-0"
                             inputClassName="h-8 text-xs font-semibold bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
                         />
                     </div>
@@ -305,7 +277,7 @@ export default function TabWbs({
             <div className="px-5 py-2.5 bg-slate-50/50 dark:bg-slate-800/40 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                     <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                        Total: {totalData} Rincian WBS
+                        Total: {totalData} Laporan Pekerjaan Fisik
                     </span>
                     {isFiltered && (
                         <button
@@ -347,7 +319,7 @@ export default function TabWbs({
                             className="h-8 text-xs gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-xs shadow-blue-600/20 shrink-0 cursor-pointer"
                         >
                             <Plus className="w-3.5 h-3.5" />
-                            <span>Tambah Data Baru</span>
+                            <span>Tambah Laporan Baru</span>
                         </Button>
                     )}
                 </div>
@@ -442,7 +414,7 @@ export default function TabWbs({
                 </div>
             </div>
 
-            {/* 5. MODAL FORM PEKERJAAN (Otomatis terikat ke project ini) */}
+            {/* 5. MODAL FORM LAPORAN PEKERJAAN */}
             <ModalPekerjaan
                 isOpen={isModalOpen}
                 onClose={() => {

@@ -44,6 +44,11 @@ class Project extends Model
         return $this->belongsTo(User::class, 'pic_user_id');
     }
 
+    public function projectStages(): HasMany
+    {
+        return $this->hasMany(ProjectStage::class, 'project_id')->orderBy('id', 'asc');
+    }
+
     public function pekerjaans(): HasMany
     {
         return $this->hasMany(Pekerjaan::class, 'project_id');

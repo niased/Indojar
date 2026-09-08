@@ -3,15 +3,15 @@ import Modal from '@/components/Modal';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-    PlusCircle,
-    ClipboardPaste,
-    AlertCircle,
+import { 
+    PlusCircle, 
+    ClipboardPaste, 
+    AlertCircle, 
 } from 'lucide-react';
 import ModalPekerjaanRow from './ModalPekerjaanRow';
-import {
-    useModalPekerjaanControl,
-    MAX_ROWS_LIMIT,
+import { 
+    useModalPekerjaanControl, 
+    MAX_ROWS_LIMIT, 
 } from './ModalPekerjaanControl';
 
 export default function ModalPekerjaan({
@@ -27,7 +27,6 @@ export default function ModalPekerjaan({
         items,
         stageOptions,
         satuanOptions,
-        statusOptions,
         handleSingleFileChange,
         handleRemoveSinglePhoto,
         handleRowFileChange,
@@ -52,9 +51,9 @@ export default function ModalPekerjaan({
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title={isEditMode ? `Edit Pekerjaan: ${selectedItem?.kode_pekerjaan || ''}` : 'Tambah Rincian Pekerjaan WBS'}
+            title={isEditMode ? `Edit Laporan: ${selectedItem?.kode_pekerjaan || ''}` : 'Tambah Laporan Pekerjaan Fisik'}
             onSubmit={handleSubmitForm}
-            submitLabel={isEditMode ? 'Simpan Perubahan' : `Simpan Semua Data (${items.length} Item)`}
+            submitLabel={isEditMode ? 'Simpan Perubahan' : `Simpan Semua Data (${items.length} Laporan)`}
             isProcessing={isProcessing}
             onPaste={!isEditMode ? handleFilteredPaste : undefined}
             headerExtra={
@@ -84,13 +83,12 @@ export default function ModalPekerjaan({
                 )
             }
         >
-            {/* Banner Konteks Identitas Site Proyek Terkunci */}
             <Alert className="shrink-0 mb-3 bg-blue-50/90 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 text-blue-900 dark:text-blue-300 p-2.5 rounded-xl flex items-start gap-2 shadow-xs">
                 <AlertCircle className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
                 <AlertDescription className="text-xs leading-relaxed">
                     Site Proyek: <strong className="text-blue-700 dark:text-blue-300 font-mono">{project?.site_id} — {project?.site_name}</strong>.
                     {!isEditMode && (
-                        <span> Setiap baris mewakili tugas fisik. Anda dapat mengetik manual, menambah baris, atau menempelkan tabel dari Excel (<strong>Ctrl+V</strong>).</span>
+                        <span> Setiap baris mewakili laporan aktivitas fisik lapangan. Anda dapat mengetik manual, menambah baris, atau menempelkan tabel dari Excel (<strong>Ctrl+V</strong>).</span>
                     )}
                 </AlertDescription>
             </Alert>
@@ -106,7 +104,6 @@ export default function ModalPekerjaan({
                         isProcessing={isProcessing}
                         stageOptions={stageOptions}
                         satuanOptions={satuanOptions}
-                        statusOptions={statusOptions}
                         onRemoveRow={handleRemoveRow}
                         onFieldChange={handleFieldChange}
                         onRowFileChange={isEditMode ? (_, e) => handleSingleFileChange(e) : handleRowFileChange}

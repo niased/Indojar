@@ -50,8 +50,8 @@ export default function ProjectShow({ project, stages = [] }) {
                 deskripsi: p.catatan || `Ditemukan kendala pada pekerjaan ${p.nama_pekerjaan}.`,
                 severity: 'MEDIUM',
                 kategori: p.stage?.nama_stage || p.kategori_tahap || 'TEKNIS',
-                status: p.progress_percent >= 100 ? 'RESOLVED' : 'OPEN',
-                tanggal_terjadi: p.tanggal_pekerjaan ? String(p.tanggal_pekerjaan).split(' ')[0] : null,
+                status: p.status === 'RESOLVED' ? 'RESOLVED' : 'OPEN',
+                tanggal_terjadi: p.tanggal_pekerjaan ? String(p.tanggal_pekerjaan).split('T')[0] : null,
                 foto: p.foto,
                 pic_user: p.pic_user,
             }));
@@ -59,38 +59,6 @@ export default function ProjectShow({ project, stages = [] }) {
         const existingDirectIssues = project.issues || [];
         return [...wbsIssues, ...existingDirectIssues];
     }, [project.pekerjaans, project.issues]);
-
-    const stageBreakdown = useMemo(() => {
-        const items = project.pekerjaans || [];
-        if (items.length === 0) return [];
-
-        const grouped = {};
-        items.forEach((item) => {
-            const stageName = item.stage?.nama_stage || item.kategori_tahap || 'UMUM';
-            const stageKey = item.stage_id || stageName;
-
-            if (!grouped[stageKey]) {
-                grouped[stageKey] = {
-                    id: item.stage_id,
-                    name: stageName,
-                    urutan: item.stage?.urutan || 99,
-                    totalBobot: 0,
-                    weightedProgress: 0,
-                };
-            }
-
-            const bobot = parseFloat(item.bobot) || 0;
-            const prog  = parseFloat(item.progress_percent) || 0;
-            grouped[stageKey].totalBobot += bobot;
-            grouped[stageKey].weightedProgress += (bobot * (prog / 100));
-        });
-
-        return Object.values(grouped).sort((a, b) => a.urutan - b.urutan).map((st) => ({
-            ...st,
-            totalBobot: Number(st.totalBobot.toFixed(2)),
-            progressPercent: st.totalBobot > 0 ? Math.min(100, Math.round((st.weightedProgress / st.totalBobot) * 100)) : 0,
-        }));
-    }, [project.pekerjaans]);
 
     const handleTimelineSubmit = (e) => {
         e.preventDefault();
@@ -169,7 +137,7 @@ export default function ProjectShow({ project, stages = [] }) {
                     <div className="lg:col-span-4">
                         <ProjectSidebar 
                             project={project}
-                            stageBreakdown={stageBreakdown}
+                            masterStages={stages}
                             onOpenTimeline={() => setIsTimelineModalOpen(true)}
                         />
                     </div>
@@ -222,13 +190,13 @@ export default function ProjectShow({ project, stages = [] }) {
                     </div>
                 </div>
 
-                {/* 3. AREA BAWAH: TABEL MASTER WBS LENGKAP */}
+                {/* 3. AREA BAWAH: TABEL LAPORAN PEKERJAAN FISIK (LOG HARIAN STAFF) */}
                 <div className="space-y-3 pt-2">
                     <div className="flex items-center justify-between px-1">
                         <div className="flex items-center gap-2">
                             <Wrench className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                             <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                                Rincian Pekerjaan WBS & Progres Lapangan
+                                Laporan Pekerjaan Fisik & Eviden Lapangan
                             </h3>
                         </div>
                     </div>

@@ -7,11 +7,14 @@ use App\Models\MasterSow;
 use App\Models\MasterStage;
 use App\Models\Pekerjaan;
 use App\Models\Project;
+use App\Models\ProjectStage;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ProjectController extends Controller
 {
@@ -55,10 +58,9 @@ class ProjectController extends Controller
             ->paginate($perPage)
             ->withQueryString();
 
-        // Opsi untuk filter dan modal
         $areas = MasterArea::orderBy('nama_area', 'asc')->get();
         $sows  = MasterSow::orderBy('nama_sow', 'asc')->get();
-        $users = User::select('id', 'name')->orderBy('name', 'asc')->get();
+        $users = User::select(['id', 'name'])->orderBy('name', 'asc')->get();
 
         return Inertia::render('Project/Index', [
             'projects' => $projects,
@@ -76,9 +78,8 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        // Mendukung multi-baris dari modal / paste Excel
         if ($request->has('items') && is_array($request->items)) {
             $validated = $request->validate([
                 'items'                   => 'required|array|min:1',
@@ -125,7 +126,6 @@ class ProjectController extends Controller
             return redirect()->back()->with('success', count($validated['items']) . ' site proyek berhasil ditambahkan.');
         }
 
-        // Single Insert
         $validated = $request->validate([
             'site_id'          => 'required|string|max:100',
             'site_name'        => 'required|string|max:255',
@@ -169,10 +169,11 @@ class ProjectController extends Controller
         $validated['progress_percent'] = $validated['progress_percent'] ?? 0.00;
 
         Project::create($validated);
+
         return redirect()->back()->with('success', 'Master proyek berhasil ditambahkan.');
     }
 
-    public function update(Request $request, int $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
         $project = Project::findOrFail($id);
 
@@ -214,6 +215,7 @@ class ProjectController extends Controller
         $validated['site_name'] = strtoupper(trim($validated['site_name']));
 
         $project->update($validated);
+
         return redirect()->back()->with('success', 'Data proyek berhasil diperbarui.');
     }
 
@@ -223,8 +225,9 @@ class ProjectController extends Controller
             'area',
             'sow',
             'picUser:id,name,email',
-            'pekerjaans' => fn($q) => $q->with(['stage', 'picUser'])->orderBy('kode_pekerjaan', 'asc'),
-            'issues'     => fn($q) => $q->with(['stage', 'user'])->latest(),
+            'projectStages' => fn($q) => $q->with('stage')->orderBy('id', 'asc'),
+            'pekerjaans'    => fn($q) => $q->with(['stage', 'picUser'])->orderBy('id', 'desc'),
+            'issues'        => fn($q) => $q->with(['stage', 'user'])->latest(),
         ])->findOrFail($id);
 
         $stages = MasterStage::orderBy('urutan', 'asc')->get();
@@ -235,38 +238,95 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function destroy(int $id)
+    // Mengatur tahapan aktif, bobot, dan progres per tahapan oleh Admin
+    public function updateStages(Request $request, int $id): RedirectResponse
+    {
+        $project = Project::findOrFail($id);
+
+        $validated = $request->validate([
+            'stages'                    => 'required|array|min:1',
+            'stages.*.stage_id'         => 'required|exists:master_stages,id',
+            'stages.*.bobot'            => 'required|numeric|between:0,100',
+            'stages.*.progress_percent' => 'required|numeric|between:0,100',
+        ]);
+
+        DB::transaction(function () use ($project, $validated) {
+            $incomingStageIds = [];
+            $weightedProgress = 0.0;
+
+            foreach ($validated['stages'] as $st) {
+                $incomingStageIds[] = $st['stage_id'];
+                $prog   = (float) $st['progress_percent'];
+                $bobot  = (float) $st['bobot'];
+                $status = $prog >= 100 ? 'COMPLETED' : ($prog > 0 ? 'IN_PROGRESS' : 'PLANNING');
+
+                ProjectStage::updateOrCreate(
+                    [
+                        'project_id' => $project->id,
+                        'stage_id'   => $st['stage_id'],
+                    ],
+                    [
+                        'bobot'            => $bobot,
+                        'progress_percent' => $prog,
+                        'status'           => $status,
+                    ]
+                );
+
+                $weightedProgress += ($bobot * ($prog / 100.0));
+            }
+
+            // Hapus tahapan proyek yang tidak ada di daftar kiriman
+            ProjectStage::where('project_id', $project->id)
+                ->whereNotIn('stage_id', $incomingStageIds)
+                ->delete();
+
+            // Hitung akumulasi total progres menara
+            $totalProgress = min(100.0, round($weightedProgress, 2));
+            $projectStatus = $totalProgress >= 100.0 ? 'COMPLETED' : ($totalProgress > 0 ? 'ON_PROGRESS' : 'PLANNING');
+
+            $project->update([
+                'progress_percent' => $totalProgress,
+                'status'           => $projectStatus,
+            ]);
+        });
+
+        return redirect()->back()->with('success', 'Konfigurasi tahapan & capaian progres berhasil diperbarui.');
+    }
+
+    public function destroy(int $id): RedirectResponse
     {
         $project = Project::findOrFail($id);
         $project->delete();
+
         return redirect()->back()->with('success', 'Site proyek berhasil dihapus.');
     }
 
-    public function bulkDelete(Request $request)
+    public function bulkDelete(Request $request): RedirectResponse
     {
         $request->validate(['ids' => 'required|array']);
         Project::destroy($request->ids);
+
         return redirect()->back()->with('success', count($request->ids) . ' site proyek berhasil dihapus.');
     }
 
-    public function reset(Request $request)
+    public function reset(Request $request): RedirectResponse
     {
         if ($request->user()->role !== 'admin') {
             abort(403, 'Hanya Admin yang dapat mengosongkan data proyek.');
         }
 
         Pekerjaan::query()->delete();
+        ProjectStage::query()->delete();
         Project::query()->delete();
 
         return redirect()->back()->with('success', 'Seluruh master data proyek berhasil dikosongkan.');
     }
 
-    public function export(Request $request)
+    public function export(Request $request): StreamedResponse
     {
         $projects = Project::with(['area', 'sow', 'picUser'])->orderBy('id', 'asc')->get();
         $filename = 'Master_Proyek_Indojar_' . date('Ymd_His') . '.csv';
-
-        $headers = [
+        $headers  = [
             'Content-Type'        => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];

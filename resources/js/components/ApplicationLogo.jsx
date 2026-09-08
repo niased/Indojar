@@ -6,35 +6,48 @@ export function AppLogo({
     className,
     imageSrc = defaultLogo,
     showTextOnMobile = true,
-    textClassName = 'text-white',
+    textClassName,
+    variant = 'default',
     ...props
 }) {
+    const isNavbar = variant === 'navbar';
+
+    const brandTextClass = isNavbar
+        ? 'text-white'
+        : 'text-slate-900 dark:text-white';
+
+    const taglineClass = isNavbar
+        ? 'text-emerald-400'
+        : 'text-emerald-600 dark:text-emerald-300';
+
     return (
         <div
             className={cn(
                 'flex items-center gap-3 select-none',
-                className
+                className,
             )}
             {...props}
         >
             {/* Logo */}
-            <div className="
-                flex
-                h-9
-                w-12
-                shrink-0
-                items-center
-                justify-center
-                rounded-full
-                bg-transparent
-                p-1.5
-                ring-1
-                ring-white/20
-            ">
+            <div
+                className="
+                    flex
+                    h-11
+                    w-14
+                    shrink-0
+                    items-center
+                    justify-center
+                    bg-transparent
+                "
+            >
                 <img
                     src={imageSrc}
                     alt="Logo PT Indojar Mulia Abadi"
-                    className="h-full w-full object-contain"
+                    className="
+                        h-full
+                        w-full
+                        object-contain
+                    "
                 />
             </div>
 
@@ -42,27 +55,38 @@ export function AppLogo({
             <div
                 className={
                     showTextOnMobile
-                        ? 'flex flex-col'
+                        ? 'flex min-w-0 flex-col'
                         : 'hidden flex-col sm:flex'
                 }
             >
                 <span
                     className={cn(
-                        'font-sans text-[12px] font-bold leading-tight tracking-[0.03em]',
-                        textClassName
+                        `
+                            font-sans
+                            text-[12px]
+                            font-bold
+                            leading-tight
+                            tracking-[0.03em]
+                        `,
+                        brandTextClass,
+                        textClassName,
                     )}
                 >
                     PT INDOJAR MULIA ABADI
                 </span>
 
-                <span className="
-                    mt-1
-                    text-[8px]
-                    font-semibold
-                    uppercase
-                    tracking-[0.16em]
-                    text-emerald-300
-                ">
+                <span
+                    className={cn(
+                        `
+                            mt-1
+                            text-[8px]
+                            font-semibold
+                            uppercase
+                            tracking-[0.16em]
+                        `,
+                        taglineClass,
+                    )}
+                >
                     Manajemen Proyek
                 </span>
             </div>

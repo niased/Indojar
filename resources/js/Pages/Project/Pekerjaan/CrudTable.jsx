@@ -17,26 +17,11 @@ export default function CrudTablePekerjaan({
 
     const getTahapBadge = (kode) => {
         const k = String(kode || '').toUpperCase();
-        if (k.includes('PONDASI') || k.includes('CIVIL')) {
-            return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20';
-        }
-        if (k.includes('ERECTION')) {
-            return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20';
-        }
-        if (k.includes('CME') || k.includes('POWER')) {
-            return 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20';
-        }
-        if (k.includes('ATP') || k.includes('RFI')) {
-            return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20';
-        }
+        if (k.includes('PONDASI') || k.includes('CIVIL')) return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20';
+        if (k.includes('ERECTION')) return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20';
+        if (k.includes('CME') || k.includes('POWER')) return 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20';
+        if (k.includes('ATP') || k.includes('RFI')) return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20';
         return 'bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20';
-    };
-
-    const getStatusTextColor = (status) => {
-        const s = String(status || '').toUpperCase();
-        if (s === 'COMPLETED') return 'text-emerald-500 dark:text-emerald-400 font-bold';
-        if (s === 'IN_PROGRESS') return 'text-blue-500 dark:text-blue-400 font-bold';
-        return 'text-amber-500 dark:text-amber-400 font-bold';
     };
 
     const formatDateTime = (dateStr, timestamp) => {
@@ -82,9 +67,9 @@ export default function CrudTablePekerjaan({
             },
             {
                 key: 'nama_pekerjaan',
-                label: 'Uraian Item Pekerjaan Fisik',
+                label: 'Uraian Laporan Pekerjaan Fisik',
                 render: (item) => (
-                    <div className="max-w-[280px] sm:max-w-[360px] whitespace-normal break-words text-xs text-slate-700 dark:text-slate-300 leading-relaxed py-1">
+                    <div className="max-w-[320px] sm:max-w-[420px] whitespace-normal break-words text-xs text-slate-700 dark:text-slate-300 leading-relaxed py-1">
                         <span className="font-semibold text-slate-900 dark:text-white block">
                             {item.nama_pekerjaan}
                         </span>
@@ -106,45 +91,8 @@ export default function CrudTablePekerjaan({
                 ),
             },
             {
-                key: 'bobot',
-                label: 'Bobot Kontrak',
-                render: (item) => (
-                    <span className="font-mono font-bold text-xs text-slate-800 dark:text-slate-200">
-                        {Number(item.bobot || 0).toFixed(2)}%
-                    </span>
-                ),
-            },
-            {
-                key: 'progres_riil',
-                label: 'Realisasi Progres Fisik',
-                render: (item) => {
-                    const prog = Number(item.progress_percent || 0);
-                    const statusText = item.status || (prog >= 100 ? 'COMPLETED' : prog > 0 ? 'IN_PROGRESS' : 'PLANNING');
-                    return (
-                        <div className="flex flex-col gap-1 min-w-[130px]">
-                            <div className="flex items-center justify-between">
-                                <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200">
-                                    {prog.toFixed(1)}%
-                                </span>
-                                <span className={`text-[10px] font-mono uppercase ${getStatusTextColor(statusText)}`}>
-                                    {statusText}
-                                </span>
-                            </div>
-                            <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                                <div
-                                    className={`h-full rounded-full transition-all duration-300 ${
-                                        prog >= 100 ? 'bg-emerald-500' : 'bg-blue-600 dark:bg-amber-400'
-                                    }`}
-                                    style={{ width: `${Math.min(100, prog)}%` }}
-                                />
-                            </div>
-                        </div>
-                    );
-                },
-            },
-            {
                 key: 'foto_bukti',
-                label: 'Foto Bukti',
+                label: 'Eviden Foto',
                 render: (item) => {
                     const isIssue = String(item.tipe_foto || '').toUpperCase() === 'ISSUE';
 
@@ -175,13 +123,12 @@ export default function CrudTablePekerjaan({
                                 </div>
                             )}
 
-                            {/* Label Indikator Tipe Foto */}
                             <span className={`text-[9px] font-mono font-black uppercase tracking-wider ${
                                 isIssue 
                                     ? 'text-rose-500 dark:text-rose-400' 
                                     : 'text-blue-500 dark:text-blue-400'
                             }`}>
-                                {isIssue ? 'Issue' : 'Progres'}
+                                {isIssue ? 'Issue' : 'Eviden'}
                             </span>
                         </div>
                     );
@@ -189,12 +136,12 @@ export default function CrudTablePekerjaan({
             },
             {
                 key: 'tanggal_pic',
-                label: 'Tanggal & PIC',
+                label: 'Waktu Lapor & PIC',
                 render: (item) => (
                     <div className="flex flex-col text-xs leading-tight">
                         <div className="flex items-center gap-1 font-mono text-[11px] text-slate-700 dark:text-slate-300">
                             <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
-                            <span>{formatDateTime(item.tanggal_pekerjaan, item.updated_at || item.created_at)}</span>
+                            <span>{formatDateTime(item.tanggal_pekerjaan, item.created_at)}</span>
                         </div>
                         <span className="text-[10px] text-slate-400 mt-0.5">
                             {item.pic_user?.name || 'Waslap Lapangan'}
@@ -218,10 +165,9 @@ export default function CrudTablePekerjaan({
                 getItemId={getItemId}
                 getRowNumber={getRowNumber}
                 zoomLevel={zoomLevel}
-                emptyMessage="Belum ada rincian item pekerjaan WBS pada site ini."
+                emptyMessage="Belum ada laporan pekerjaan fisik pada site ini."
             />
 
-            {/* Modal Pratinjau Foto Cloudinary */}
             {previewPhoto && (
                 <div
                     className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"

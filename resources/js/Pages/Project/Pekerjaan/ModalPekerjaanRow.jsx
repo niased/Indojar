@@ -8,9 +8,6 @@ import {
     X, 
     Calendar, 
     Camera,
-    Sliders,
-    Minus,
-    Plus,
     AlertTriangle,
     CheckCircle2
 } from 'lucide-react';
@@ -29,45 +26,18 @@ export default function ModalPekerjaanRow({
     onRowFileChange,
     onRemoveRowPhoto,
 }) {
-    const handleProgressChange = (val) => {
-        const parsed = parseFloat(val);
-        const nextVal = isNaN(parsed) ? 0 : Math.min(100, Math.max(0, parsed));
-        const nextStatus = nextVal >= 100 ? 'COMPLETED' : nextVal > 0 ? 'IN_PROGRESS' : 'PLANNING';
-        
-        onFieldChange(rowIdx, 'progress_percent', nextVal);
-        onFieldChange(rowIdx, 'status', nextStatus);
-    };
-
-    const handleProgressStep = (delta) => {
-        const current = parseFloat(item.progress_percent) || 0;
-        handleProgressChange(current + delta);
-    };
-
-    const handleBobotChange = (val) => {
-        const parsed = parseFloat(val);
-        const nextVal = isNaN(parsed) ? 0 : Math.min(100, Math.max(0, parsed));
-        onFieldChange(rowIdx, 'bobot', nextVal);
-    };
-
-    const handleBobotStep = (delta) => {
-        const current = parseFloat(item.bobot) || 0;
-        const nextVal = Math.min(100, Math.max(0, Number((current + delta).toFixed(2))));
-        onFieldChange(rowIdx, 'bobot', nextVal);
-    };
-
-    const currentProgress = parseFloat(item.progress_percent) || 0;
     const isIssueType = item.tipe_foto === 'ISSUE';
 
     return (
-        <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/40 relative group space-y-4 transition-all shadow-xs">
+        <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/40 relative group space-y-3.5 transition-all shadow-xs">
             {/* Header Baris */}
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700/80 pb-2.5">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700/80 pb-2">
                 <div className="flex items-center gap-2">
                     <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-600/10 text-blue-600 dark:text-blue-400 font-bold text-xs font-mono">
                         {rowIdx + 1}
                     </span>
                     <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                        Item Pekerjaan #{rowIdx + 1}
+                        Laporan Pekerjaan #{rowIdx + 1}
                     </span>
                 </div>
 
@@ -84,7 +54,7 @@ export default function ModalPekerjaanRow({
                 )}
             </div>
 
-            {/* Kolom 1: Tahapan Konstruksi & Kode WBS */}
+            {/* Baris 1: Tahapan Konstruksi & Kode WBS */}
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
                 <div className="sm:col-span-8 space-y-1">
                     <Label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">
@@ -117,11 +87,11 @@ export default function ModalPekerjaanRow({
                 </div>
             </div>
 
-            {/* Kolom 2: Uraian Pekerjaan & Satuan */}
+            {/* Baris 2: Uraian Pekerjaan, Satuan, & Tanggal */}
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                <div className="sm:col-span-9 space-y-1">
+                <div className="sm:col-span-6 space-y-1">
                     <Label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">
-                        Uraian Pekerjaan Fisik *
+                        Uraian Laporan Fisik *
                     </Label>
                     <Input
                         disabled={isProcessing}
@@ -147,127 +117,24 @@ export default function ModalPekerjaanRow({
                         inputClassName="h-8 text-xs font-semibold"
                     />
                 </div>
-            </div>
 
-            {/* Kolom 3: Tanggal Pelaksanaan & Bobot Kontrak (2 Kolom Lebar) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1">
+                <div className="sm:col-span-3 space-y-1">
                     <Label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                        <Calendar className="w-3 h-3 text-slate-500 dark:text-slate-400" />
-                        <span>Tanggal Pelaksanaan *</span>
+                        <Calendar className="w-3 h-3 text-slate-400" />
+                        <span>Tanggal Lapor *</span>
                     </Label>
                     <Input
                         type="date"
                         disabled={isProcessing}
                         value={item.tanggal_pekerjaan}
                         onChange={(e) => onFieldChange(rowIdx, 'tanggal_pekerjaan', e.target.value)}
-                        className="h-8 text-xs bg-white dark:bg-slate-900 font-mono cursor-pointer text-slate-800 dark:text-slate-200 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert-0 dark:[&::-webkit-calendar-picker-indicator]:invert"
+                        className="h-8 text-xs bg-white dark:bg-slate-900 font-mono cursor-pointer"
                         required
                     />
                 </div>
-
-                <div className="space-y-1">
-                    <Label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">
-                        Bobot Kontrak (%) *
-                    </Label>
-                    <div className="flex items-center">
-                        <button
-                            type="button"
-                            disabled={isProcessing || (parseFloat(item.bobot) || 0) <= 0}
-                            onClick={() => handleBobotStep(-1)}
-                            className="h-8 w-8 rounded-l-lg border border-r-0 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-600 dark:text-slate-300 flex items-center justify-center font-bold text-xs disabled:opacity-40 cursor-pointer"
-                        >
-                            <Minus className="w-3 h-3" />
-                        </button>
-                        <Input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            max="100"
-                            disabled={isProcessing}
-                            value={item.bobot}
-                            onFocus={(e) => e.target.select()}
-                            onChange={(e) => handleBobotChange(e.target.value)}
-                            placeholder="10.00"
-                            className="h-8 w-full text-center font-mono font-bold text-xs bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 rounded-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            required
-                        />
-                        <button
-                            type="button"
-                            disabled={isProcessing || (parseFloat(item.bobot) || 0) >= 100}
-                            onClick={() => handleBobotStep(1)}
-                            className="h-8 w-8 rounded-r-lg border border-l-0 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-600 dark:text-slate-300 flex items-center justify-center font-bold text-xs disabled:opacity-40 cursor-pointer"
-                        >
-                            <Plus className="w-3 h-3" />
-                        </button>
-                    </div>
-                </div>
             </div>
 
-            {/* Kolom 4: Bar Progres Interaktif Berwarna */}
-            <div className="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3">
-                <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5 font-semibold text-slate-700 dark:text-slate-300">
-                        <Sliders className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                        <span>Realisasi Progres Fisik:</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-1.5">
-                        <button
-                            type="button"
-                            disabled={isProcessing || currentProgress <= 0}
-                            onClick={() => handleProgressStep(-5)}
-                            className="h-7 w-7 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center font-bold text-xs disabled:opacity-40 cursor-pointer transition-colors"
-                            title="Kurang 5%"
-                        >
-                            <Minus className="w-3 h-3" />
-                        </button>
-                        
-                        <div className="relative w-16">
-                            <Input
-                                type="number"
-                                min={0}
-                                max={100}
-                                step="1"
-                                disabled={isProcessing}
-                                value={item.progress_percent}
-                                onFocus={(e) => e.target.select()}
-                                onChange={(e) => handleProgressChange(e.target.value)}
-                                className="h-7 px-1 text-center font-mono font-bold text-xs bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-700 rounded-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            />
-                        </div>
-                        <span className="text-xs font-bold font-mono text-blue-600 dark:text-blue-400">%</span>
-
-                        <button
-                            type="button"
-                            disabled={isProcessing || currentProgress >= 100}
-                            onClick={() => handleProgressStep(5)}
-                            className="h-7 w-7 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center font-bold text-xs disabled:opacity-40 cursor-pointer transition-colors"
-                            title="Tambah 5%"
-                        >
-                            <Plus className="w-3 h-3" />
-                        </button>
-                    </div>
-                </div>
-
-                <div className="py-1">
-                    <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        step="1"
-                        disabled={isProcessing}
-                        value={currentProgress}
-                        onChange={(e) => handleProgressChange(e.target.value)}
-                        style={{
-                            background: `linear-gradient(to right, #2563eb 0%, #2563eb ${currentProgress}%, #334155 ${currentProgress}%, #334155 100%)`
-                        }}
-                        className="w-full h-2.5 rounded-lg appearance-none cursor-pointer focus:outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600 [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer"
-                    />
-                </div>
-            </div>
-
-            {/* Kolom 5: Foto Dokumen / Issue & Catatan Lapangan */}
+            {/* Baris 3: Eviden Foto & Catatan Lapangan */}
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-1">
                 <div className="sm:col-span-5 space-y-2">
                     <div className="flex items-center justify-between">
@@ -276,7 +143,6 @@ export default function ModalPekerjaanRow({
                             <span>Unggah Foto</span>
                         </Label>
 
-                        {/* Switcher Jenis Foto: Progres vs Issue */}
                         <div className="flex items-center p-0.5 bg-slate-200 dark:bg-slate-900 rounded-lg border border-slate-300 dark:border-slate-700 text-[10px] font-bold">
                             <button
                                 type="button"
@@ -288,7 +154,7 @@ export default function ModalPekerjaanRow({
                                 }`}
                             >
                                 <CheckCircle2 className="w-3 h-3" />
-                                <span>Progres</span>
+                                <span>Eviden</span>
                             </button>
                             <button
                                 type="button"
@@ -319,7 +185,7 @@ export default function ModalPekerjaanRow({
                                     {item.foto_file?.name || 'Foto Terpilih'}
                                 </span>
                                 <span className={`text-[9px] font-semibold ${isIssueType ? 'text-rose-500' : 'text-blue-500'}`}>
-                                    {isIssueType ? 'Akan masuk ke Tab Issue' : 'Akan masuk ke Tab Foto'}
+                                    {isIssueType ? 'Akan masuk ke Tab Kendala' : 'Akan masuk ke Tab Foto'}
                                 </span>
                             </div>
                             <button
@@ -339,7 +205,7 @@ export default function ModalPekerjaanRow({
                         } cursor-pointer text-xs transition-all`}>
                             <Upload className="w-4 h-4" />
                             <span className="text-[11px] font-bold">
-                                {isIssueType ? 'Unggah Bukti Kendala (Issue)' : 'Unggah Foto Progres'}
+                                {isIssueType ? 'Unggah Bukti Kendala (Issue)' : 'Unggah Foto Eviden'}
                             </span>
                             <input
                                 type="file"
@@ -353,14 +219,14 @@ export default function ModalPekerjaanRow({
 
                 <div className="sm:col-span-7 space-y-1">
                     <Label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">
-                        {isIssueType ? 'Deskripsi Kendala / Catatan Isu Lapangan *' : 'Catatan Teknis / Keterangan Lapangan'}
+                        {isIssueType ? 'Deskripsi Kendala Lapangan *' : 'Catatan Teknis / Keterangan Lapangan'}
                     </Label>
                     <textarea
                         rows={3}
                         disabled={isProcessing}
                         value={item.catatan}
                         onChange={(e) => onFieldChange(rowIdx, 'catatan', e.target.value)}
-                        placeholder={isIssueType ? 'Jelaskan kendala lapangan, penyebab hambatan, atau instruksi perbaikan...' : 'Contoh: Slump test 12±2 cm, pengecoran berjalan lancar sesuai spesifikasi...'}
+                        placeholder={isIssueType ? 'Jelaskan kendala lapangan atau penyebab hambatan...' : 'Contoh: Pengecoran berjalan lancar sesuai spesifikasi teknis...'}
                         className={`w-full p-2.5 text-xs bg-white dark:bg-slate-900 border ${
                             isIssueType ? 'border-rose-300 dark:border-rose-800 focus:ring-rose-500' : 'border-slate-200 dark:border-slate-700 focus:ring-blue-500'
                         } rounded-xl focus:outline-none focus:ring-1 resize-none`}

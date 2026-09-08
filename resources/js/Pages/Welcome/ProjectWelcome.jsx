@@ -1,319 +1,393 @@
 // resources/js/Pages/Welcome/ProjectWelcome.jsx
 
-import React, { useState } from 'react';
+import React from 'react';
 
 import img1 from '@/../images/b2s.jpg';
 import img2 from '@/../images/ptindojar3.jpg';
 import img3 from '@/../images/colo.jpg';
+import img4 from '@/../images/ptindojar.jpg';
+import img5 from '@/../images/ptindojar2.jpg';
 
-const projectImages = [img1, img2, img3, img1, img2, img3, img1, img2];
+import ProjectStatsWelcome from './ProjectStatsWelcome';
+
+const projectImages = [
+    img1,
+    img2,
+    img3,
+    img4,
+    img5,
+    img1,
+];
+
+function ProjectMosaic() {
+    return (
+        <div className="project-mosaic">
+            {/* =====================================================
+                FOTO 1
+                BESAR KIRI ATAS
+            ===================================================== */}
+            <div className="project-photo photo-1">
+                <img
+                    src={projectImages[0]}
+                    alt="Dokumentasi proyek PT Indojar Mulia Abadi"
+                />
+            </div>
+
+            {/* =====================================================
+                FOTO 2
+                ATAS TENGAH
+            ===================================================== */}
+            <div className="project-photo photo-2">
+                <img
+                    src={projectImages[1]}
+                    alt="Dokumentasi proyek PT Indojar Mulia Abadi"
+                />
+            </div>
+
+            {/* =====================================================
+                FOTO 3
+                TENGAH BAWAH
+            ===================================================== */}
+            <div className="project-photo photo-3">
+                <img
+                    src={projectImages[2]}
+                    alt="Dokumentasi proyek PT Indojar Mulia Abadi"
+                />
+            </div>
+
+            {/* =====================================================
+                FOTO 4
+                VERTIKAL KANAN — 2 BARIS
+            ===================================================== */}
+            <div className="project-photo photo-4">
+                <img
+                    src={projectImages[3]}
+                    alt="Dokumentasi proyek PT Indojar Mulia Abadi"
+                />
+            </div>
+
+            {/* =====================================================
+                FOTO 5
+                KIRI BAWAH
+            ===================================================== */}
+            <div className="project-photo photo-5">
+                <img
+                    src={projectImages[4]}
+                    alt="Dokumentasi proyek PT Indojar Mulia Abadi"
+                />
+            </div>
+
+            {/* =====================================================
+                FOTO 6
+                TENGAH BAWAH
+            ===================================================== */}
+            <div className="project-photo photo-6">
+                <img
+                    src={projectImages[5]}
+                    alt="Dokumentasi proyek PT Indojar Mulia Abadi"
+                />
+            </div>
+        </div>
+    );
+}
 
 export default function ProjectWelcome({ t }) {
-    const [activeTab, setActiveTab] = useState('b2s');
-    const [activeProject, setActiveProject] = useState(0);
-
-    const b2sList = [
-        { site: 'Panguragan Kulon', city: 'Cirebon', province: 'Jawa Barat', scope: 'SST 52M B2S SACME' },
-        { site: 'Cilangkap', city: 'Depok', province: 'Jawa Barat', scope: 'Monopole 30M SACME' },
-        { site: 'Ciomas Kota Baru', city: 'Bogor', province: 'Jawa Barat', scope: 'SST 42M B2S SACME' },
-        { site: 'Katulampa', city: 'Bogor', province: 'Jawa Barat', scope: 'SST 52M B2S SACME' },
-        { site: 'Batujajar', city: 'Bandung', province: 'Jawa Barat', scope: 'SST 42M B2S SACME' },
-        { site: 'Bahagia Babelan', city: 'Bekasi', province: 'Jawa Barat', scope: 'SST 52M B2S SACME' },
-        { site: 'Sukadanau Cikarang', city: 'Bekasi', province: 'Jawa Barat', scope: 'SST 52M B2S SACME' },
-        { site: 'Bengle Majalaya', city: 'Karawang', province: 'Jawa Barat', scope: 'SST 52M B2S SACME' },
-    ];
-
-    const strList = [
-        { site: 'Kawali Linggapura', city: 'Ciamis', province: 'Jawa Barat', scope: 'Re-Bracing & Member' },
-        { site: 'Cipaku Selamanik', city: 'Ciamis', province: 'Jawa Barat', scope: 'Strengthening Leg 1-4' },
-        { site: 'Curug Serang', city: 'Serang', province: 'Banten', scope: 'Member Replacement' },
-        { site: 'Raya Kresek', city: 'Tangerang', province: 'Banten', scope: 'Strengthening SST' },
-        { site: 'Mayor Oking Citeureup', city: 'Bogor', province: 'Jawa Barat', scope: 'Antenna Mount Support' },
-        { site: 'Rorotan', city: 'Jakarta Utara', province: 'DKI Jakarta', scope: 'Strengthening & CME' },
-        { site: 'Dumai Harbor', city: 'Dumai', province: 'Riau Mainland', scope: 'Tower Strengthening' },
-        { site: 'Tabek Patah', city: 'Tanah Datar', province: 'Sumatera Barat', scope: 'Tower Strengthening' },
-    ];
-
-    const projectList = activeTab === 'b2s' ? b2sList : strList;
-    const current = projectList[activeProject % projectList.length];
-
-    const changeTab = (tab) => {
-        setActiveTab(tab);
-        setActiveProject(0);
-    };
-
-    const selectProject = (index) => {
-        setActiveProject(index);
-    };
+    const lang = t?.lang || 'id';
 
     return (
         <section
             id="portofolio"
-            className="relative overflow-hidden border-b border-[#d5ad59]/20 bg-[#061b14] py-20 sm:py-24"
+            className="
+                relative
+                w-full
+                overflow-hidden
+                bg-transparent
+            "
         >
-            <div
-                className="pointer-events-none absolute inset-0 opacity-[0.025]"
-                style={{
-                    backgroundImage: `
-                        linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px)
-                    `,
-                    backgroundSize: '72px 72px',
-                }}
-            />
-
-            <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-                <header className="mb-12 max-w-3xl">
-                    <span className="mb-3 block text-[10px] font-semibold uppercase tracking-[0.28em] text-amber-300 sm:text-xs">
-                        {t.projects.tag}
-                    </span>
-
-                    <h2 className="font-heading text-3xl font-bold uppercase leading-none tracking-[-0.04em] text-white sm:text-4xl lg:text-5xl">
-                        {t.projects.title}
-                    </h2>
-
-                    <div className="mt-5 h-px w-16 bg-[#d5ad59]" />
-
-                    <p className="mt-5 max-w-2xl text-sm leading-7 text-white/60 sm:text-base">
-                        {t.projects.subtitle}
-                    </p>
-                </header>
-
-                <div className="mb-8 flex border-b border-white/10">
-                    <button
-                        type="button"
-                        onClick={() => changeTab('b2s')}
-                        className={`border-b-2 px-1 pb-4 mr-8 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors ${
-                            activeTab === 'b2s'
-                                ? 'border-amber-300 text-amber-300'
-                                : 'border-transparent text-white/35 hover:text-white/70'
-                        }`}
-                    >
-                        {t.projects.b2sTab}
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => changeTab('str')}
-                        className={`border-b-2 px-1 pb-4 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors ${
-                            activeTab === 'str'
-                                ? 'border-amber-300 text-amber-300'
-                                : 'border-transparent text-white/35 hover:text-white/70'
-                        }`}
-                    >
-                        {t.projects.strTab}
-                    </button>
-                </div>
-
-                <div
-                    key={`${activeTab}-${activeProject}`}
-                    className="project-reveal grid border border-[#d5ad59]/50 bg-[#0a3524] lg:grid-cols-[1.35fr_0.65fr]"
-                >
-                    <div className="relative min-h-[360px] overflow-hidden bg-[#08291d] sm:min-h-[480px] lg:min-h-[570px]">
-                        <img
-                            src={projectImages[activeProject % projectImages.length]}
-                            alt={current.site}
-                            className="h-full w-full object-cover"
-                        />
-
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#03160e]/50 via-transparent to-transparent" />
-
-                        <div className="absolute bottom-6 left-6 sm:bottom-8 sm:left-8">
-                            <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/70">
-                                {String(activeProject + 1).padStart(2, '0')} /{' '}
-                                {String(projectList.length).padStart(2, '0')}
-                            </span>
-                        </div>
+            {/* =====================================================
+                PROJECT GALLERY
+            ===================================================== */}
+            <div className="project-gallery">
+                <div className="project-gallery-track">
+                    {/* =================================================
+                        GROUP 1
+                    ================================================= */}
+                    <div className="project-gallery-group">
+                        <ProjectMosaic />
                     </div>
 
-                    <div className="flex flex-col justify-between bg-[#075d35] p-7 sm:p-10 lg:p-12">
-                        <div>
-                            <div className="flex items-center gap-3">
-                                <span className="h-px w-8 bg-amber-300" />
-
-                                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-300">
-                                    {activeTab === 'b2s'
-                                        ? 'B2S SACME'
-                                        : 'Tower Strengthening'}
-                                </span>
-                            </div>
-
-                            <h3 className="mt-7 font-heading text-4xl font-bold leading-[0.95] tracking-[-0.04em] text-white sm:text-5xl">
-                                {current.site}
-                            </h3>
-
-                            <p className="mt-4 text-sm font-medium uppercase tracking-[0.08em] text-white/55">
-                                {current.city} · {current.province}
-                            </p>
-
-                            <div className="mt-7 h-px w-14 bg-amber-300" />
-
-                            <p className="mt-6 text-sm leading-7 text-white/75 sm:text-base">
-                                {current.scope}
-                            </p>
-                        </div>
-
-                        <div className="mt-10 border-t border-white/10 pt-5">
-                            <div className="flex items-end justify-between gap-4">
-                                <div>
-                                    <span className="block text-[9px] uppercase tracking-[0.18em] text-white/40">
-                                        Project Location
-                                    </span>
-
-                                    <span className="mt-1 block text-sm font-semibold text-white">
-                                        {current.city}, {current.province}
-                                    </span>
-                                </div>
-
-                                <span className="text-4xl font-bold tracking-tight text-white/10">
-                                    {String(activeProject + 1).padStart(2, '0')}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
-                    {projectList.map((item, index) => (
-                        <button
-                            key={`${activeTab}-${item.site}`}
-                            type="button"
-                            onClick={() => selectProject(index)}
-                            className={`group relative overflow-hidden border text-left transition-all duration-300 ${
-                                activeProject === index
-                                    ? 'border-amber-300'
-                                    : 'border-white/10 hover:border-white/30'
-                            }`}
-                        >
-                            <div className="relative h-20 overflow-hidden sm:h-24">
-                                <img
-                                    src={projectImages[index % projectImages.length]}
-                                    alt={item.site}
-                                    className={`h-full w-full object-cover transition duration-500 ${
-                                        activeProject === index
-                                            ? 'scale-100 opacity-100'
-                                            : 'scale-105 opacity-35 group-hover:opacity-65'
-                                    }`}
-                                />
-
-                                <div className="absolute inset-0 bg-[#03160e]/35" />
-
-                                <span
-                                    className={`absolute bottom-2 left-2 text-[9px] font-bold tracking-[0.12em] ${
-                                        activeProject === index
-                                            ? 'text-amber-300'
-                                            : 'text-white/50'
-                                    }`}
-                                >
-                                    {String(index + 1).padStart(2, '0')}
-                                </span>
-                            </div>
-
-                            <div className="min-h-10 bg-[#08291d] px-2 py-2">
-                                <span className="block truncate text-[9px] font-medium text-white/60">
-                                    {item.site}
-                                </span>
-                            </div>
-                        </button>
-                    ))}
-                </div>
-
-                <div className="mt-20">
-                    <div className="mb-6 flex items-end justify-between border-b border-white/10 pb-4">
-                        <div>
-                            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-300">
-                                Project Directory
-                            </span>
-
-                            <h3 className="mt-2 text-xl font-bold text-white sm:text-2xl">
-                                {activeTab === 'b2s'
-                                    ? t.projects.b2sTab
-                                    : t.projects.strTab}
-                            </h3>
-                        </div>
-
-                        <span className="text-xs text-white/35">
-                            {projectList.length} Projects
-                        </span>
-                    </div>
-
-                    <div className="overflow-x-auto border border-white/10">
-                        <table className="w-full min-w-[700px] text-left">
-                            <thead className="border-b border-white/10 bg-[#0a2b1e] text-[9px] font-semibold uppercase tracking-[0.14em] text-white/40">
-                                <tr>
-                                    <th className="px-5 py-4">No</th>
-                                    <th className="px-5 py-4">
-                                        {t.projects.thSite}
-                                    </th>
-                                    <th className="px-5 py-4">
-                                        {t.projects.thCity}
-                                    </th>
-                                    <th className="px-5 py-4">
-                                        {t.projects.thProvince}
-                                    </th>
-                                    <th className="px-5 py-4 text-right">
-                                        {t.projects.thScope}
-                                    </th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {projectList.map((item, index) => (
-                                    <tr
-                                        key={`directory-${activeTab}-${item.site}`}
-                                        onClick={() => selectProject(index)}
-                                        className={`cursor-pointer border-b border-white/[0.06] transition-colors last:border-0 ${
-                                            activeProject === index
-                                                ? 'bg-[#0d4930]'
-                                                : 'hover:bg-white/[0.025]'
-                                        }`}
-                                    >
-                                        <td className="px-5 py-4 font-mono text-xs text-white/30">
-                                            {String(index + 1).padStart(2, '0')}
-                                        </td>
-
-                                        <td className="px-5 py-4 text-xs font-semibold text-white sm:text-sm">
-                                            {item.site}
-                                        </td>
-
-                                        <td className="px-5 py-4 text-xs text-white/60 sm:text-sm">
-                                            {item.city}
-                                        </td>
-
-                                        <td className="px-5 py-4 text-xs text-white/45 sm:text-sm">
-                                            {item.province}
-                                        </td>
-
-                                        <td className="px-5 py-4 text-right text-[10px] font-medium uppercase tracking-[0.06em] text-amber-300/80 sm:text-xs">
-                                            {item.scope}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    {/* =================================================
+                        GROUP 2
+                        DUPLIKAT UNTUK LOOPING SEAMLESS
+                    ================================================= */}
+                    <div className="project-gallery-group">
+                        <ProjectMosaic />
                     </div>
                 </div>
             </div>
 
+            {/* =====================================================
+                PROJECT STATUS
+                DIPISAH KE COMPONENT SENDIRI
+            ===================================================== */}
+            <ProjectStatsWelcome lang={lang} />
+
+            {/* =====================================================
+                GALLERY STYLES
+            ===================================================== */}
             <style>{`
-                .project-reveal {
-                    animation: projectReveal 650ms cubic-bezier(.22,.8,.2,1) both;
+                /* =================================================
+                   PROJECT GALLERY
+                ================================================= */
+
+                .project-gallery {
+                    width: 100%;
+                    overflow: hidden;
+                    background: transparent;
                 }
 
-                @keyframes projectReveal {
+                .project-gallery-track {
+                    display: flex;
+                    width: max-content;
+
+                    animation:
+                        projectGalleryRight
+                        34s
+                        linear
+                        infinite;
+
+                    will-change: transform;
+                }
+
+                .project-gallery-group {
+                    width: 100vw;
+                    min-width: 100vw;
+                    flex-shrink: 0;
+                }
+
+                /* =================================================
+                   MOSAIC
+                ================================================= */
+
+                .project-mosaic {
+                    display: grid;
+
+                    /*
+                     * 4 kolom
+                     * 2 baris
+                     *
+                     * Semua posisi foto ditentukan manual
+                     * supaya tidak pernah membuat baris ke-3.
+                     */
+                    grid-template-columns:
+                        minmax(180px, 1.25fr)
+                        minmax(150px, 0.9fr)
+                        minmax(150px, 0.9fr)
+                        minmax(180px, 1.15fr);
+
+                    grid-template-rows:
+                        280px
+                        240px;
+
+                    width: 100%;
+                    gap: 4px;
+
+                    background: transparent;
+                }
+
+                /* =================================================
+                   FOTO
+                ================================================= */
+
+                .project-photo {
+                    position: relative;
+
+                    min-width: 0;
+                    min-height: 0;
+
+                    overflow: hidden;
+
+                    background: transparent;
+                }
+
+                .project-photo img {
+                    display: block;
+
+                    width: 100%;
+                    height: 100%;
+
+                    object-fit: cover;
+
+                    transition:
+                        transform 800ms cubic-bezier(.22,.8,.2,1),
+                        filter 500ms ease;
+                }
+
+                .project-photo:hover img {
+                    transform: scale(1.035);
+                    filter: brightness(1.05);
+                }
+
+                /* =================================================
+                   POSISI FOTO
+                ================================================= */
+
+                /*
+                 * FOTO 1
+                 * Besar kiri atas
+                 */
+                .photo-1 {
+                    grid-column: 1 / span 2;
+                    grid-row: 1;
+                }
+
+                /*
+                 * FOTO 2
+                 * Atas tengah
+                 */
+                .photo-2 {
+                    grid-column: 3;
+                    grid-row: 1;
+                }
+
+                /*
+                 * FOTO 3
+                 * Tengah bawah
+                 */
+                .photo-3 {
+                    grid-column: 3;
+                    grid-row: 2;
+                }
+
+                /*
+                 * FOTO 4
+                 * Kanan dan memanjang 2 baris
+                 */
+                .photo-4 {
+                    grid-column: 4;
+                    grid-row: 1 / span 2;
+                }
+
+                /*
+                 * FOTO 5
+                 * Kiri bawah
+                 */
+                .photo-5 {
+                    grid-column: 1;
+                    grid-row: 2;
+                }
+
+                /*
+                 * FOTO 6
+                 * Tengah bawah
+                 */
+                .photo-6 {
+                    grid-column: 2;
+                    grid-row: 2;
+                }
+
+                /* =================================================
+                   OVERLAY TIPIS
+                ================================================= */
+
+                .project-photo::after {
+                    content: '';
+
+                    position: absolute;
+                    inset: 0;
+
+                    pointer-events: none;
+
+                    background:
+                        linear-gradient(
+                            to bottom,
+                            rgba(3, 26, 20, 0.015),
+                            rgba(3, 26, 20, 0.08)
+                        );
+                }
+
+                /* =================================================
+                   MARQUEE
+                   Bergerak ke kanan
+                ================================================= */
+
+                @keyframes projectGalleryRight {
                     from {
-                        opacity: 0;
-                        transform: translateY(14px) scale(.985);
+                        transform: translateX(-100vw);
                     }
+
                     to {
-                        opacity: 1;
-                        transform: translateY(0) scale(1);
+                        transform: translateX(0);
                     }
                 }
+
+                /*
+                 * Saat mouse masuk ke gallery,
+                 * animasi berhenti.
+                 */
+                .project-gallery:hover
+                    .project-gallery-track {
+                    animation-play-state: paused;
+                }
+
+                /* =================================================
+                   TABLET
+                ================================================= */
+
+                @media (max-width: 1024px) {
+                    .project-mosaic {
+                        grid-template-columns:
+                            minmax(140px, 1.25fr)
+                            minmax(120px, 0.9fr)
+                            minmax(120px, 0.9fr)
+                            minmax(140px, 1.15fr);
+
+                        grid-template-rows:
+                            230px
+                            195px;
+                    }
+
+                    .project-gallery-track {
+                        animation-duration: 30s;
+                    }
+                }
+
+                /* =================================================
+                   MOBILE
+                ================================================= */
+
+                @media (max-width: 640px) {
+                    .project-mosaic {
+                        grid-template-columns:
+                            minmax(95px, 1.15fr)
+                            minmax(85px, 0.9fr)
+                            minmax(85px, 0.9fr)
+                            minmax(95px, 1fr);
+
+                        grid-template-rows:
+                            165px
+                            135px;
+
+                        gap: 3px;
+                    }
+
+                    .project-gallery-track {
+                        animation-duration: 25s;
+                    }
+                }
+
+                /* =================================================
+                   REDUCED MOTION
+                ================================================= */
 
                 @media (prefers-reduced-motion: reduce) {
-                    .project-reveal {
+                    .project-gallery-track {
                         animation: none;
+                        transform: translateX(0);
+                    }
+
+                    .project-photo img {
+                        transition: none;
                     }
                 }
             `}</style>

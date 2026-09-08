@@ -1,11 +1,17 @@
-import React from 'react';
-import { Edit3, Clock } from 'lucide-react';
+import React, { useState } from 'react';
+import { Edit3, Clock, Settings, Layers } from 'lucide-react';
+import { usePage } from '@inertiajs/react';
+import ModalProjectStages from './ModalProjectStages';
 
 export default function ProjectSidebar({
     project,
-    stageBreakdown = [],
+    masterStages = [],
     onOpenTimeline,
 }) {
+    const { auth } = usePage().props;
+    const canManageStages = auth?.user?.role === 'admin' || auth?.user?.role === 'staff';
+    const [isManageStagesOpen, setIsManageStagesOpen] = useState(false);
+
     const formatDate = (dateStr) => {
         if (!dateStr) return '-';
         try {
@@ -22,6 +28,7 @@ export default function ProjectSidebar({
     };
 
     const progressTotal = Number(project?.progress_percent || 0);
+    const activeProjectStages = project?.project_stages || [];
 
     const allMilestones = [
         { key: 'tgl_po', label: 'Surat Pesanan (PO)', date: project?.tgl_po },
@@ -116,37 +123,71 @@ export default function ProjectSidebar({
                     </div>
                 </div>
 
-                {/* Progres Per Tahapan Lengkap dengan Bobotnya */}
-                {stageBreakdown.length > 0 && (
-                    <div className="space-y-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                {/* PROGRES PER TAHAPAN DARI TABEL project_stages */}
+                <div className="space-y-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                    <div className="flex items-center justify-between">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
                             Progres per Tahapan Konstruksi
                         </span>
-                        <div className="space-y-2.5">
-                            {stageBreakdown.map((stage) => (
-                                <div key={stage.id || stage.name} className="space-y-1">
-                                    <div className="flex items-center justify-between text-xs">
-                                        <span className="font-semibold text-slate-700 dark:text-slate-300">
-                                            {stage.name}{' '}
-                                            <span className="text-[10px] text-slate-400 font-mono font-normal">
-                                                (Bobot: {stage.totalBobot}%)
-                                            </span>
-                                        </span>
-                                        <span className="font-mono text-[11px] font-bold text-blue-600 dark:text-blue-400">
-                                            {stage.progressPercent}%
-                                        </span>
-                                    </div>
-                                    <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-blue-600 dark:bg-amber-400 rounded-full transition-all duration-300"
-                                            style={{ width: `${stage.progressPercent}%` }}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                        {canManageStages && (
+                            <button
+                                type="button"
+                                onClick={() => setIsManageStagesOpen(true)}
+                                className="flex items-center gap-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+                            >
+                                <Settings className="w-3 h-3" />
+                                <span>Kelola Bobot</span>
+                            </button>
+                        )}
                     </div>
-                )}
+
+                    {activeProjectStages.length === 0 ? (
+                        <div className="py-3 px-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-center">
+                            <p className="text-[11px] text-slate-400">Belum ada tahapan yang diplot pada site ini.</p>
+                            {canManageStages && (
+                                <button
+                                    type="button"
+                                    onClick={() => setIsManageStagesOpen(true)}
+                                    className="mt-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"
+                                >
+                                    <Layers className="w-3 h-3" />
+                                    <span>Plot Tahapan Sekarang</span>
+                                </button>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="space-y-2.5">
+                            {activeProjectStages.map((ps) => {
+                                const prog = Number(ps.progress_percent || 0);
+                                const stageName = ps.stage?.nama_stage || 'Tahapan';
+
+                                return (
+                                    <div key={ps.id} className="space-y-1">
+                                        <div className="flex items-center justify-between text-xs">
+                                            <span className="font-semibold text-slate-700 dark:text-slate-300">
+                                                {stageName}{' '}
+                                                <span className="text-[10px] text-slate-400 font-mono font-normal">
+                                                    (Bobot: {ps.bobot}%)
+                                                </span>
+                                            </span>
+                                            <span className="font-mono text-[11px] font-bold text-blue-600 dark:text-blue-400">
+                                                {prog.toFixed(1)}%
+                                            </span>
+                                        </div>
+                                        <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                            <div
+                                                className={`h-full rounded-full transition-all duration-300 ${
+                                                    prog >= 100 ? 'bg-emerald-500' : 'bg-blue-600 dark:bg-amber-400'
+                                                }`}
+                                                style={{ width: `${Math.min(100, prog)}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
 
                 <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80 text-xs">
                     {specItems.map((spec) => (
@@ -205,6 +246,14 @@ export default function ProjectSidebar({
                     })}
                 </div>
             </div>
+
+            {/* Modal Kelola Tahapan & Bobot Proyek */}
+            <ModalProjectStages
+                isOpen={isManageStagesOpen}
+                onClose={() => setIsManageStagesOpen(false)}
+                project={project}
+                masterStages={masterStages}
+            />
         </div>
     );
 }
