@@ -17,6 +17,7 @@ import {
     Briefcase,
     Layers,
     FileSpreadsheet,
+    Mail,
     User as UserIcon,
     LogOut,
     Sun,
@@ -37,6 +38,7 @@ const ROUTE_FALLBACKS = {
     'project.index': '/project',
     'master-data.index': '/master-data',
     'laporan.index': '/laporan',
+    'emails.index': '/emails',
     'admin.users.index': '/admin/users',
     'profile.edit': '/profile',
     'logout': '/logout',
@@ -197,7 +199,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 <div className="absolute top-10 left-1/4 w-[600px] h-[600px] bg-blue-600/10 dark:bg-blue-600/15 rounded-full blur-[180px] pointer-events-none animate-pulse duration-1000 print:hidden" />
                 <div className="absolute top-1/3 right-10 w-[550px] h-[550px] bg-amber-500/10 dark:bg-amber-500/15 rounded-full blur-[190px] pointer-events-none print:hidden" />
 
-                {isPageLoading && <Loading message="Memproses Sistem PT Indojar Mulia Abadi..." />}
+                {isPageLoading && <Loading message="Memproses..." />}
 
                 {/* NAVBAR & HEADER */}
                 <header className="sticky top-0 z-50 w-full flex flex-col shadow-lg transition-all duration-300 relative group print:hidden">
@@ -342,7 +344,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <span>Master Proyek & Site</span>
                             </Link>
 
-                            {/* 3. Master Data Kamus (Area, SOW, Stage, Template Task) */}
+                            {/* 3. Master Data Kamus */}
                             <Link
                                 href={getRoute('master-data.index')}
                                 className={`flex items-center gap-2 px-1 h-full font-medium text-sm transition-all duration-200 outline-none border-b-[3px] ${
@@ -366,6 +368,19 @@ export default function AuthenticatedLayout({ header, children }) {
                             >
                                 <FileSpreadsheet className="w-4 h-4" />
                                 <span>Laporan Rekapitulasi</span>
+                            </Link>
+
+                            {/* 5. Kelola Email (Baru) */}
+                            <Link
+                                href={getRoute('emails.index')}
+                                className={`flex items-center gap-2 px-1 h-full font-medium text-sm transition-all duration-200 outline-none border-b-[3px] ${
+                                    checkActive('emails.index')
+                                        ? 'border-amber-400 text-amber-300 font-bold'
+                                        : 'border-transparent text-white/80 hover:text-white hover:border-white/50'
+                                }`}
+                            >
+                                <Mail className="w-4 h-4" />
+                                <span>Kelola Email</span>
                             </Link>
 
                         </nav>
@@ -415,6 +430,14 @@ export default function AuthenticatedLayout({ header, children }) {
                                 }`}
                             >
                                 <FileSpreadsheet className="w-4 h-4" /> Laporan Rekapitulasi
+                            </Link>
+                            <Link 
+                                href={getRoute('emails.index')} 
+                                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                                    checkActive('emails.index') ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                }`}
+                            >
+                                <Mail className="w-4 h-4" /> Kelola Email
                             </Link>
 
                             {user?.role === 'admin' && (

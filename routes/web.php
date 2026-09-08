@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EmailController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\MasterDataController;
 use App\Http\Controllers\PekerjaanController;
@@ -108,6 +109,13 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/bulk-delete', 'bulkDelete')->name('bulk-delete');
         Route::put('/{user}', 'update')->name('update');
         Route::delete('/{user}', 'destroy')->name('destroy');
+    });
+
+    // 13. Kelola Email (Resend API Integration)
+    Route::prefix('emails')->name('emails.')->controller(EmailController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/send', 'send')->name('send');
+        Route::delete('/{id}', 'destroy')->name('destroy');
     });
 });
 
