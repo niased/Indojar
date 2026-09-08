@@ -11,6 +11,7 @@ class EmailLog extends Model
 
     protected $fillable = [
         'user_id',
+        'sender',
         'recipient',
         'subject',
         'body',
@@ -22,6 +23,6 @@ class EmailLog extends Model
     // Relasi ke User yang mengirim email
     public function user()
     {
-        return $table = $this->belongsTo(User::class);
+        return $this->belongsTo(User::class);
     }
 }

@@ -37,7 +37,7 @@ export default function CrudTable({
         }
     };
 
-    // Kolom Riwayat Email Terkirim (Outbox) - Kolom AKSI kanan dihapus
+    // Kolom Riwayat Email Terkirim (Outbox)
     const outboxColumns = useMemo(() => [
         {
             key: 'recipient',
@@ -47,8 +47,8 @@ export default function CrudTable({
                     <span className="text-xs font-bold text-slate-800 dark:text-slate-200 font-mono">
                         {item.recipient}
                     </span>
-                    <span className="text-[10px] text-slate-400">
-                        Dikirim oleh: {item.user?.name || 'Sistem'}
+                    <span className="text-[10px] text-slate-400 font-mono">
+                        Dikirim oleh: {item.sender || 'admin@indojar.com'}
                     </span>
                 </div>
             ),
@@ -90,7 +90,7 @@ export default function CrudTable({
         },
     ], []);
 
-    // Kolom Kotak Masuk (Inbox) - Kolom AKSI kanan dihapus
+    // Kolom Kotak Masuk (Inbox)
     const inboxColumns = useMemo(() => [
         {
             key: 'sender',

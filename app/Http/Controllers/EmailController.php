@@ -20,7 +20,8 @@ class EmailController extends Controller
         $emailLogs = EmailLog::with('user:id,name,email')
             ->when($request->search, function ($query, $search) {
                 $query->where('recipient', 'like', "%{$search}%")
-                      ->orWhere('subject', 'like', "%{$search}%");
+                      ->orWhere('subject', 'like', "%{$search}%")
+                      ->orWhere('sender', 'like', "%{$search}%");
             })
             ->latest()
             ->paginate(10)
@@ -82,6 +83,7 @@ class EmailController extends Controller
             // 2. Simpan Riwayat Berhasil (Status: sent)
             EmailLog::create([
                 'user_id'   => Auth::id(),
+                'sender'    => $request->sender,
                 'recipient' => $request->recipient,
                 'subject'   => $request->subject,
                 'body'      => $request->body,
@@ -95,6 +97,7 @@ class EmailController extends Controller
             // 3. Simpan Riwayat Gagal (Status: failed)
             EmailLog::create([
                 'user_id'       => Auth::id(),
+                'sender'        => $request->sender,
                 'recipient'     => $request->recipient,
                 'subject'       => $request->subject,
                 'body'          => $request->body,
@@ -137,5 +140,40 @@ class EmailController extends Controller
         $email->delete();
 
         return back()->with('success', 'Email masuk berhasil dihapus.');
+    }
+
+    /**
+     * Menangkap Webhook dari Resend ketika ada email masuk (Inbound Email).
+     */
+    public function handleInboundWebhook(Request $request)
+    {
+        // Resend mengirim event tipe 'email.received' saat ada email masuk
+        $eventType = $request->input('type');
+
+        if ($eventType === 'email.received') {
+            $data = $request->input('data', []);
+
+            // Ekstrak data pengirim & penerima dari payload Resend
+            $fromEmail  = data_get($data, 'from');
+            $senderName = data_get($data, 'headers.from_name') ?? $fromEmail;
+            
+            $toEmail = data_get($data, 'to');
+            if (is_array($toEmail)) {
+                $toEmail = $toEmail[0] ?? 'admin@indojar.com';
+            }
+
+            // Simpan otomatis ke tabel inbound_emails
+            InboundEmail::create([
+                'from_email'  => $fromEmail,
+                'sender_name' => $senderName,
+                'to_email'    => $toEmail,
+                'subject'     => data_get($data, 'subject', '(Tanpa Subjek)'),
+                'html_body'   => data_get($data, 'html'),
+                'text_body'   => data_get($data, 'text'),
+                'is_read'     => false,
+            ]);
+        }
+
+        return response()->json(['status' => 'success'], 200);
     }
 }
