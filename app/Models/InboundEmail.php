@@ -36,6 +36,7 @@ class InboundEmail extends Model
      * Konversi tipe data otomatis (casting)
      */
     protected $casts = [
+        'id'      => 'string', // Mencegah kerusakan angka 19 digit (BigInt) di JavaScript/Inertia
         'is_read' => 'boolean',
     ];
 }

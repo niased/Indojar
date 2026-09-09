@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Head, useForm, router, Link } from '@inertiajs/react';
 import AuthenticatedLayout, { useConfirm } from '@/Layouts/AuthenticatedLayout';
 import TabEmail from './TabEmail';
-import Modal from '@/components/Modal';
+import Modal from '@/components/Modal'; // Pastikan huruf C besar jika foldernya Components
 import HybridDropdown from '@/components/HybridDropdown';
 import { Inbox as InboxIcon, Send, Trash2, Reply, Clock, User } from 'lucide-react';
 
@@ -44,12 +44,12 @@ export default function EmailInbox({ auth, inboundEmails, filters }) {
     };
 
     const handleOpenDetail = (emailItem) => {
-        // Optimistic update: langsung ubah is_read di state lokal
+        // Optimistic update: langsung ubah is_read di state lokal agar UI langsung berubah jadi "read"
         setSelectedEmail({ ...emailItem, is_read: true });
         setIsDetailOpen(true);
         setIsReplyMode(false);
 
-        // Kirim patch request jika status sebelumnya unread
+        // Kirim patch request ke server untuk mengubah status database tanpa me-refresh halaman/modal
         if (!emailItem.is_read) {
             router.patch(route('emails.inbound.read', emailItem.id), {}, {
                 preserveScroll: true,
@@ -181,7 +181,7 @@ export default function EmailInbox({ auth, inboundEmails, filters }) {
                                 <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                                     <button
                                         type="button"
-                                        onClick={() => handleDeleteInbound(selectedEmail.id)}
+                                        onClick={(e) => handleDeleteInbound(selectedEmail.id, e)}
                                         className="px-3 py-2 text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 rounded-xl transition font-semibold flex items-center gap-1.5 cursor-pointer"
                                     >
                                         <Trash2 className="w-3.5 h-3.5" />

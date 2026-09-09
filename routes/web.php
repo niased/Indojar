@@ -132,7 +132,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('emails')->name('emails.')->controller(EmailController::class)->group(function () {
         Route::get('/', 'index')->name('index');                           // Riwayat Outbox
         Route::get('/inbox', 'inbox')->name('inbox');                       // Kotak Masuk Inbox
-        Route::get('/inbound/{id}', 'showInbound')->name('inbound.show');   // Detail email inbound
+        // Route::get('/inbound/{id}', 'showInbound')->name('inbound.show'); // Dinonaktifkan (pakai Modal)
         Route::post('/send', 'send')->name('send');                         // Kirim email / Balas
         Route::patch('/inbound/{id}/read', 'markAsRead')->name('inbound.read'); // Tandai terbaca
         Route::delete('/inbound/{id}', 'destroyInbound')->name('inbound.destroy'); // Hapus inbound

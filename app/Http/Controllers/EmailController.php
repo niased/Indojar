@@ -7,6 +7,7 @@ use App\Models\InboundEmail;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Resend\Laravel\Facades\Resend;
 
@@ -51,23 +52,6 @@ class EmailController extends Controller
         return Inertia::render('Email/Inbox', [
             'inboundEmails' => $inboundEmails,
             'filters'       => $request->only(['search']),
-        ]);
-    }
-
-    /**
-     * Tampilkan detail email masuk dan otomatis tandai sebagai sudah dibaca (Read).
-     */
-    public function showInbound(int|string $id)
-    {
-        $email = InboundEmail::findOrFail($id);
-
-        // Otomatis ubah status is_read menjadi true jika belum dibaca
-        if (!$email->is_read) {
-            $email->update(['is_read' => true]);
-        }
-
-        return Inertia::render('Email/ShowInbound', [
-            'email' => $email,
         ]);
     }
 
@@ -126,14 +110,19 @@ class EmailController extends Controller
         }
     }
 
-    /**
+   /**
      * Tandai email masuk sebagai sudah dibaca (Read).
      */
-    public function markAsRead(int|string $id)
+    public function markAsRead($id)
     {
-        $email = InboundEmail::findOrFail($id);
-        $email->update(['is_read' => true]);
+        // Cari email berdasarkan ID
+        $email = InboundEmail::find($id);
+        
+        if ($email && !$email->is_read) {
+            $email->update(['is_read' => true]);
+        }
 
+        // Selalu kembalikan back() agar Inertia tidak error
         return back();
     }
 
