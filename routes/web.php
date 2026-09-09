@@ -120,6 +120,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('emails')->name('emails.')->controller(EmailController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/inbox', 'inbox')->name('inbox');
+        Route::get('/inbound/{id}', 'showInbound')->name('inbound.show'); // Rute baru untuk baca pesan & auto read
         Route::post('/send', 'send')->name('send');
         Route::patch('/inbound/{id}/read', 'markAsRead')->name('inbound.read');
         Route::delete('/inbound/{id}', 'destroyInbound')->name('inbound.destroy');

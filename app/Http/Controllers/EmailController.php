@@ -17,7 +17,6 @@ class EmailController extends Controller
      */
     public function index(Request $request)
     {
-        // Eloquent otomatis membaca koneksi email_db dari model EmailLog
         $emailLogs = EmailLog::with('user:id,name,email')
             ->when($request->search, function ($query, $search) {
                 $query->where('recipient', 'like', "%{$search}%")
@@ -39,7 +38,6 @@ class EmailController extends Controller
      */
     public function inbox(Request $request)
     {
-        // Eloquent otomatis membaca koneksi email_db dari model InboundEmail
         $inboundEmails = InboundEmail::query()
             ->when($request->search, function ($query, $search) {
                 $query->where('from_email', 'like', "%{$search}%")
@@ -53,6 +51,23 @@ class EmailController extends Controller
         return Inertia::render('Email/Inbox', [
             'inboundEmails' => $inboundEmails,
             'filters'       => $request->only(['search']),
+        ]);
+    }
+
+    /**
+     * Tampilkan detail email masuk dan otomatis tandai sebagai sudah dibaca (Read).
+     */
+    public function showInbound(int|string $id)
+    {
+        $email = InboundEmail::findOrFail($id);
+
+        // Otomatis ubah status is_read menjadi true jika belum dibaca
+        if (!$email->is_read) {
+            $email->update(['is_read' => true]);
+        }
+
+        return Inertia::render('Email/ShowInbound', [
+            'email' => $email,
         ]);
     }
 
