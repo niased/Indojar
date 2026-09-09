@@ -10,12 +10,16 @@ use Illuminate\Support\Facades\Log;
 class InboundEmailController extends Controller
 {
     /**
-     * Menangani webhook email masuk dari Cloudflare Worker
+     * Menangani webhook email masuk dari Cloudflare Worker / Postman
      */
     public function store(Request $request)
     {
-        // 1. Validasi Kunci Rahasia Pengaman (X-Webhook-Secret)
-        $secretKey = $request->header('X-Webhook-Secret');
+        // 1. Validasi Kunci Rahasia secara fleksibel (pemeriksaan header besar, kecil, & spasi)
+        $secretKey = $request->header('X-Webhook-Secret') 
+                  ?? $request->header('x-webhook-secret') 
+                  ?? $request->input('secret_key');
+
+        $secretKey = trim((string) $secretKey);
         $validSecret = 'SECRET_KEY_INDOJAR_123'; // Samakan dengan kunci di Cloudflare Worker kamu
 
         if ($secretKey !== $validSecret) {
