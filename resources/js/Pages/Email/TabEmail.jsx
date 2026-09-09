@@ -136,11 +136,20 @@ export default function TabEmail({
             variant: 'danger',
             onConfirm: () => {
                 setIsProcessing(true);
-                selectedIds.forEach((id) => {
-                    router.delete(route(deleteRouteName, id), { preserveScroll: true });
+                Promise.all(
+                    selectedIds.map((id) => 
+                        new Promise((resolve) => {
+                            router.delete(route(deleteRouteName, id), { 
+                                preserveScroll: true,
+                                onSuccess: resolve,
+                                onError: resolve,
+                            });
+                        })
+                    )
+                ).then(() => {
+                    setSelectedIds([]);
+                    setIsProcessing(false);
                 });
-                setSelectedIds([]);
-                setIsProcessing(false);
             },
         });
     };

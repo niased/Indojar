@@ -12,7 +12,13 @@ use App\Http\Controllers\ProjectController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// 0. Webhook Email Masuk (Public - Tanpa Auth)
+/*
+|--------------------------------------------------------------------------
+| Web Routes - PT Indojar Mulia Abadi
+|--------------------------------------------------------------------------
+*/
+
+// 0. Webhook Email Masuk (Public - Tanpa Middleware Auth)
 Route::post('/webhooks/incoming-email', [InboundEmailController::class, 'store']);
 Route::post('/webhooks/resend/inbound', [EmailController::class, 'handleInboundWebhook']);
 
@@ -43,8 +49,14 @@ Route::get('/kontak', function () {
     return Inertia::render('Welcome/Contant');
 })->name('contact');
 
+/*
+|--------------------------------------------------------------------------
+| Authenticated Routes (Butuh Login)
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth'])->group(function () {
-    // 6. Dashboard Utama PT Indojar Mulia Abadi
+
+    // 6. Dashboard Utama
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/home', fn () => redirect()->route('dashboard'))->name('home');
 
@@ -61,7 +73,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}', 'destroy')->name('destroy');
     });
 
-    // 8. Pengelolaan Pekerjaan WBS (Melekat pada Detail Site)
+    // 8. Pengelolaan Pekerjaan WBS
     Route::prefix('pekerjaan')->name('pekerjaan.')->controller(PekerjaanController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/', 'store')->name('store');
@@ -72,7 +84,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}', 'destroy')->name('destroy');
     });
 
-    // 9. Master Data Kamus (Area, SOW, & Tahapan Konstruksi)
+    // 9. Master Data Kamus (Area, SOW, & Tahapan)
     Route::prefix('master-data')->name('master-data.')->controller(MasterDataController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         
@@ -118,13 +130,13 @@ Route::middleware(['auth'])->group(function () {
 
     // 13. Kelola Email (Resend API Integration)
     Route::prefix('emails')->name('emails.')->controller(EmailController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/inbox', 'inbox')->name('inbox');
-        Route::get('/inbound/{id}', 'showInbound')->name('inbound.show'); // Rute baru untuk baca pesan & auto read
-        Route::post('/send', 'send')->name('send');
-        Route::patch('/inbound/{id}/read', 'markAsRead')->name('inbound.read');
-        Route::delete('/inbound/{id}', 'destroyInbound')->name('inbound.destroy');
-        Route::delete('/{id}', 'destroy')->name('destroy');
+        Route::get('/', 'index')->name('index');                           // Riwayat Outbox
+        Route::get('/inbox', 'inbox')->name('inbox');                       // Kotak Masuk Inbox
+        Route::get('/inbound/{id}', 'showInbound')->name('inbound.show');   // Detail email inbound
+        Route::post('/send', 'send')->name('send');                         // Kirim email / Balas
+        Route::patch('/inbound/{id}/read', 'markAsRead')->name('inbound.read'); // Tandai terbaca
+        Route::delete('/inbound/{id}', 'destroyInbound')->name('inbound.destroy'); // Hapus inbound
+        Route::delete('/{id}', 'destroy')->name('destroy');                 // Hapus outbox
     });
 });
 

@@ -44,10 +44,12 @@ export default function EmailInbox({ auth, inboundEmails, filters }) {
     };
 
     const handleOpenDetail = (emailItem) => {
-        setSelectedEmail(emailItem);
+        // Optimistic update: langsung ubah is_read di state lokal
+        setSelectedEmail({ ...emailItem, is_read: true });
         setIsDetailOpen(true);
         setIsReplyMode(false);
 
+        // Kirim patch request jika status sebelumnya unread
         if (!emailItem.is_read) {
             router.patch(route('emails.inbound.read', emailItem.id), {}, {
                 preserveScroll: true,
