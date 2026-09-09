@@ -9,6 +9,11 @@ class EmailLog extends Model
 {
     use HasFactory;
 
+    /**
+     * Nama koneksi database khusus email (CockroachDB)
+     */
+    protected $connection = 'email_db';
+
     protected $fillable = [
         'user_id',
         'sender',
@@ -20,7 +25,7 @@ class EmailLog extends Model
         'error_message',
     ];
 
-    // Relasi ke User yang mengirim email
+    // Relasi ke User yang mengirim email (tetap bisa digunakan di Eloquent)
     public function user()
     {
         return $this->belongsTo(User::class);

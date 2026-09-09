@@ -10,6 +10,11 @@ class InboundEmail extends Model
     use HasFactory;
 
     /**
+     * Nama koneksi database khusus email (CockroachDB)
+     */
+    protected $connection = 'email_db';
+
+    /**
      * Nama tabel di database
      */
     protected $table = 'inbound_emails';

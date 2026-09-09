@@ -17,6 +17,7 @@ class EmailController extends Controller
      */
     public function index(Request $request)
     {
+        // Eloquent otomatis membaca koneksi email_db dari model EmailLog
         $emailLogs = EmailLog::with('user:id,name,email')
             ->when($request->search, function ($query, $search) {
                 $query->where('recipient', 'like', "%{$search}%")
@@ -38,6 +39,7 @@ class EmailController extends Controller
      */
     public function inbox(Request $request)
     {
+        // Eloquent otomatis membaca koneksi email_db dari model InboundEmail
         $inboundEmails = InboundEmail::query()
             ->when($request->search, function ($query, $search) {
                 $query->where('from_email', 'like', "%{$search}%")
@@ -69,7 +71,7 @@ class EmailController extends Controller
         try {
             $fromName = config('mail.from.name', 'PT Indojar Mulia Abadi');
 
-            // 1. Eksekusi Pengiriman via Resend API dengan pengirim dinamis
+            // 1. Eksekusi Pengiriman via Resend API
             $response = Resend::emails()->send([
                 'from'    => "{$fromName} <{$request->sender}>",
                 'to'      => [$request->recipient],
@@ -77,10 +79,10 @@ class EmailController extends Controller
                 'html'    => nl2br(e($request->body)),
             ]);
 
-            // Ambil ID dari response Resend secara aman
+            // Ambil ID dari response Resend
             $resendId = data_get($response, 'id');
 
-            // 2. Simpan Riwayat Berhasil (Status: sent)
+            // 2. Simpan Riwayat Berhasil ke CockroachDB (Status: sent)
             EmailLog::create([
                 'user_id'   => Auth::id(),
                 'sender'    => $request->sender,
@@ -94,7 +96,7 @@ class EmailController extends Controller
             return back()->with('success', 'Email berhasil dikirim ke ' . $request->recipient);
 
         } catch (Exception $e) {
-            // 3. Simpan Riwayat Gagal (Status: failed)
+            // 3. Simpan Riwayat Gagal ke CockroachDB (Status: failed)
             EmailLog::create([
                 'user_id'       => Auth::id(),
                 'sender'        => $request->sender,
@@ -147,13 +149,11 @@ class EmailController extends Controller
      */
     public function handleInboundWebhook(Request $request)
     {
-        // Resend mengirim event tipe 'email.received' saat ada email masuk
         $eventType = $request->input('type');
 
         if ($eventType === 'email.received') {
             $data = $request->input('data', []);
 
-            // Ekstrak data pengirim & penerima dari payload Resend
             $fromEmail  = data_get($data, 'from');
             $senderName = data_get($data, 'headers.from_name') ?? $fromEmail;
             
@@ -162,7 +162,7 @@ class EmailController extends Controller
                 $toEmail = $toEmail[0] ?? 'admin@indojar.com';
             }
 
-            // Simpan otomatis ke tabel inbound_emails
+            // Simpan otomatis ke tabel inbound_emails di CockroachDB
             InboundEmail::create([
                 'from_email'  => $fromEmail,
                 'sender_name' => $senderName,
