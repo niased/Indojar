@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Api\InboundEmailController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmailController;
 use App\Http\Controllers\LaporanController;
@@ -10,6 +11,10 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+// 0. Webhook Email Masuk (Public - Tanpa Auth)
+Route::post('/webhooks/incoming-email', [InboundEmailController::class, 'store']);
+Route::post('/webhooks/resend/inbound', [EmailController::class, 'handleInboundWebhook']);
 
 // 1. Halaman Profil Resmi Perusahaan (Landing Page)
 Route::get('/', function () {
@@ -52,7 +57,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/reset', 'reset')->name('reset');
         Route::get('/{id}', 'show')->name('show');
         Route::put('/{id}', 'update')->name('update');
-        Route::put('/{id}/stages', 'updateStages')->name('stages.update'); // Kelola tahapan & bobot proyek
+        Route::put('/{id}/stages', 'updateStages')->name('stages.update');
         Route::delete('/{id}', 'destroy')->name('destroy');
     });
 

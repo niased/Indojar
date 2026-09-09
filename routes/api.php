@@ -9,11 +9,6 @@ use App\Http\Controllers\Api\InboundEmailController;
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
-|
-| Catatan:
-| Semua endpoint /api/combat dan /api/track sekarang sudah dipusatkan
-| di dalam routes/web.php agar session login Inertia & CSRF bekerja 100% lancar.
-|
 */
 
 Route::get('/user', function (Request $request) {

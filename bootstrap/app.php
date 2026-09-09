@@ -22,16 +22,17 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        // 👉 KECUALIKAN CSRF UNTUK SEMUA ENDPOINT AJAX
+        // 👉 KECUALIKAN CSRF UNTUK WEBHOCK & ENDPOINT API
         $middleware->validateCsrfTokens(except: [
             'combat-api/*',
             'track-api/*',
+            'webhooks/*',
             'api/*'
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('combat-api/*') || $request->is('track-api/*') || $request->is('api/*'),
+            fn (Request $request) => $request->is('combat-api/*') || $request->is('track-api/*') || $request->is('api/*') || $request->is('webhooks/*'),
         );
 
         $exceptions->respond(function (Response $response, Throwable $exception, Request $request) {
