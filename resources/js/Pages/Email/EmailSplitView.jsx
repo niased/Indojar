@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { router, useForm } from '@inertiajs/react';
 import PanelFolder from './PanelFolder';
 import PanelEmailList from './PanelEmailList';
@@ -13,12 +13,26 @@ export default function EmailSplitView({
     mode = 'inbox',
     onOpenCreateModal
 }) {
-    const emailsList = dataEmails?.data || [];
+    const rawEmailsList = dataEmails?.data || [];
     
+    const [selectedAccount, setSelectedAccount] = useState('ALL');
     const [selectedThread, setSelectedThread] = useState(null);
     const [isReplyMode, setIsReplyMode] = useState(false);
     const [isForwardMode, setIsForwardMode] = useState(false);
     const [searchTerm, setSearchTerm] = useState(filters?.search || '');
+
+    // Filter email berdasarkan akun yang dipilih di Panel 1
+    const filteredEmailsList = useMemo(() => {
+        if (selectedAccount === 'ALL') return rawEmailsList;
+
+        return rawEmailsList.filter((email) => {
+            if (mode === 'inbox') {
+                return (email.to_email || '').toLowerCase() === selectedAccount.toLowerCase();
+            } else {
+                return (email.sender || '').toLowerCase() === selectedAccount.toLowerCase();
+            }
+        });
+    }, [rawEmailsList, selectedAccount, mode]);
 
     const replyForm = useForm({
         sender: 'admin@indojar.com',
@@ -29,9 +43,11 @@ export default function EmailSplitView({
 
     const senderOptions = [
         { label: 'Admin Utama (admin@indojar.com)', value: 'admin@indojar.com' },
-        { label: 'Informasi General (info@indojar.com)', value: 'info@indojar.com' },
+        { label: 'Finance (finance@indojar.com)', value: 'finance@indojar.com' },
         { label: 'Layanan & Support (support@indojar.com)', value: 'support@indojar.com' },
         { label: 'Project Management (project@indojar.com)', value: 'project@indojar.com' },
+        { label: 'Ikhsan (ikhsan@indojar.com)', value: 'ikhsan@indojar.com' },
+        { label: 'AriPraba (aripraba@indojar.com)', value: 'aripraba@indojar.com' },
     ];
 
     const formatDate = (dateStr) => {
@@ -56,7 +72,7 @@ export default function EmailSplitView({
 
         const currentThreadKey = selectedThread.id;
         
-        const remainingEmails = emailsList.filter((email) => {
+        const remainingEmails = filteredEmailsList.filter((email) => {
             const normSubject = (email.subject || '').replace(/^Re:\s*/i, '').replace(/^Fwd:\s*/i, '').trim().toLowerCase();
             const senderKey = mode === 'inbox' ? (email.from_email || '').toLowerCase() : (email.recipient || '').toLowerCase();
             return `${senderKey}_${normSubject}` === currentThreadKey;
@@ -71,7 +87,7 @@ export default function EmailSplitView({
                 latestEmail: remainingEmails[remainingEmails.length - 1] || remainingEmails[0],
             }));
         }
-    }, [dataEmails]);
+    }, [filteredEmailsList]);
 
     const handleSelectThread = (thread) => {
         setSelectedThread(thread);
@@ -92,7 +108,6 @@ export default function EmailSplitView({
         }
     };
 
-    // TOGGLE FAVORIT (BINTANG)
     const handleToggleFavorite = (emailId) => {
         if (!emailId) return;
         router.patch(route('emails.inbound.favorite', emailId), {}, {
@@ -101,7 +116,6 @@ export default function EmailSplitView({
         });
     };
 
-    // BLOKIR PENGIRIM
     const handleBlockSender = (senderEmail) => {
         if (!senderEmail) return;
         if (window.confirm(`Apakah Anda yakin ingin memblokir dan menghapus semua pesan dari ${senderEmail}?`)) {
@@ -157,13 +171,15 @@ export default function EmailSplitView({
         if (onSearch) onSearch(searchTerm);
     };
 
-    const unreadCount = mode === 'inbox' ? emailsList.filter((e) => !e.is_read).length : 0;
+    const unreadCount = mode === 'inbox' 
+        ? filteredEmailsList.filter((e) => !e.is_read).length 
+        : 0;
 
     return (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden min-h-[680px] flex flex-col">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-400/80 dark:border-slate-800 shadow-xl shadow-slate-200/60 dark:shadow-none overflow-hidden min-h-[680px] flex flex-col transition-all">
             
             {/* TOOLBAR ATAS */}
-            <div className="p-3.5 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="p-3.5 bg-slate-100/70 dark:bg-slate-900 border-b border-slate-400 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div className="flex items-center justify-between w-full sm:w-auto gap-3">
                     <div className="flex items-center gap-2">
                         {mode === 'inbox' ? (
@@ -196,7 +212,7 @@ export default function EmailSplitView({
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder={mode === 'inbox' ? "Cari pengirim, subjek..." : "Cari penerima, subjek..."}
-                            className="w-full pl-8 pr-8 py-1.5 text-xs bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200"
+                            className="w-full pl-8 pr-8 py-1.5 text-xs bg-white dark:bg-slate-950 border border-slate-400 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200 shadow-2xs"
                         />
                         {searchTerm && (
                             <button
@@ -226,11 +242,19 @@ export default function EmailSplitView({
             </div>
 
             {/* AREA UTAMA 3 PANEL */}
-            <div className="grid grid-cols-1 md:grid-cols-12 flex-1 divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-slate-800">
-                <PanelFolder mode={mode} unreadCount={unreadCount} />
+            <div className="grid grid-cols-1 md:grid-cols-12 flex-1 divide-y md:divide-y-0 md:divide-x divide-slate-200/90 dark:divide-slate-800">
+                <PanelFolder 
+                    mode={mode} 
+                    unreadCount={unreadCount} 
+                    selectedAccount={selectedAccount}
+                    onSelectAccount={(acc) => {
+                        setSelectedAccount(acc);
+                        setSelectedThread(null); // Reset thread terpilih saat berganti akun
+                    }}
+                />
 
                 <PanelEmailList
-                    emailsList={emailsList}
+                    emailsList={filteredEmailsList}
                     selectedThread={selectedThread}
                     onSelectThread={handleSelectThread}
                     mode={mode}
