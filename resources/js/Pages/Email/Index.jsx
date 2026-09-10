@@ -11,9 +11,11 @@ export default function EmailIndex({ auth, emailLogs, filters }) {
 
     const senderOptions = [
         { label: 'Admin Utama (admin@indojar.com)', value: 'admin@indojar.com' },
-        { label: 'Informasi General (info@indojar.com)', value: 'info@indojar.com' },
+        { label: 'Finance (finance@indojar.com)', value: 'finance@indojar.com' },
         { label: 'Layanan & Support (support@indojar.com)', value: 'support@indojar.com' },
         { label: 'Project Management (project@indojar.com)', value: 'project@indojar.com' },
+        { label: 'Ikhsan (ikhsan@indojar.com)', value: 'ikhsan@indojar.com' },
+        { label: 'AriPraba (aripraba@indojar.com)', value: 'aripraba@indojar.com' },
     ];
 
     const sendForm = useForm({
