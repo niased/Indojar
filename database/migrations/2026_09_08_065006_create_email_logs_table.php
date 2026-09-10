@@ -39,6 +39,7 @@ return new class extends Migration
             $table->longText('html_body')->nullable();
             $table->longText('text_body')->nullable();
             $table->boolean('is_read')->default(false);
+            $table->boolean('is_starred')->default(false); // Kolom untuk fitur Favorit
             $table->timestamps();
         });
     }

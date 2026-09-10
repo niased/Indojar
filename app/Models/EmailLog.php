@@ -25,7 +25,14 @@ class EmailLog extends Model
         'error_message',
     ];
 
-    // Relasi ke User yang mengirim email (tetap bisa digunakan di Eloquent)
+    /**
+     * Konversi tipe data otomatis (casting)
+     */
+    protected $casts = [
+        'id' => 'string', // Mencegah kerusakan angka BigInt CockroachDB di JavaScript/Inertia
+    ];
+
+    // Relasi ke User yang mengirim email
     public function user()
     {
         return $this->belongsTo(User::class);

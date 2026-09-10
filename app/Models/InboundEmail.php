@@ -30,13 +30,15 @@ class InboundEmail extends Model
         'html_body',
         'text_body',
         'is_read',
+        'is_starred',
     ];
 
     /**
      * Konversi tipe data otomatis (casting)
      */
     protected $casts = [
-        'id'      => 'string', // Mencegah kerusakan angka 19 digit (BigInt) di JavaScript/Inertia
-        'is_read' => 'boolean',
+        'id'         => 'string', // Mencegah kerusakan angka 19 digit (BigInt) di JavaScript/Inertia
+        'is_read'    => 'boolean',
+        'is_starred' => 'boolean',
     ];
 }

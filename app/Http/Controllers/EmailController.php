@@ -25,7 +25,7 @@ class EmailController extends Controller
                       ->orWhere('sender', 'like', "%{$search}%");
             })
             ->latest()
-            ->paginate(10)
+            ->paginate(20)
             ->withQueryString();
 
         return Inertia::render('Email/Index', [
@@ -46,7 +46,7 @@ class EmailController extends Controller
                       ->orWhere('subject', 'like', "%{$search}%");
             })
             ->latest()
-            ->paginate(10)
+            ->paginate(30)
             ->withQueryString();
 
         return Inertia::render('Email/Inbox', [
@@ -67,6 +67,8 @@ class EmailController extends Controller
             'body'      => 'required|string',
         ]);
 
+        $cleanSubject = trim(str_replace('"', '', $request->subject));
+
         try {
             $fromName = config('mail.from.name', 'PT Indojar Mulia Abadi');
 
@@ -74,19 +76,18 @@ class EmailController extends Controller
             $response = Resend::emails()->send([
                 'from'    => "{$fromName} <{$request->sender}>",
                 'to'      => [$request->recipient],
-                'subject' => $request->subject,
+                'subject' => $cleanSubject,
                 'html'    => nl2br(e($request->body)),
             ]);
 
-            // Ambil ID dari response Resend
             $resendId = data_get($response, 'id');
 
-            // 2. Simpan Riwayat Berhasil ke CockroachDB (Status: sent)
+            // 2. Simpan Riwayat Berhasil (Status: sent)
             EmailLog::create([
                 'user_id'   => Auth::id(),
                 'sender'    => $request->sender,
                 'recipient' => $request->recipient,
-                'subject'   => $request->subject,
+                'subject'   => $cleanSubject,
                 'body'      => $request->body,
                 'status'    => 'sent',
                 'resend_id' => $resendId,
@@ -95,12 +96,14 @@ class EmailController extends Controller
             return back()->with('success', 'Email berhasil dikirim ke ' . $request->recipient);
 
         } catch (Exception $e) {
-            // 3. Simpan Riwayat Gagal ke CockroachDB (Status: failed)
+            Log::error('Gagal Mengirim Email Outbox: ' . $e->getMessage());
+
+            // 3. Simpan Riwayat Gagal (Status: failed)
             EmailLog::create([
                 'user_id'       => Auth::id(),
                 'sender'        => $request->sender,
                 'recipient'     => $request->recipient,
-                'subject'       => $request->subject,
+                'subject'       => $cleanSubject,
                 'body'          => $request->body,
                 'status'        => 'failed',
                 'error_message' => $e->getMessage(),
@@ -110,42 +113,89 @@ class EmailController extends Controller
         }
     }
 
-   /**
+    /**
      * Tandai email masuk sebagai sudah dibaca (Read).
      */
     public function markAsRead($id)
     {
-        // Cari email berdasarkan ID
-        $email = InboundEmail::find($id);
-        
-        if ($email && !$email->is_read) {
-            $email->update(['is_read' => true]);
+        try {
+            $email = InboundEmail::find($id);
+            
+            if ($email && !$email->is_read) {
+                $email->update(['is_read' => true]);
+            }
+        } catch (Exception $e) {
+            Log::error('Gagal memperbarui status read email: ' . $e->getMessage());
         }
 
-        // Selalu kembalikan back() agar Inertia tidak error
         return back();
     }
 
     /**
-     * Hapus catatan riwayat email terkirim.
+     * Toggle status favorit (is_starred) email masuk.
      */
-    public function destroy(int|string $id)
+    public function toggleFavorite($id)
     {
-        $log = EmailLog::findOrFail($id);
-        $log->delete();
+        try {
+            $email = InboundEmail::findOrFail($id);
+            $email->update(['is_starred' => !$email->is_starred]);
 
-        return back()->with('success', 'Riwayat email berhasil dihapus.');
+            return back()->with('success', 'Status favorit berhasil diperbarui.');
+        } catch (Exception $e) {
+            Log::error('Gagal memperbarui favorit: ' . $e->getMessage());
+            return back()->with('error', 'Gagal memperbarui status favorit.');
+        }
     }
 
     /**
-     * Hapus email masuk dari kotak masuk.
+     * Blokir pengirim dan hapus semua email dari pengirim tersebut.
+     */
+    public function blockSender(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        try {
+            InboundEmail::where('from_email', $request->email)->delete();
+
+            return back()->with('success', "Semua email dari {$request->email} berhasil diblokir dan dihapus.");
+        } catch (Exception $e) {
+            Log::error('Gagal memblokir pengirim: ' . $e->getMessage());
+            return back()->with('error', 'Gagal memblokir pengirim.');
+        }
+    }
+
+    /**
+     * Hapus catatan riwayat email terkirim (Outbox).
+     */
+    public function destroy(int|string $id)
+    {
+        try {
+            $log = EmailLog::findOrFail($id);
+            $log->delete();
+
+            return back()->with('success', 'Riwayat email berhasil dihapus.');
+        } catch (Exception $e) {
+            Log::error('Gagal menghapus log email outbox: ' . $e->getMessage());
+            return back()->with('error', 'Gagal menghapus riwayat email.');
+        }
+    }
+
+    /**
+     * Hapus email masuk dari kotak masuk (Inbox).
      */
     public function destroyInbound(int|string $id)
     {
-        $email = InboundEmail::findOrFail($id);
-        $email->delete();
+        try {
+            $email = InboundEmail::findOrFail($id);
+            $email->delete();
 
-        return back()->with('success', 'Email masuk berhasil dihapus.');
+            return back()->with('success', 'Email masuk berhasil dihapus.');
+        } catch (Exception $e) {
+            Log::error('Gagal menghapus email masuk: ' . $e->getMessage());
+            return back()->with('error', 'Gagal menghapus email masuk.');
+        }
     }
 
     /**
@@ -159,19 +209,21 @@ class EmailController extends Controller
             $data = $request->input('data', []);
 
             $fromEmail  = data_get($data, 'from');
-            $senderName = data_get($data, 'headers.from_name') ?? $fromEmail;
+            $rawSender  = data_get($data, 'headers.from_name') ?? $fromEmail;
             
+            $senderName = trim(str_replace('"', '', $rawSender));
+            $subject    = trim(str_replace('"', '', data_get($data, 'subject', '(Tanpa Subjek)')));
+
             $toEmail = data_get($data, 'to');
             if (is_array($toEmail)) {
                 $toEmail = $toEmail[0] ?? 'admin@indojar.com';
             }
 
-            // Simpan otomatis ke tabel inbound_emails di CockroachDB
             InboundEmail::create([
                 'from_email'  => $fromEmail,
-                'sender_name' => $senderName,
+                'sender_name' => $senderName ?: $fromEmail,
                 'to_email'    => $toEmail,
-                'subject'     => data_get($data, 'subject', '(Tanpa Subjek)'),
+                'subject'     => $subject,
                 'html_body'   => data_get($data, 'html'),
                 'text_body'   => data_get($data, 'text'),
                 'is_read'     => false,

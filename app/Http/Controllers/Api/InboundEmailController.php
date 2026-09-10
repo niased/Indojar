@@ -40,17 +40,24 @@ class InboundEmailController extends Controller
             'text_body'   => 'nullable|string',
         ]);
 
-        // 3. Bersihkan isi email mentah (Raw MIME) menggunakan PHP Parser
+        // 3. Bersihkan nama pengirim & subjek dari karakter tanda petik ganda "
+        $senderName = $validated['sender_name'] ?? $validated['from_email'];
+        $senderName = trim(str_replace('"', '', $senderName));
+
+        $subject = $validated['subject'] ?? '(Tanpa Subjek)';
+        $subject = trim(str_replace('"', '', $subject));
+
+        // 4. Bersihkan isi email mentah (Raw MIME) menggunakan PHP Parser
         $rawContent = $validated['html_body'] ?? $validated['text_body'] ?? '';
         $cleanBody  = $this->parseRawMimeBody($rawContent);
 
         try {
-            // 4. Simpan data email bersih ke tabel inbound_emails
+            // 5. Simpan data email bersih ke tabel inbound_emails
             $email = InboundEmail::create([
                 'from_email'  => $validated['from_email'],
-                'sender_name' => $validated['sender_name'] ?? $validated['from_email'],
+                'sender_name' => $senderName ?: $validated['from_email'],
                 'to_email'    => $validated['to_email'],
-                'subject'     => $validated['subject'] ?? '(Tanpa Subjek)',
+                'subject'     => $subject,
                 'html_body'   => $cleanBody['html'],
                 'text_body'   => $cleanBody['text'],
                 'is_read'     => false,
@@ -81,7 +88,6 @@ class InboundEmailController extends Controller
             return ['text' => '', 'html' => ''];
         }
 
-        // Jika data tidak mengandung header MIME, kembalikan langsung
         if (!str_contains($raw, 'Received:') && !str_contains($raw, 'Content-Type:')) {
             return ['text' => trim($raw), 'html' => trim($raw)];
         }
@@ -89,7 +95,6 @@ class InboundEmailController extends Controller
         $textBody = '';
         $htmlBody = '';
 
-        // Ekstrak boundary jika email berformat multipart
         if (preg_match('/boundary="?([^"\r\n]+)"?/i', $raw, $matches)) {
             $boundary = $matches[1];
             $parts = explode('--' . $boundary, $raw);
@@ -105,7 +110,6 @@ class InboundEmailController extends Controller
                 }
             }
         } else {
-            // Ambil konten setelah baris kosong ganda pertama (setelah header)
             $splits = preg_split('/\r?\n\r?\n/', $raw, 2);
             $textBody = $splits[1] ?? $raw;
         }
@@ -129,15 +133,11 @@ class InboundEmailController extends Controller
         $header = $splits[0];
         $body   = $splits[1];
 
-        // Hapus penutup boundary di akhir teks
         $body = preg_replace('/--\s*$/', '', $body);
 
-        // Decode Quoted-Printable (=C2=A0 -> spasi, dll)
         if (stripos($header, 'Content-Transfer-Encoding: quoted-printable') !== false) {
             $body = quoted_printable_decode($body);
-        }
-        // Decode Base64 jika ada
-        elseif (stripos($header, 'Content-Transfer-Encoding: base64') !== false) {
+        } elseif (stripos($header, 'Content-Transfer-Encoding: base64') !== false) {
             $body = base64_decode($body);
         }
 

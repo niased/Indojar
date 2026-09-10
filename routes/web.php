@@ -60,7 +60,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/home', fn () => redirect()->route('dashboard'))->name('home');
 
-    // 7. Master Proyek, Progress Lapangan & Dokumentasi
+    // 7. Master Proyek
     Route::prefix('project')->name('project.')->controller(ProjectController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/', 'store')->name('store');
@@ -128,15 +128,16 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{user}', 'destroy')->name('destroy');
     });
 
-    // 13. Kelola Email (Resend API Integration)
+    // 13. Kelola Email (Resend API & Inbound Management)
     Route::prefix('emails')->name('emails.')->controller(EmailController::class)->group(function () {
-        Route::get('/', 'index')->name('index');                           // Riwayat Outbox
-        Route::get('/inbox', 'inbox')->name('inbox');                       // Kotak Masuk Inbox
-        // Route::get('/inbound/{id}', 'showInbound')->name('inbound.show'); // Dinonaktifkan (pakai Modal)
-        Route::post('/send', 'send')->name('send');                         // Kirim email / Balas
-        Route::patch('/inbound/{id}/read', 'markAsRead')->name('inbound.read'); // Tandai terbaca
-        Route::delete('/inbound/{id}', 'destroyInbound')->name('inbound.destroy'); // Hapus inbound
-        Route::delete('/{id}', 'destroy')->name('destroy');                 // Hapus outbox
+        Route::get('/', 'index')->name('index');                                    // Riwayat Outbox
+        Route::get('/inbox', 'inbox')->name('inbox');                                // Kotak Masuk Inbox
+        Route::post('/send', 'send')->name('send');                                  // Kirim email / Balas
+        Route::patch('/inbound/{id}/read', 'markAsRead')->name('inbound.read');      // Tandai terbaca
+        Route::patch('/inbound/{id}/favorite', 'toggleFavorite')->name('inbound.favorite'); // Toggle Favorit
+        Route::post('/inbound/block', 'blockSender')->name('inbound.block');          // Blokir Pengirim
+        Route::delete('/inbound/{id}', 'destroyInbound')->name('inbound.destroy');  // Hapus inbound
+        Route::delete('/{id}', 'destroy')->name('destroy');                          // Hapus outbox
     });
 });
 
